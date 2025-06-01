@@ -1,0 +1,14 @@
+{
+  "name": "seed-demo",
+  "version": "1.0.0",
+  "description": "A JavaScript seed project",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/example.test.js",
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
