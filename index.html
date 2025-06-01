@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallet Tools</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 430px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -4px 40px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 60px 24px 40px;
+      text-align: center;
+      color: white;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+    }
+
+    .language-toggle {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 6px 12px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .language-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: none;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      font-weight: 400;
+    }
+
+    .content {
+      padding: 32px 24px 40px;
+      background: white;
+    }
+
+    .tools-grid {
+      display: grid;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .tool-card {
+      background: #fafbfc;
+      border: 2px solid #f1f3f4;
+      border-radius: 20px;
+      padding: 24px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .tool-card:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+      background: white;
+    }
+
+    .tool-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .tool-icon {
+      font-size: 2rem;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      color: white;
+    }
+
+    .tool-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: -0.3px;
+    }
+
+    .tool-description {
+      color: #6b7280;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .tool-features {
+      list-style: none;
+      padding: 0;
+    }
+
+    .tool-features li {
+      color: #4b5563;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .tool-features li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .coming-soon {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .coming-soon .tool-icon {
+      background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+    }
+
+    .coming-soon-badge {
+      display: inline-block;
+      background: #f3f4f6;
+      color: #6b7280;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: #6b7280;
+      font-size: 0.85rem;
+      border-top: 1px solid #f1f3f4;
+      background: #fafbfc;
+    }
+
+    .footer a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 0;
+      }
+
+      .container {
+        margin: 0;
+        border-radius: 0;
+        max-width: 100%;
+      }
+
+      .header {
+        padding: 50px 20px 30px;
+        border-radius: 0;
+      }
+
+      .language-toggle {
+        right: 20px;
+        font-size: 0.8rem;
+        padding: 5px 10px;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .header p {
+        font-size: 0.85rem;
+      }
+
+      .content {
+        padding: 24px 20px 32px;
+      }
+
+      .tool-card {
+        padding: 20px;
+        border-radius: 16px;
+      }
+
+      .tool-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+        border-radius: 10px;
+      }
+
+      .tool-title {
+        font-size: 1.1rem;
+      }
+
+      .tool-description {
+        font-size: 0.9rem;
+      }
+
+      .tool-features li {
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 375px) {
+      .header {
+        padding: 40px 16px 24px;
+      }
+
+      .language-toggle {
+        right: 16px;
+        font-size: 0.75rem;
+        padding: 4px 8px;
+      }
+
+      .content {
+        padding: 20px 16px 24px;
+      }
+
+      .tool-card {
+        padding: 16px;
+        border-radius: 12px;
+      }
+
+      .tool-header {
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .tool-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.25rem;
+        border-radius: 8px;
+      }
+
+      .tool-title {
+        font-size: 1rem;
+      }
+
+      .tool-description {
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+      }
+
+      .tool-features li {
+        font-size: 0.75rem;
+        margin-bottom: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <button class="language-toggle" onclick="toggleLanguage()">中文</button>
+      <h1 data-i18n="title">Crypto Wallet Tools</h1>
+      <p data-i18n="subtitle">Secure cryptocurrency wallet generation and utilities</p>
+    </div>
+    
+    <div class="content">
+      <div class="tools-grid">
+        <a href="brain-wallet.html" class="tool-card">
+          <div class="tool-header">
+            <div class="tool-icon">🧠</div>
+            <h2 class="tool-title" data-i18n="brainWalletTitle">Brain Wallet Generator</h2>
+          </div>
+          <p class="tool-description" data-i18n="brainWalletDesc">
+            Generate Bitcoin wallets from memorable text using deterministic seed generation.
+          </p>
+          <ul class="tool-features">
+            <li data-i18n="feature1">Generate from any text input</li>
+            <li data-i18n="feature2">Support for Legacy, SegWit, and Native SegWit</li>
+            <li data-i18n="feature3">QR code generation for easy backup</li>
+            <li data-i18n="feature4">Wallet usage verification</li>
+            <li data-i18n="feature5">Mobile-optimized interface</li>
+          </ul>
+        </a>
+
+        <div class="tool-card coming-soon">
+          <div class="tool-header">
+            <div class="tool-icon">🔐</div>
+            <h2 class="tool-title" data-i18n="hdWalletTitle">HD Wallet Generator</h2>
+          </div>
+          <p class="tool-description" data-i18n="hdWalletDesc">
+            Create hierarchical deterministic wallets with standard BIP39 mnemonic phrases.
+          </p>
+          <ul class="tool-features">
+            <li data-i18n="hdFeature1">Standard BIP39 mnemonic generation</li>
+            <li data-i18n="hdFeature2">Multiple derivation paths</li>
+            <li data-i18n="hdFeature3">Multi-currency support</li>
+            <li data-i18n="hdFeature4">Advanced entropy options</li>
+          </ul>
+          <div class="coming-soon-badge" data-i18n="comingSoon">Coming Soon</div>
+        </div>
+
+        <div class="tool-card coming-soon">
+          <div class="tool-header">
+            <div class="tool-icon">📊</div>
+            <h2 class="tool-title" data-i18n="analyzerTitle">Address Analyzer</h2>
+          </div>
+          <p class="tool-description" data-i18n="analyzerDesc">
+            Analyze Bitcoin addresses and view detailed transaction history and statistics.
+          </p>
+          <ul class="tool-features">
+            <li data-i18n="analyzerFeature1">Address validation and analysis</li>
+            <li data-i18n="analyzerFeature2">Transaction history viewer</li>
+            <li data-i18n="analyzerFeature3">Balance and UTXO information</li>
+            <li data-i18n="analyzerFeature4">Address clustering analysis</li>
+          </ul>
+          <div class="coming-soon-badge" data-i18n="comingSoon">Coming Soon</div>
+        </div>
+
+        <div class="tool-card coming-soon">
+          <div class="tool-header">
+            <div class="tool-icon">🔄</div>
+            <h2 class="tool-title" data-i18n="builderTitle">Transaction Builder</h2>
+          </div>
+          <p class="tool-description" data-i18n="builderDesc">
+            Build and sign Bitcoin transactions with advanced features and fee optimization.
+          </p>
+          <ul class="tool-features">
+            <li data-i18n="builderFeature1">Custom transaction builder</li>
+            <li data-i18n="builderFeature2">Fee estimation and optimization</li>
+            <li data-i18n="builderFeature3">Multi-signature support</li>
+            <li data-i18n="builderFeature4">RBF and CPFP options</li>
+          </ul>
+          <div class="coming-soon-badge" data-i18n="comingSoon">Coming Soon</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>
+        <span data-i18n="footerText">Open source crypto wallet tools</span> • 
+        <a href="https://github.com/zhuliang21/seed-demo" target="_blank" data-i18n="githubLink">View on GitHub</a>
+      </p>
+    </div>
+  </div>
+</body>
+<script>
+// Language support for index page
+const indexTranslations = {
+  en: {
+    title: 'Crypto Wallet Tools',
+    subtitle: 'Secure cryptocurrency wallet generation and utilities',
+    brainWalletTitle: 'Brain Wallet Generator',
+    brainWalletDesc: 'Generate Bitcoin wallets from memorable text using deterministic seed generation.',
+    feature1: 'Generate from any text input',
+    feature2: 'Support for Legacy, SegWit, and Native SegWit',
+    feature3: 'QR code generation for easy backup',
+    feature4: 'Wallet usage verification',
+    feature5: 'Mobile-optimized interface',
+    hdWalletTitle: 'HD Wallet Generator',
+    hdWalletDesc: 'Create hierarchical deterministic wallets with standard BIP39 mnemonic phrases.',
+    hdFeature1: 'Standard BIP39 mnemonic generation',
+    hdFeature2: 'Multiple derivation paths',
+    hdFeature3: 'Multi-currency support',
+    hdFeature4: 'Advanced entropy options',
+    analyzerTitle: 'Address Analyzer',
+    analyzerDesc: 'Analyze Bitcoin addresses and view detailed transaction history and statistics.',
+    analyzerFeature1: 'Address validation and analysis',
+    analyzerFeature2: 'Transaction history viewer',
+    analyzerFeature3: 'Balance and UTXO information',
+    analyzerFeature4: 'Address clustering analysis',
+    builderTitle: 'Transaction Builder',
+    builderDesc: 'Build and sign Bitcoin transactions with advanced features and fee optimization.',
+    builderFeature1: 'Custom transaction builder',
+    builderFeature2: 'Fee estimation and optimization',
+    builderFeature3: 'Multi-signature support',
+    builderFeature4: 'RBF and CPFP options',
+    comingSoon: 'Coming Soon',
+    footerText: 'Open source crypto wallet tools',
+    githubLink: 'View on GitHub'
+  },
+  zh: {
+    title: '加密钱包工具',
+    subtitle: '安全的加密货币钱包生成和实用工具',
+    brainWalletTitle: '脑钱包生成器',
+    brainWalletDesc: '从易记文本生成比特币钱包，使用确定性种子生成算法。',
+    feature1: '从任意文本输入生成',
+    feature2: '支持传统、隔离见证和原生隔离见证格式',
+    feature3: '二维码生成便于备份',
+    feature4: '钱包使用情况验证',
+    feature5: '移动端优化界面',
+    hdWalletTitle: 'HD钱包生成器',
+    hdWalletDesc: '使用标准BIP39助记词创建分层确定性钱包。',
+    hdFeature1: '标准BIP39助记词生成',
+    hdFeature2: '多种派生路径',
+    hdFeature3: '多币种支持',
+    hdFeature4: '高级熵选项',
+    analyzerTitle: '地址分析器',
+    analyzerDesc: '分析比特币地址并查看详细的交易历史和统计信息。',
+    analyzerFeature1: '地址验证和分析',
+    analyzerFeature2: '交易历史查看器',
+    analyzerFeature3: '余额和UTXO信息',
+    analyzerFeature4: '地址聚类分析',
+    builderTitle: '交易构建器',
+    builderDesc: '构建和签名比特币交易，具有高级功能和手续费优化。',
+    builderFeature1: '自定义交易构建器',
+    builderFeature2: '手续费估算和优化',
+    builderFeature3: '多重签名支持',
+    builderFeature4: 'RBF和CPFP选项',
+    comingSoon: '即将推出',
+    footerText: '开源加密钱包工具',
+    githubLink: '在GitHub上查看'
+  }
+};
+
+let currentLanguage = localStorage.getItem('language') || 'en';
+
+function updateTexts() {
+  const texts = indexTranslations[currentLanguage];
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    const key = element.getAttribute('data-i18n');
+    if (texts[key]) {
+      element.textContent = texts[key];
+    }
+  });
+
+  // Update language toggle button
+  const toggleBtn = document.querySelector('.language-toggle');
+  if (toggleBtn) {
+    toggleBtn.textContent = currentLanguage === 'en' ? '中文' : 'English';
+  }
+
+  // Update document language
+  document.documentElement.lang = currentLanguage;
+}
+
+function toggleLanguage() {
+  currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
+  localStorage.setItem('language', currentLanguage);
+  updateTexts();
+}
+
+// Initialize language on page load
+document.addEventListener('DOMContentLoaded', function() {
+  updateTexts();
+});
+</script>
+</html>

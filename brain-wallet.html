@@ -3,41 +3,799 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brain Wallet Demo</title>
+  <title>Brain Wallet Generator</title>
   <style>
-    .monospace {
-      font-family: monospace;
-      width: 100%;
+    * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
-      padding: 0.5em;
-      margin: 0.2em 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 430px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -4px 40px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 60px 24px 40px;
+      text-align: center;
+      color: white;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+    }
+
+    .back-link {
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s ease;
+      padding: 8px 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .back-link:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(-2px);
+    }
+
+    .language-toggle {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 6px 12px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .language-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: none;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      font-weight: 400;
+    }
+
+    .input-section {
+      padding: 24px;
+      background: white;
+      border-bottom: none;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 0;
+    }
+
+    #entropyInput {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid #f1f3f4;
+      border-radius: 16px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: #fafbfc;
+      color: #1a1a1a;
+      font-weight: 400;
+      text-align: center;
+    }
+
+    #entropyInput:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px) scale(1.01);
+      text-align: left;
+    }
+
+    #genMnemonic {
+      display: inline-block;
+      min-width: 120px;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    #genMnemonic:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    #genMnemonic:active {
+      transform: translateY(0);
+    }
+
+    .content {
+      padding: 0 24px 24px;
+      background: white;
+    }
+
+    .section {
+      margin-bottom: 32px;
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      border: none;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      border: 1px solid #f1f3f4;
+    }
+
+    .section:last-child {
+      border-bottom: none;
+      margin-bottom: 40px;
+    }
+
+    .section h2 {
+      color: #1a1a1a;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .section h2::before {
+      content: '';
+      font-size: 1rem;
+    }
+
+    .section:nth-child(1) h2::before { content: '🔐'; }
+    .section:nth-child(2) h2::before { content: '📱'; }
+    .section:nth-child(3) h2::before { content: '🌱'; }
+    .section:nth-child(4) h2::before { content: '🔑'; }
+
+    .monospace {
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      width: 100%;
+      padding: 16px;
+      border: 2px solid #f1f3f4;
+      border-radius: 12px;
+      background: #fafbfc;
+      font-size: 13px;
+      line-height: 1.5;
+      resize: vertical;
+      transition: all 0.3s ease;
+      color: #1a1a1a;
+    }
+
+    .monospace:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    #qrcode {
+      display: block;
+      margin: 0 auto;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      border: 1px solid #f1f3f4;
+    }
+
+    .keys-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .key-item {
+      background: #fafbfc;
+      border: 2px solid #f1f3f4;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .key-item:hover {
+      border-color: #667eea;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+    }
+
+    .key-label {
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+      letter-spacing: -0.2px;
+    }
+
+    .key-value {
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      background: white;
+      padding: 12px 16px;
+      border-radius: 12px;
+      word-break: break-all;
+      font-size: 12px;
+      margin-bottom: 12px;
+      border: 2px solid #f1f3f4;
+      color: #4a5568;
+      line-height: 1.4;
+    }
+
+    .address-label {
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .address-value {
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      background: white;
+      padding: 12px 16px;
+      border-radius: 12px;
+      word-break: break-all;
+      font-size: 12px;
+      border: 2px solid #f1f3f4;
+      color: #667eea;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    #fetchUsage {
+      display: inline-block;
+      margin: 24px 0 0 0;
+      min-width: 120px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    #fetchUsage:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    #usageResults {
+      margin-top: 24px;
+      padding: 24px;
+      background: #fafbfc;
+      border-radius: 16px;
+      border: 2px solid #f1f3f4;
+      text-align: center;
+    }
+
+    .usage-item {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      margin: 0 auto;
+      border: 2px solid #f1f3f4;
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+      max-width: 100%;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      letter-spacing: -0.3px;
+    }
+
+    .usage-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .checking-status {
+      color: #6b7280;
+      font-size: 15px;
+      font-weight: 500;
+      margin: 0;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      border: 2px solid #f1f3f4;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .usage-result {
+      background: white;
+      border-radius: 16px;
+      padding: 0;
+      border: 2px solid #f1f3f4;
+      overflow: hidden;
+    }
+
+    .usage-status {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 24px;
+    }
+
+    .usage-status.used {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-color: #f59e0b;
+    }
+
+    .usage-status.unused {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      border-color: #10b981;
+    }
+
+    .status-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .status-text {
+      flex: 1;
+    }
+
+    .status-text strong {
+      display: block;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .status-text p {
+      font-size: 14px;
+      color: #4b5563;
+      margin: 0 0 12px 0;
+      font-weight: 500;
+    }
+
+    .status-text small {
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 400;
+      line-height: 1.4;
+      display: block;
+    }
+
+    .usage-status.used .status-text small {
+      color: #92400e;
+    }
+
+    .usage-status.unused .status-text small {
+      color: #065f46;
+    }
+
+    .mnemonic-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .mnemonic-word {
+      background: #fafbfc;
+      border: 2px solid #f1f3f4;
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .mnemonic-word:hover {
+      border-color: #667eea;
+      background: white;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+    }
+
+    .word-number {
+      font-size: 10px;
+      color: #6b7280;
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .word-text {
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a1a;
+      display: block;
+    }
+
+    .copy-btn {
+      display: inline-block;
+      min-width: 120px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .copy-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .copy-btn:active {
+      transform: translateY(0);
+    }
+
+    .copy-btn.copied {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 3px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 0;
+      }
+
+      .container {
+        margin: 0;
+        border-radius: 0;
+        max-width: 100%;
+      }
+
+      .header {
+        padding: 50px 20px 30px;
+        border-radius: 0;
+      }
+
+      .back-link {
+        left: 20px;
+        font-size: 0.85rem;
+        padding: 6px 10px;
+      }
+
+      .language-toggle {
+        right: 20px;
+        font-size: 0.8rem;
+        padding: 5px 10px;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .header p {
+        font-size: 0.85rem;
+      }
+
+      .input-section {
+        padding: 20px;
+      }
+
+      .content {
+        padding: 0 20px 20px;
+      }
+
+      .section {
+        padding: 20px;
+        margin-bottom: 24px;
+        border-radius: 16px;
+      }
+
+      .section h2 {
+        font-size: 1rem;
+      }
+
+      .key-item {
+        padding: 16px;
+        border-radius: 12px;
+      }
+
+      .key-label {
+        font-size: 0.9rem;
+      }
+
+      .key-value, .address-value, .monospace {
+        font-size: 11px;
+        padding: 12px;
+        border-radius: 10px;
+      }
+
+      #fetchUsage {
+        display: inline-block;
+        padding: 16px 24px;
+        border-radius: 12px;
+      }
+
+      .usage-item {
+        font-size: 16px;
+        padding: 20px;
+        border-radius: 12px;
+      }
+
+      .checking-status {
+        font-size: 14px;
+        padding: 16px;
+        border-radius: 10px;
+      }
+
+      .usage-status {
+        padding: 20px;
+        gap: 12px;
+      }
+
+      .status-icon {
+        font-size: 20px;
+      }
+
+      .status-text strong {
+        font-size: 15px;
+      }
+
+      .status-text p {
+        font-size: 13px;
+      }
+
+      .status-text small {
+        font-size: 11px;
+      }
+
+      #qrcode {
+        border-radius: 12px;
+      }
+
+      .mnemonic-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .mnemonic-word {
+        padding: 10px 6px;
+        border-radius: 10px;
+      }
+
+      .word-number {
+        font-size: 9px;
+        margin-bottom: 3px;
+      }
+
+      .word-text {
+        font-size: 11px;
+      }
+
+      .copy-btn {
+        padding: 14px 20px;
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 375px) {
+      .header {
+        padding: 40px 16px 24px;
+      }
+
+      .back-link {
+        left: 16px;
+        font-size: 0.8rem;
+        padding: 4px 8px;
+      }
+
+      .language-toggle {
+        right: 16px;
+        font-size: 0.75rem;
+        padding: 4px 8px;
+      }
+
+      .input-section {
+        padding: 16px;
+      }
+
+      .content {
+        padding: 0 16px 16px;
+      }
+
+      .section {
+        padding: 16px;
+        border-radius: 12px;
+      }
+
+      .key-item {
+        padding: 12px;
+      }
+
+      .key-value, .address-value {
+        font-size: 10px;
+        padding: 10px;
+      }
+
+      .checking-status {
+        font-size: 13px;
+        padding: 12px;
+      }
+
+      .usage-status {
+        padding: 16px;
+        gap: 10px;
+      }
+
+      .status-icon {
+        font-size: 18px;
+      }
+
+      .status-text strong {
+        font-size: 14px;
+      }
+
+      .status-text p {
+        font-size: 12px;
+      }
+
+      .status-text small {
+        font-size: 10px;
+      }
+
+      .mnemonic-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+
+      .mnemonic-word {
+        padding: 8px 4px;
+        border-radius: 8px;
+      }
+
+      .word-number {
+        font-size: 8px;
+        margin-bottom: 2px;
+      }
+
+      .word-text {
+        font-size: 10px;
+      }
+
+      .copy-btn {
+        padding: 12px 16px;
+        font-size: 12px;
+        min-width: 100px;
+      }
     }
   </style>
 </head>
 <body>
-  <div>
-    <input type="text" id="entropyInput" placeholder="输入任意文本生成助记词" style="width:60%;" />
-    <button id="genMnemonic">生成助记词</button>
-  </div>
-  <div id="mainSection" style="display:none;">
-    <h1>Brain Wallet 助记词</h1>
-    <textarea id="mnemonic" readonly class="monospace" rows="2"></textarea>
+  <div class="container">
+    <div class="header">
+      <a href="index.html" class="back-link" data-i18n="back">← Back to Tools</a>
+      <button class="language-toggle" onclick="toggleLanguage()">中文</button>
+      <h1 data-i18n="title">Brain Wallet Generator</h1>
+    </div>
+    
+    <div class="input-section">
+      <div class="input-group">
+        <input type="text" id="entropyInput" data-i18n-placeholder="inputPlaceholder" placeholder="Enter any text to generate wallet" />
+        <button id="genMnemonic" data-i18n="generateBtn">Generate Wallet</button>
+      </div>
+    </div>
+    
+    <div class="content" id="mainSection" style="display:none;">
+      <div class="section">
+        <h2><span data-i18n="mnemonicTitle">Mnemonic Phrase</span></h2>
+        <div id="mnemonicGrid" class="mnemonic-grid"></div>
+        <div style="text-align: center; margin-top: 16px;">
+          <button id="copyMnemonic" class="copy-btn" data-i18n="copyBtn">📋 Copy Mnemonic</button>
+        </div>
+        <textarea id="mnemonic" readonly class="monospace" rows="3" style="display: none;"></textarea>
+      </div>
 
-    <h2>QR Code</h2>
-    <canvas id="qrcode"></canvas>
+      <div class="section">
+        <h2><span data-i18n="qrTitle">QR Code</span></h2>
+        <canvas id="qrcode"></canvas>
+      </div>
 
-    <h2>Seed</h2>
-    <textarea id="seed" readonly class="monospace" rows="2"></textarea>
+      <div class="section">
+        <h2><span data-i18n="seedTitle">Seed</span></h2>
+        <textarea id="seed" readonly class="monospace" rows="4"></textarea>
+      </div>
 
-    <h2>Extended Public Keys</h2>
-    <ul>
-      <li>BIP44: <code id="xpub44"></code><br>First address: <code id="addr44"></code></li>
-      <li>BIP49: <code id="xpub49"></code><br>First address: <code id="addr49"></code></li>
-      <li>BIP84: <code id="xpub84"></code><br>First address: <code id="addr84"></code></li>
-    </ul>
+      <div class="section">
+        <h2><span data-i18n="keysTitle">Extended Public Keys and Addresses</span></h2>
+        <ul class="keys-list">
+          <li class="key-item">
+            <div class="key-label" data-i18n="legacyLabel">Legacy (P2PKH)</div>
+            <div class="key-value" id="xpub44"></div>
+            <div class="address-label" data-i18n="addressLabel">Address:</div>
+            <div class="address-value" id="addr44"></div>
+          </li>
+          <li class="key-item">
+            <div class="key-label" data-i18n="segwitLabel">Nested SegWit (P2SH-P2WPKH)</div>
+            <div class="key-value" id="xpub49"></div>
+            <div class="address-label" data-i18n="addressLabel">Address:</div>
+            <div class="address-value" id="addr49"></div>
+          </li>
+          <li class="key-item">
+            <div class="key-label" data-i18n="nativeSegwitLabel">Native SegWit (P2WPKH)</div>
+            <div class="key-value" id="xpub84"></div>
+            <div class="address-label" data-i18n="addressLabel">Address:</div>
+            <div class="address-value" id="addr84"></div>
+          </li>
+        </ul>
 
-    <button id="fetchUsage">查询使用情况</button>
-    <div id="usageResults" style="margin-top:1em;"></div>
+        <div style="text-align: center;">
+          <button id="fetchUsage" data-i18n="checkUsageBtn">Check Wallet Usage</button>
+        </div>
+        <div id="usageResults"></div>
+      </div>
+    </div>
   </div>
 
   <script src="dist/brain-wallet.bundle.js"></script>
