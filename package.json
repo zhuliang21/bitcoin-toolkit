@@ -4,11 +4,23 @@
   "description": "A JavaScript seed project",
   "main": "index.js",
   "scripts": {
-    "test": "node test/example.test.js",
+    "test": "npm run build && node test/example.test.js && node test/browserify.test.js",
     "start": "node index.js",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "build": "mkdir -p dist && browserify src/brain-wallet.js -o dist/brain-wallet.bundle.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "bip39": "^3.1.0",
+    "bitcoinjs-lib": "^6.1.7",
+    "bs58check": "^4.0.0",
+    "qrcode": "^1.5.4",
+    "bip32": "^2.0.6",
+    "tiny-secp256k1": "^1.1.0"
+  },
+  "devDependencies": {
+    "browserify": "^17.0.1"
+  }
 }

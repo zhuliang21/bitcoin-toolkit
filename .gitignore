@@ -12,10 +12,10 @@ yarn.lock
 # Optional eslint cache
 .eslintcache
 
-# Build outputs
-dist/
-build/
-coverage/
+# # Build outputs
+# dist/
+# build/
+# coverage/
 
 # Environment variables
 .env

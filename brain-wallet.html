@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brain Wallet Demo</title>
+  <style>
+    .monospace {
+      font-family: monospace;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.5em;
+      margin: 0.2em 0;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <input type="text" id="entropyInput" placeholder="输入任意文本生成助记词" style="width:60%;" />
+    <button id="genMnemonic">生成助记词</button>
+  </div>
+  <div id="mainSection" style="display:none;">
+    <h1>Brain Wallet 助记词</h1>
+    <textarea id="mnemonic" readonly class="monospace" rows="2"></textarea>
+
+    <h2>QR Code</h2>
+    <canvas id="qrcode"></canvas>
+
+    <h2>Seed</h2>
+    <textarea id="seed" readonly class="monospace" rows="2"></textarea>
+
+    <h2>Extended Public Keys</h2>
+    <ul>
+      <li>BIP44: <code id="xpub44"></code><br>First address: <code id="addr44"></code></li>
+      <li>BIP49: <code id="xpub49"></code><br>First address: <code id="addr49"></code></li>
+      <li>BIP84: <code id="xpub84"></code><br>First address: <code id="addr84"></code></li>
+    </ul>
+
+    <button id="fetchUsage">查询使用情况</button>
+    <div id="usageResults" style="margin-top:1em;"></div>
+  </div>
+
+  <script src="dist/brain-wallet.bundle.js"></script>
+</body>
+</html>
