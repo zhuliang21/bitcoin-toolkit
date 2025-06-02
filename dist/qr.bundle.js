@@ -2839,41 +2839,42 @@ const QRCode = require('qrcode');
 const translations = {
   en: {
     title: 'QR Code Generator',
+    back: '←',
     textLabel: 'Text/URL',
-    textPlaceholder: 'Enter text or URL',
+    textPlaceholder: 'Enter text, URL, or any content',
     tagLabel: 'Tag (Optional)',
     tagPlaceholder: 'Enter tag for organizing',
-    generateBtn: 'Generate QR',
-    downloadBtn: 'Download PNG'
+    generateBtn: 'Generate QR Code',
+    qrTitle: 'QR Code',
+    downloadBtn: '📥 Download PNG'
   },
   zh: {
     title: '二维码生成器',
+    back: '←',
     textLabel: '文本/网址',
-    textPlaceholder: '输入文本、中文或网址',
+    textPlaceholder: '输入文本、网址或任何内容',
     tagLabel: '标签 (可选)',
     tagPlaceholder: '输入标签便于整理',
     generateBtn: '生成二维码',
-    downloadBtn: '下载图片'
+    qrTitle: '二维码',
+    downloadBtn: '📥 下载图片'
   }
 };
 
-let currentLanguage = localStorage.getItem('qr-language') || 'en';
+let currentLanguage = localStorage.getItem('language') || 'en';
 
 // Language switching function
 function toggleLanguage() {
   currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
-  localStorage.setItem('qr-language', currentLanguage);
+  localStorage.setItem('language', currentLanguage);
   updateLanguage();
 }
 
 function updateLanguage() {
-  console.log('Updating language to:', currentLanguage);
+  // Update language toggle button
   const langToggle = document.querySelector('.language-toggle');
   if (langToggle) {
-    langToggle.textContent = currentLanguage === 'en' ? '中文' : 'English';
-    console.log('Language toggle button updated:', langToggle.textContent);
-  } else {
-    console.error('Language toggle button not found');
+    langToggle.textContent = currentLanguage === 'en' ? 'ENG' : '中文';
   }
 
   // Update all elements with data-i18n attributes
@@ -2896,6 +2897,9 @@ function updateLanguage() {
 
   // Update page title
   document.title = translations[currentLanguage].title;
+  
+  // Update document language attribute  
+  document.documentElement.lang = currentLanguage;
 }
 
 // Make toggleLanguage available globally
@@ -2903,15 +2907,18 @@ window.toggleLanguage = toggleLanguage;
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize language on page load
-  console.log('QR Generator loaded, current language:', currentLanguage);
   updateLanguage();
+  
+  // Show content after language is set
+  setTimeout(() => {
+    document.body.style.visibility = 'visible';
+  }, 50);
   
   const textInput = document.getElementById('text');
   const tagInput = document.getElementById('tag');
   const generateBtn = document.getElementById('generate');
   const downloadBtn = document.getElementById('download');
   const canvas = document.getElementById('qr-canvas');
-  const qrResult = document.getElementById('qr-result');
 
   function renderQR() {
     const text = textInput.value.trim();
@@ -2956,11 +2963,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const ctx = canvas.getContext('2d');
         ctx.scale(dpr, dpr);
         
-        // Gradient background
-        const gradient = ctx.createLinearGradient(0, 0, totalW, totalH);
-        gradient.addColorStop(0, '#F7FAFC');
-        gradient.addColorStop(1, '#EDF2F7');
-        ctx.fillStyle = gradient;
+        // Pure white background
+        ctx.fillStyle = '#FFFFFF';
         
         // Rounded background
         ctx.beginPath();
@@ -3018,7 +3022,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         downloadBtn.disabled = false;
-        qrResult.classList.add('show');
+        const mainSection = document.getElementById('mainSection');
+        mainSection.style.display = 'block';
       };
       img.src = url;
     });

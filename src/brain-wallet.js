@@ -9,7 +9,7 @@ const crypto = require('crypto');
 // Language support
 const translations = {
   en: {
-    back: '← Back to Tools',
+    back: '←',
     title: 'Brain Wallet Generator',
     inputPlaceholder: 'Enter any text to generate wallet',
     generateBtn: 'Generate Wallet',
@@ -29,7 +29,7 @@ const translations = {
     walletUnused: 'Wallet Appears Unused'
   },
   zh: {
-    back: '← 返回工具列表',
+    back: '←',
     title: '脑钱包生成器',
     inputPlaceholder: '输入任意文本生成钱包',
     generateBtn: '生成钱包',
@@ -62,7 +62,7 @@ function toggleLanguage() {
 function updateLanguage() {
   const langToggle = document.querySelector('.language-toggle');
   if (langToggle) {
-    langToggle.textContent = currentLanguage === 'en' ? '中文' : 'English';
+    langToggle.textContent = currentLanguage === 'en' ? 'ENG' : '中文';
   }
 
   // Update all elements with data-i18n attributes
@@ -78,6 +78,12 @@ function updateLanguage() {
   if (input) {
     input.placeholder = translations[currentLanguage].inputPlaceholder;
   }
+  
+  // Update document title
+  document.title = translations[currentLanguage].title;
+  
+  // Update document language attribute
+  document.documentElement.lang = currentLanguage;
 }
 
 // Make toggleLanguage available globally
@@ -111,8 +117,13 @@ function generateKeysAndAddresses(seedBuffer) {
 
 // UI Logic
 window.addEventListener('load', () => {
-  // Initialize language
+  // Initialize language after DOM is fully loaded
   updateLanguage();
+  
+  // Show content after language is set
+  setTimeout(() => {
+    document.body.style.visibility = 'visible';
+  }, 50);
   
   document.getElementById('genMnemonic').addEventListener('click', () => {
     const text = document.getElementById('entropyInput').value.trim();

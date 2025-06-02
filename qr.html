@@ -4,222 +4,273 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Code Generator</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-      min-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    }
-    
-    .section {
-      padding: 2rem 1rem;
-      display: flex;
-      align-items: center;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
+      padding: 0;
+      margin: 0;
+      transition: opacity 0.1s ease-in-out;
     }
-    
-    .card {
-      border-radius: 24px;
-      box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.25),
-        0 0 0 1px rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(16px) saturate(180%);
-      background: rgba(255, 255, 255, 0.85);
-      position: relative;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Prevent flash of unstyled content during language initialization */
+    body.loading {
+      visibility: hidden;
+    }
+
+    .container {
+      max-width: 430px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -4px 40px rgba(0, 0, 0, 0.15);
       overflow: hidden;
+      min-height: 100vh;
+      position: relative;
     }
-    
-    .card::before {
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 60px 24px 40px;
+      text-align: center;
+      color: white;
+      position: relative;
+    }
+
+    .header::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.4), 
-        transparent);
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
     }
-    
-    .card:hover {
-      box-shadow: 
-        0 35px 70px -12px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
+
+    .back-link {
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      min-width: 44px;
+      height: 32px;
     }
-    .card-content {
-      padding: 3rem 2.5rem;
-      position: relative;
+
+    .back-link:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
     }
-    
-    .title {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-weight: 800;
-      font-size: 2.5rem;
-      margin-bottom: 2rem;
-      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .input, .button {
-      border-radius: 16px;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      backdrop-filter: blur(8px);
-    }
-    
-    .input, .textarea {
-      font-size: 14px;
-      background: rgba(255, 255, 255, 0.7);
-      color: #374151;
-      padding: 1rem 1.25rem;
-    }
-    
-    .input:focus, .textarea:focus {
-      border-color: rgba(102, 126, 234, 0.6);
-      box-shadow: 
-        0 0 0 4px rgba(102, 126, 234, 0.1),
-        0 8px 25px rgba(102, 126, 234, 0.15);
-      background: rgba(255, 255, 255, 0.9);
-      transform: translateY(-2px);
-    }
-    
-    .textarea.is-large {
-      font-size: 14px !important;
-      min-height: 120px;
-      resize: vertical;
-    }
-    
-    .label {
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 0.75rem;
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+
     .language-toggle {
       position: absolute;
       top: 20px;
-      right: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 25px;
+      right: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 6px 12px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.85rem;
+      font-weight: 500;
       cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 10;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      min-width: 44px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    
+
     .language-toggle:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
     }
-    .language-toggle:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: none;
+      letter-spacing: -0.5px;
     }
-    
-    .button {
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 1rem 2rem;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    .input-section {
+      padding: 24px;
+      background: white;
+      border-bottom: none;
     }
-    
-    .button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 0;
+    }
+
+    .button-center {
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .label {
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      letter-spacing: -0.2px;
+      display: block;
+    }
+
+    .textarea, .input {
       width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
+      padding: 16px 20px;
+      border: 2px solid #f1f3f4;
+      border-radius: 16px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: #fafbfc;
+      color: #1a1a1a;
+      font-weight: 400;
+      resize: vertical;
+      font-family: inherit;
     }
-    
-    .button:hover::before {
-      left: 100%;
+
+    .textarea {
+      min-height: 120px;
     }
-    
-    .button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+
+    .textarea:focus, .input:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px) scale(1.01);
     }
-    
-    .button.is-primary {
+
+    .button {
+      display: inline-block;
+      min-width: 120px;
+      padding: 14px 20px;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border: none;
       color: white;
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-    }
-    
-    .button.is-link {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
       border: none;
-      color: white;
-      box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 15px rgba(102, 126, 234, 0.3);
+      text-transform: none;
+      letter-spacing: normal;
     }
+
+    .button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button:disabled {
+      opacity: 0.6;
+      transform: none;
+      box-shadow: 0 3px 15px rgba(102, 126, 234, 0.3);
+      cursor: not-allowed;
+    }
+
+    .button.is-primary {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      box-shadow: 0 3px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .button.is-primary:hover {
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .content {
+      padding: 0 24px 24px;
+      background: white;
+    }
+
+    .section {
+      margin-bottom: 32px;
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      border: none;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      border: 1px solid #f1f3f4;
+    }
+
+    .section:last-child {
+      margin-bottom: 40px;
+    }
+
+    .section h2 {
+      color: #1a1a1a;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .section h2::before {
+      content: '📱';
+      font-size: 1rem;
+    }
+
     #qr-canvas {
-      border-radius: 24px;
-      box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.15),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
-      margin: 30px auto;
+      display: block;
+      margin: 0 auto;
+      border-radius: 16px;
+      border: 1px solid #f1f3f4;
+      cursor: pointer;
+      transition: transform 0.2s ease-out;
       max-width: 100%;
       height: auto;
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      display: block;
-      position: relative;
+      will-change: transform;
     }
-    
-    #qr-canvas::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
-      border-radius: 26px;
-      z-index: -1;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
+
     #qr-canvas:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 
-        0 30px 60px rgba(0, 0, 0, 0.2),
-        0 0 0 1px rgba(255, 255, 255, 0.2);
+      transform: scale(1.01);
     }
-    
-    #qr-canvas:hover::before {
-      opacity: 1;
-    }
-    #qr-canvas:hover {
-      transform: scale(1.02);
-    }
+
     .qr-result {
       display: none;
-      animation: fadeInUp 0.6s ease-out;
+      animation: fadeInUp 0.3s ease-out;
     }
     
     .qr-result.show {
@@ -229,20 +280,14 @@
     @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(15px);
       }
       to {
         opacity: 1;
         transform: translateY(0);
       }
     }
-    
-    /* 添加一些装饰性元素 */
-    .field {
-      position: relative;
-      margin-bottom: 2rem;
-    }
-    
+
     /* 全屏模态框样式 */
     .modal-overlay {
       display: none;
@@ -256,7 +301,7 @@
       z-index: 1000;
       justify-content: center;
       align-items: center;
-      animation: fadeIn 0.3s ease-out;
+      animation: fadeIn 0.2s ease-out;
     }
     
     @keyframes fadeIn {
@@ -272,15 +317,13 @@
       max-width: 90%;
       max-height: 90%;
       border-radius: 24px;
-      box-shadow: 
-        0 40px 80px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
-      animation: modalZoomIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: modalZoomIn 0.25s ease-out;
     }
     
     @keyframes modalZoomIn {
       from {
-        transform: scale(0.8);
+        transform: scale(0.9);
         opacity: 0;
       }
       to {
@@ -288,95 +331,139 @@
         opacity: 1;
       }
     }
-    
+
     /* 手机端响应式设计 */
     @media (max-width: 768px) {
-      .language-toggle {
-        position: static;
-        float: right;
-        margin-bottom: 15px;
-        font-size: 11px;
-        padding: 8px 16px;
+      body {
+        padding: 0;
       }
-      
-      .title {
-        clear: both;
-        margin-top: 15px !important;
-        font-size: 2rem !important;
-        padding-right: 0;
-      }
-      
-      .card-content {
-        padding: 2rem 1.5rem;
-      }
-      
-      .column.is-half {
-        width: 100% !important;
-        max-width: 95%;
-        margin: 0 auto;
-      }
-      
-      .section {
-        padding: 1rem;
-        min-height: auto;
-      }
-      
+
       .container {
-        margin: 0 auto;
-        padding: 0 1rem;
+        margin: 0;
+        border-radius: 0;
+        max-width: 100%;
       }
-      
+
+      .header {
+        padding: 50px 20px 30px;
+        border-radius: 0;
+      }
+
+      .back-link {
+        left: 20px;
+        font-size: 0.85rem;
+        padding: 6px 10px;
+      }
+
+      .language-toggle {
+        right: 20px;
+        font-size: 0.8rem;
+        padding: 5px 10px;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .input-section {
+        padding: 20px;
+      }
+
+      .content {
+        padding: 0 20px 20px;
+      }
+
+      .section {
+        padding: 20px;
+        margin-bottom: 24px;
+        border-radius: 16px;
+      }
+
+      .section h2 {
+        font-size: 1rem;
+      }
+
       .button {
-        padding: 0.875rem 1.5rem;
-        font-size: 0.875rem;
+        padding: 16px 20px;
+        font-size: 15px;
       }
-      
-      .card {
-        margin: 1rem 0;
+
+      #qr-canvas {
+        border-radius: 12px;
+      }
+    }
+
+    @media (max-width: 375px) {
+      .header {
+        padding: 40px 16px 24px;
+      }
+
+      .back-link {
+        left: 16px;
+        font-size: 0.8rem;
+        padding: 4px 8px;
+      }
+
+      .language-toggle {
+        right: 16px;
+        font-size: 0.75rem;
+        padding: 4px 8px;
+      }
+
+      .input-section {
+        padding: 16px;
+      }
+
+      .content {
+        padding: 0 16px 16px;
+      }
+
+      .section {
+        padding: 16px;
+        border-radius: 12px;
+      }
+
+      .button {
+        padding: 14px 18px;
+        font-size: 14px;
       }
     }
   </style>
 </head>
-<body>
-  <section class="section">
-    <div class="container">
-      <div class="columns is-centered">
-        <div class="column is-half">
-          <div class="card">
-            <div class="card-content">
-              <button class="language-toggle" onclick="toggleLanguage()">中文</button>
-              <h1 class="title has-text-centered" data-i18n="title">QR Code Generator</h1>
-              <div class="field">
-                <label class="label" data-i18n="textLabel">Text/URL</label>
-                <div class="control">
-                  <textarea class="textarea is-large" id="text" data-i18n-placeholder="textPlaceholder" placeholder="Enter text or URL" rows="3"></textarea>
-                </div>
-              </div>
-              <div class="field">
-                <label class="label" data-i18n="tagLabel">Tag (Optional)</label>
-                <div class="control">
-                  <input class="input" type="text" id="tag" data-i18n-placeholder="tagPlaceholder" placeholder="Enter tag for organizing">
-                </div>
-              </div>
-              <div class="field is-grouped is-grouped-centered">
-                <div class="control">
-                  <button class="button is-link is-large" id="generate" data-i18n="generateBtn">Generate QR</button>
-                </div>
-              </div>
-              <div class="has-text-centered qr-result" id="qr-result">
-                <canvas id="qr-canvas"></canvas>
-                <div class="field">
-                  <div class="control">
-                    <button class="button is-primary is-large" id="download" disabled data-i18n="downloadBtn">Download PNG</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+<body style="visibility: hidden;">
+  <div class="container">
+    <div class="header">
+      <a href="index.html" class="back-link" data-i18n="back">←</a>
+      <button class="language-toggle" onclick="toggleLanguage()">ENG</button>
+      <h1 data-i18n="title">QR Code Generator</h1>
+    </div>
+    
+    <div class="input-section">
+      <div class="input-group">
+        <div class="field">
+          <label class="label" data-i18n="textLabel">Text/URL</label>
+          <textarea class="textarea" id="text" data-i18n-placeholder="textPlaceholder" placeholder="Enter text, URL, or any content" rows="3"></textarea>
+        </div>
+        <div class="field">
+          <label class="label" data-i18n="tagLabel">Tag (Optional)</label>
+          <input class="input" type="text" id="tag" data-i18n-placeholder="tagPlaceholder" placeholder="Enter tag for organizing">
+        </div>
+        <div class="button-center">
+          <button class="button" id="generate" data-i18n="generateBtn">Generate QR Code</button>
         </div>
       </div>
     </div>
-  </section>
+    
+    <div class="content" id="mainSection" style="display:none;">
+      <div class="section">
+        <h2><span data-i18n="qrTitle">QR Code</span></h2>
+        <canvas id="qr-canvas"></canvas>
+        <div style="text-align: center; margin-top: 16px;">
+          <button class="button is-primary" id="download" disabled data-i18n="downloadBtn">📥 Download PNG</button>
+        </div>
+      </div>
+    </div>
+  </div>
   
   <!-- 全屏模态框 -->
   <div class="modal-overlay" id="modal-overlay" onclick="closeModal()">

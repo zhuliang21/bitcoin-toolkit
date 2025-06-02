@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wallet Tools</title>
+  <title>⚡🧰⚡</title>
   <style>
     * {
       margin: 0;
@@ -19,6 +19,12 @@
       min-height: 100vh;
       padding: 0;
       margin: 0;
+      transition: opacity 0.1s ease-in-out;
+    }
+
+    /* Prevent flash of unstyled content during language initialization */
+    body.loading {
+      visibility: hidden;
     }
 
     .container {
@@ -66,6 +72,11 @@
       cursor: pointer;
       transition: all 0.3s ease;
       backdrop-filter: blur(10px);
+      min-width: 44px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .language-toggle:hover {
@@ -170,26 +181,6 @@
       font-weight: 600;
     }
 
-    .coming-soon {
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    .coming-soon .tool-icon {
-      background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
-    }
-
-    .coming-soon-badge {
-      display: inline-block;
-      background: #f3f4f6;
-      color: #6b7280;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-top: 12px;
-    }
-
     .footer {
       text-align: center;
       padding: 24px;
@@ -197,6 +188,36 @@
       font-size: 0.85rem;
       border-top: 1px solid #f1f3f4;
       background: #fafbfc;
+    }
+
+    .security-warning {
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      border-radius: 20px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      text-align: center;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      backdrop-filter: blur(10px);
+    }
+
+    .security-warning .warning-icon {
+      font-size: 1.2rem;
+      margin-right: 8px;
+      display: inline;
+      opacity: 0.8;
+    }
+
+    .security-warning .warning-text {
+      color: #4b5563;
+      font-size: 0.8rem;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+
+    .security-warning strong {
+      color: #1a1a1a;
+      font-weight: 700;
     }
 
     .footer a {
@@ -235,12 +256,18 @@
         font-size: 1.5rem;
       }
 
-      .header p {
-        font-size: 0.85rem;
-      }
-
       .content {
         padding: 24px 20px 32px;
+      }
+
+      .security-warning {
+        padding: 16px 20px;
+        margin-bottom: 14px;
+        border-radius: 18px;
+      }
+
+      .security-warning .warning-text {
+        font-size: 0.75rem;
       }
 
       .tool-card {
@@ -283,6 +310,16 @@
         padding: 20px 16px 24px;
       }
 
+      .security-warning {
+        padding: 14px 18px;
+        margin-bottom: 12px;
+        border-radius: 16px;
+      }
+
+      .security-warning .warning-text {
+        font-size: 0.7rem;
+      }
+
       .tool-card {
         padding: 16px;
         border-radius: 12px;
@@ -316,12 +353,11 @@
     }
   </style>
 </head>
-<body>
+<body style="visibility: hidden;">
   <div class="container">
     <div class="header">
-      <button class="language-toggle" onclick="toggleLanguage()">中文</button>
-      <h1 data-i18n="title">Crypto Wallet Tools</h1>
-      <p data-i18n="subtitle">Secure cryptocurrency wallet generation and utilities</p>
+      <button class="language-toggle" onclick="toggleLanguage()">ENG</button>
+      <h1 data-i18n="title">⚡🧰⚡</h1>
     </div>
     
     <div class="content">
@@ -332,71 +368,55 @@
             <h2 class="tool-title" data-i18n="brainWalletTitle">Brain Wallet Generator</h2>
           </div>
           <p class="tool-description" data-i18n="brainWalletDesc">
-            Generate Bitcoin wallets from memorable text using deterministic seed generation.
+            Generate Bitcoin wallets from memorable text using deterministic algorithms.
           </p>
           <ul class="tool-features">
-            <li data-i18n="feature1">Generate from any text input</li>
-            <li data-i18n="feature2">Support for Legacy, SegWit, and Native SegWit</li>
-            <li data-i18n="feature3">QR code generation for easy backup</li>
-            <li data-i18n="feature4">Wallet usage verification</li>
-            <li data-i18n="feature5">Mobile-optimized interface</li>
+            <li data-i18n="feature1">Text-to-wallet conversion</li>
+            <li data-i18n="feature2">Multiple address formats</li>
+            <li data-i18n="feature3">Usage verification</li>
           </ul>
         </a>
 
-        <div class="tool-card coming-soon">
+        <a href="qr.html" class="tool-card">
           <div class="tool-header">
-            <div class="tool-icon">🔐</div>
-            <h2 class="tool-title" data-i18n="hdWalletTitle">HD Wallet Generator</h2>
+            <div class="tool-icon">📱</div>
+            <h2 class="tool-title" data-i18n="qrTitle">QR Code Generator</h2>
           </div>
-          <p class="tool-description" data-i18n="hdWalletDesc">
-            Create hierarchical deterministic wallets with standard BIP39 mnemonic phrases.
+          <p class="tool-description" data-i18n="qrDesc">
+            Create QR codes for text and URLs with instant download.
           </p>
           <ul class="tool-features">
-            <li data-i18n="hdFeature1">Standard BIP39 mnemonic generation</li>
-            <li data-i18n="hdFeature2">Multiple derivation paths</li>
-            <li data-i18n="hdFeature3">Multi-currency support</li>
-            <li data-i18n="hdFeature4">Advanced entropy options</li>
+            <li data-i18n="qrFeature1">Text & URL encoding</li>
+            <li data-i18n="qrFeature2">High-quality PNG export</li>
+            <li data-i18n="qrFeature3">Fullscreen preview</li>
           </ul>
-          <div class="coming-soon-badge" data-i18n="comingSoon">Coming Soon</div>
-        </div>
+        </a>
 
-        <div class="tool-card coming-soon">
+        <a href="bbqr.html" class="tool-card">
           <div class="tool-header">
-            <div class="tool-icon">📊</div>
-            <h2 class="tool-title" data-i18n="analyzerTitle">Address Analyzer</h2>
+            <div class="tool-icon">🔗</div>
+            <h2 class="tool-title" data-i18n="bbqrTitle">BBQR Generator</h2>
           </div>
-          <p class="tool-description" data-i18n="analyzerDesc">
-            Analyze Bitcoin addresses and view detailed transaction history and statistics.
+          <p class="tool-description" data-i18n="bbqrDesc">
+            Split large data into animated QR sequences for Bitcoin transactions.
           </p>
           <ul class="tool-features">
-            <li data-i18n="analyzerFeature1">Address validation and analysis</li>
-            <li data-i18n="analyzerFeature2">Transaction history viewer</li>
-            <li data-i18n="analyzerFeature3">Balance and UTXO information</li>
-            <li data-i18n="analyzerFeature4">Address clustering analysis</li>
+            <li data-i18n="bbqrFeature1">Animated QR sequences</li>
+            <li data-i18n="bbqrFeature2">Large data splitting</li>
+            <li data-i18n="bbqrFeature3">Bitcoin transaction support</li>
           </ul>
-          <div class="coming-soon-badge" data-i18n="comingSoon">Coming Soon</div>
-        </div>
-
-        <div class="tool-card coming-soon">
-          <div class="tool-header">
-            <div class="tool-icon">🔄</div>
-            <h2 class="tool-title" data-i18n="builderTitle">Transaction Builder</h2>
-          </div>
-          <p class="tool-description" data-i18n="builderDesc">
-            Build and sign Bitcoin transactions with advanced features and fee optimization.
-          </p>
-          <ul class="tool-features">
-            <li data-i18n="builderFeature1">Custom transaction builder</li>
-            <li data-i18n="builderFeature2">Fee estimation and optimization</li>
-            <li data-i18n="builderFeature3">Multi-signature support</li>
-            <li data-i18n="builderFeature4">RBF and CPFP options</li>
-          </ul>
-          <div class="coming-soon-badge" data-i18n="comingSoon">Coming Soon</div>
-        </div>
+        </a>
       </div>
     </div>
 
     <div class="footer">
+      <div class="security-warning">
+        <span class="warning-icon">⚠️</span>
+        <p class="warning-text">
+          <strong data-i18n="warningTitle">安全提醒：</strong>
+          <span data-i18n="securityWarning">本页面工具开源并且可以离线使用，但在使用时请充分了解其风险。本工具仅供教育和测试目的，请勿用于正式的生产环境或关键业务场景。</span>
+        </p>
+      </div>
       <p>
         <span data-i18n="footerText">Open source crypto wallet tools</span> • 
         <a href="https://github.com/zhuliang21/seed-demo" target="_blank" data-i18n="githubLink">View on GitHub</a>
@@ -408,67 +428,47 @@
 // Language support for index page
 const indexTranslations = {
   en: {
-    title: 'Crypto Wallet Tools',
-    subtitle: 'Secure cryptocurrency wallet generation and utilities',
+    title: '⚡🧰⚡',
     brainWalletTitle: 'Brain Wallet Generator',
-    brainWalletDesc: 'Generate Bitcoin wallets from memorable text using deterministic seed generation.',
-    feature1: 'Generate from any text input',
-    feature2: 'Support for Legacy, SegWit, and Native SegWit',
-    feature3: 'QR code generation for easy backup',
-    feature4: 'Wallet usage verification',
-    feature5: 'Mobile-optimized interface',
-    hdWalletTitle: 'HD Wallet Generator',
-    hdWalletDesc: 'Create hierarchical deterministic wallets with standard BIP39 mnemonic phrases.',
-    hdFeature1: 'Standard BIP39 mnemonic generation',
-    hdFeature2: 'Multiple derivation paths',
-    hdFeature3: 'Multi-currency support',
-    hdFeature4: 'Advanced entropy options',
-    analyzerTitle: 'Address Analyzer',
-    analyzerDesc: 'Analyze Bitcoin addresses and view detailed transaction history and statistics.',
-    analyzerFeature1: 'Address validation and analysis',
-    analyzerFeature2: 'Transaction history viewer',
-    analyzerFeature3: 'Balance and UTXO information',
-    analyzerFeature4: 'Address clustering analysis',
-    builderTitle: 'Transaction Builder',
-    builderDesc: 'Build and sign Bitcoin transactions with advanced features and fee optimization.',
-    builderFeature1: 'Custom transaction builder',
-    builderFeature2: 'Fee estimation and optimization',
-    builderFeature3: 'Multi-signature support',
-    builderFeature4: 'RBF and CPFP options',
-    comingSoon: 'Coming Soon',
-    footerText: 'Open source crypto wallet tools',
+    brainWalletDesc: 'Generate Bitcoin wallets from memorable text using deterministic algorithms.',
+    feature1: 'Text-to-wallet conversion',
+    feature2: 'Multiple address formats',
+    feature3: 'Usage verification',
+    qrTitle: 'QR Code Generator',
+    qrDesc: 'Create QR codes for text and URLs with instant download.',
+    qrFeature1: 'Text & URL encoding',
+    qrFeature2: 'High-quality PNG export',
+    qrFeature3: 'Fullscreen preview',
+    bbqrTitle: 'BBQR Generator',
+    bbqrDesc: 'Split large data into animated QR sequences for Bitcoin transactions.',
+    bbqrFeature1: 'Animated QR sequences',
+    bbqrFeature2: 'Large data splitting',
+    bbqrFeature3: 'Bitcoin transaction support',
+    securityWarning: 'This tool is open source and can be used offline, but please understand the risks when using it. This tool is for educational and testing purposes only and should not be used in formal production environments or critical business scenarios.',
+    warningTitle: 'Security Notice:',
+    footerText: '⚡🧰⚡',
     githubLink: 'View on GitHub'
   },
   zh: {
-    title: '加密钱包工具',
-    subtitle: '安全的加密货币钱包生成和实用工具',
+    title: '⚡🧰⚡',
     brainWalletTitle: '脑钱包生成器',
-    brainWalletDesc: '从易记文本生成比特币钱包，使用确定性种子生成算法。',
-    feature1: '从任意文本输入生成',
-    feature2: '支持传统、隔离见证和原生隔离见证格式',
-    feature3: '二维码生成便于备份',
-    feature4: '钱包使用情况验证',
-    feature5: '移动端优化界面',
-    hdWalletTitle: 'HD钱包生成器',
-    hdWalletDesc: '使用标准BIP39助记词创建分层确定性钱包。',
-    hdFeature1: '标准BIP39助记词生成',
-    hdFeature2: '多种派生路径',
-    hdFeature3: '多币种支持',
-    hdFeature4: '高级熵选项',
-    analyzerTitle: '地址分析器',
-    analyzerDesc: '分析比特币地址并查看详细的交易历史和统计信息。',
-    analyzerFeature1: '地址验证和分析',
-    analyzerFeature2: '交易历史查看器',
-    analyzerFeature3: '余额和UTXO信息',
-    analyzerFeature4: '地址聚类分析',
-    builderTitle: '交易构建器',
-    builderDesc: '构建和签名比特币交易，具有高级功能和手续费优化。',
-    builderFeature1: '自定义交易构建器',
-    builderFeature2: '手续费估算和优化',
-    builderFeature3: '多重签名支持',
-    builderFeature4: 'RBF和CPFP选项',
-    comingSoon: '即将推出',
-    footerText: '开源加密钱包工具',
+    brainWalletDesc: '使用确定性算法从易记文本生成比特币钱包。',
+    feature1: '文本转钱包',
+    feature2: '多种地址格式',
+    feature3: '使用情况验证',
+    qrTitle: '二维码生成器',
+    qrDesc: '为文本和网址创建二维码，支持即时下载。',
+    qrFeature1: '文本与网址编码',
+    qrFeature2: '高质量PNG导出',
+    qrFeature3: '全屏预览',
+    bbqrTitle: 'BBQR生成器',
+    bbqrDesc: '将大数据分割为动画二维码序列，用于比特币交易。',
+    bbqrFeature1: '动画二维码序列',
+    bbqrFeature2: '大数据分割',
+    bbqrFeature3: '比特币交易支持',
+    securityWarning: '本页面工具开源并且可以离线使用，但在使用时请充分了解其风险。本工具仅供教育和测试目的，请勿用于正式的生产环境或关键业务场景。',
+    warningTitle: '安全提醒：',
+    footerText: '⚡🧰⚡',
     githubLink: '在GitHub上查看'
   }
 };
@@ -487,7 +487,7 @@ function updateTexts() {
   // Update language toggle button
   const toggleBtn = document.querySelector('.language-toggle');
   if (toggleBtn) {
-    toggleBtn.textContent = currentLanguage === 'en' ? '中文' : 'English';
+    toggleBtn.textContent = currentLanguage === 'en' ? 'ENG' : '中文';
   }
 
   // Update document language
@@ -502,7 +502,13 @@ function toggleLanguage() {
 
 // Initialize language on page load
 document.addEventListener('DOMContentLoaded', function() {
+  // Initialize language
   updateTexts();
+  
+  // Show content after language is set
+  setTimeout(() => {
+    document.body.style.visibility = 'visible';
+  }, 50);
 });
 </script>
 </html>

@@ -19,6 +19,12 @@
       min-height: 100vh;
       padding: 0;
       margin: 0;
+      transition: opacity 0.1s ease-in-out;
+    }
+
+    /* Prevent flash of unstyled content during language initialization */
+    body.loading {
+      visibility: hidden;
     }
 
     .container {
@@ -58,22 +64,24 @@
       left: 24px;
       color: rgba(255, 255, 255, 0.8);
       text-decoration: none;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 500;
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
       transition: all 0.3s ease;
-      padding: 8px 12px;
+      padding: 6px 12px;
       border-radius: 20px;
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      min-width: 44px;
+      height: 32px;
     }
 
     .back-link:hover {
       color: white;
       background: rgba(255, 255, 255, 0.2);
-      transform: translateX(-2px);
     }
 
     .language-toggle {
@@ -90,6 +98,11 @@
       cursor: pointer;
       transition: all 0.3s ease;
       backdrop-filter: blur(10px);
+      min-width: 44px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .language-toggle:hover {
@@ -194,17 +207,21 @@
     .section h2 {
       color: #1a1a1a;
       margin-bottom: 16px;
-      font-size: 1.1rem;
+      font-size: 1.3rem;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
       letter-spacing: -0.3px;
     }
 
     .section h2::before {
       content: '';
-      font-size: 1rem;
+      font-size: 1.2rem;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .section:nth-child(1) h2::before { content: '🔐'; }
@@ -377,7 +394,8 @@
 
     .usage-status {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
+      justify-content: center;
       gap: 16px;
       padding: 24px;
     }
@@ -393,22 +411,28 @@
     }
 
     .status-icon {
-      font-size: 24px;
+      font-size: 28px;
       flex-shrink: 0;
-      margin-top: 2px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .status-text {
-      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     }
 
     .status-text strong {
       display: block;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 700;
       color: #1a1a1a;
-      margin-bottom: 8px;
       letter-spacing: -0.3px;
+      line-height: 1.2;
     }
 
     .status-text p {
@@ -554,7 +578,7 @@
       }
 
       .section h2 {
-        font-size: 1rem;
+        font-size: 1.2rem;
       }
 
       .key-item {
@@ -670,6 +694,15 @@
         border-radius: 12px;
       }
 
+      .section h2 {
+        font-size: 1.1rem;
+        gap: 10px;
+      }
+
+      .section h2::before {
+        font-size: 1.1rem;
+      }
+
       .key-item {
         padding: 12px;
       }
@@ -732,11 +765,11 @@
     }
   </style>
 </head>
-<body>
+<body style="visibility: hidden;">
   <div class="container">
     <div class="header">
       <a href="index.html" class="back-link" data-i18n="back">← Back to Tools</a>
-      <button class="language-toggle" onclick="toggleLanguage()">中文</button>
+      <button class="language-toggle" onclick="toggleLanguage()">ENG</button>
       <h1 data-i18n="title">Brain Wallet Generator</h1>
     </div>
     
