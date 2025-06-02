@@ -7,7 +7,7 @@
     "test": "npm run build && node test/example.test.js && node test/browserify.test.js",
     "start": "node index.js",
     "dev": "node --watch index.js",
-    "build": "mkdir -p dist && browserify src/brain-wallet.js -o dist/brain-wallet.bundle.js && browserify src/bbqr.js -o dist/bbqr.bundle.js"
+    "build": "mkdir -p dist && npx browserify src/brain-wallet.js -o dist/brain-wallet.bundle.js && npx browserify src/bbqr.js -o dist/bbqr.bundle.js && npx browserify src/qr.js -o dist/qr.bundle.js"
   },
   "keywords": [],
   "author": "",
