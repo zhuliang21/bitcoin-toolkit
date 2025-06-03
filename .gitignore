@@ -33,3 +33,6 @@ yarn.lock
 *.sln
 *.sw?
 .DS_Store
+
+# key
+*.pem

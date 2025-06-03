@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBQr Test</title>
+</head>
+<body>
+    <h1>BBQr Test Console</h1>
+    <div id="test-results"></div>
+    
+    <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
+    <script src="./dist/bbqr.iife.js"></script>
+    <script>
+        console.log('Testing BBQr functionality...');
+        const results = document.getElementById('test-results');
+        
+        function addResult(test, result, success = true) {
+            const div = document.createElement('div');
+            div.style.color = success ? 'green' : 'red';
+            div.style.margin = '10px 0';
+            div.innerHTML = `<strong>${test}:</strong> ${result}`;
+            results.appendChild(div);
+        }
+        
+        try {
+            // Test BBQr availability
+            if (typeof BBQr !== 'undefined') {
+                addResult('BBQr Library', 'Available ✅');
+                
+                // Test text encoding
+                try {
+                    const testText = 'Hello BBQr!';
+                    const encoded = BBQr.encode(testText, BBQr.FILE_TYPE.TEXT, {
+                        splitNumber: 1,
+                        minSplit: 1,
+                        maxSplit: 10
+                    });
+                    addResult('Text Encoding', `Success - Generated ${encoded.length} QR codes ✅`);
+                    
+                    // Test if QR data looks valid
+                    if (encoded.length > 0 && encoded[0].includes('BBQr')) {
+                        addResult('QR Data Format', 'Valid BBQr format ✅');
+                    } else {
+                        addResult('QR Data Format', 'Invalid format ❌', false);
+                    }
+                } catch (error) {
+                    addResult('Text Encoding', `Error: ${error.message} ❌`, false);
+                }
+                
+                // Test file types
+                const fileTypes = Object.keys(BBQr.FILE_TYPE);
+                addResult('Available File Types', fileTypes.join(', ') + ' ✅');
+                
+            } else {
+                addResult('BBQr Library', 'Not available ❌', false);
+            }
+            
+            // Test jsQR availability
+            if (typeof jsQR !== 'undefined') {
+                addResult('jsQR Library', 'Available ✅');
+            } else {
+                addResult('jsQR Library', 'Not available ❌', false);
+            }
+            
+        } catch (error) {
+            addResult('General Test', `Unexpected error: ${error.message} ❌`, false);
+        }
+    </script>
+</body>
+</html>

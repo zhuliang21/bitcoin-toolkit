@@ -148,7 +148,7 @@
       background: #fafbfc;
       color: #1a1a1a;
       font-weight: 400;
-      text-align: center;
+      text-align: left;
     }
 
     #entropyInput:focus {
@@ -224,10 +224,11 @@
       justify-content: center;
     }
 
-    .section:nth-child(1) h2::before { content: '🔐'; }
-    .section:nth-child(2) h2::before { content: '📱'; }
-    .section:nth-child(3) h2::before { content: '🌱'; }
-    .section:nth-child(4) h2::before { content: '🔑'; }
+    .section:nth-child(1) h2::before { content: '📝'; }
+    .section:nth-child(2) h2::before { content: '🔐'; }
+    .section:nth-child(3) h2::before { content: '📱'; }
+    .section:nth-child(4) h2::before { content: '🌱'; }
+    .section:nth-child(5) h2::before { content: '🔑'; }
 
     .monospace {
       font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
@@ -527,6 +528,47 @@
       box-shadow: 0 3px 15px rgba(16, 185, 129, 0.3);
     }
 
+    .input-text-card {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      border: 2px solid #d1d5db;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .input-text-content {
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      background: white;
+      padding: 16px 20px;
+      border-radius: 12px;
+      border: 2px solid #f1f3f4;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #374151;
+      word-break: break-all;
+      margin-bottom: 12px;
+      min-height: 50px;
+      text-align: left;
+    }
+
+    .input-text-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .input-text-length {
+      background: #f9fafb;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      font-weight: 500;
+    }
+
     @media (max-width: 768px) {
       body {
         padding: 0;
@@ -662,6 +704,28 @@
         padding: 14px 20px;
         font-size: 13px;
       }
+
+      .input-text-card {
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+      }
+
+      .input-text-content {
+        padding: 12px 16px;
+        font-size: 13px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+
+      .input-text-meta {
+        font-size: 11px;
+      }
+
+      .input-text-length {
+        padding: 3px 6px;
+        font-size: 10px;
+      }
     }
 
     @media (max-width: 375px) {
@@ -762,6 +826,28 @@
         font-size: 12px;
         min-width: 100px;
       }
+
+      .input-text-card {
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+
+      .input-text-content {
+        padding: 10px 12px;
+        font-size: 12px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+      }
+
+      .input-text-meta {
+        font-size: 10px;
+      }
+
+      .input-text-length {
+        padding: 2px 5px;
+        font-size: 9px;
+      }
     }
   </style>
 </head>
@@ -781,6 +867,17 @@
     </div>
     
     <div class="content" id="mainSection" style="display:none;">
+      <div class="section">
+        <h2><span data-i18n="inputTextTitle">Input Text</span></h2>
+        <div class="input-text-card">
+          <div class="input-text-content" id="inputTextDisplay"></div>
+          <div class="input-text-meta">
+            <span data-i18n="inputTextLabel">Source text for wallet generation</span>
+            <span class="input-text-length" id="inputTextLength"></span>
+          </div>
+        </div>
+      </div>
+
       <div class="section">
         <h2><span data-i18n="mnemonicTitle">Mnemonic Phrase</span></h2>
         <div id="mnemonicGrid" class="mnemonic-grid"></div>

@@ -2,23 +2,388 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BBQR Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>BBQr Generator</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; max-width: 600px; margin: auto; }
-    textarea { width: 100%; height: 150px; margin-top: 1rem; }
-    button { margin-top: 1rem; padding: 0.5rem 1rem; }
-    #output img { max-width: 100%; margin-top: 1rem; display: block; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+      transition: opacity 0.1s ease-in-out;
+    }
+
+    .container {
+      max-width: 430px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px 24px 0 0;
+      box-shadow: 0 -4px 40px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 60px 24px 40px;
+      text-align: center;
+      color: white;
+      position: relative;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+    }
+
+    .back-link {
+      position: absolute;
+      top: 20px;
+      left: 24px;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      min-width: 44px;
+      height: 32px;
+    }
+
+    .back-link:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-shadow: none;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      opacity: 0.85;
+      font-weight: 400;
+    }
+
+    .content {
+      padding: 24px;
+      background: white;
+    }
+
+    .section {
+      margin-bottom: 32px;
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      border: none;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      border: 1px solid #f1f3f4;
+    }
+
+    .section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+      letter-spacing: -0.3px;
+    }
+
+    .label {
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      letter-spacing: -0.2px;
+      display: block;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 16px 20px;
+      border: 2px solid #f1f3f4;
+      border-radius: 16px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: #fafbfc;
+      color: #1a1a1a;
+      font-weight: 400;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px) scale(1.01);
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px dashed #e1e5e9;
+      border-radius: 16px;
+      font-size: 14px;
+      background: #fafbfc;
+      color: #1a1a1a;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    input[type="file"]:hover {
+      border-color: #667eea;
+      background: white;
+    }
+
+    .button {
+      display: inline-block;
+      min-width: 120px;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 15px rgba(102, 126, 234, 0.3);
+      text-decoration: none;
+      text-align: center;
+      font-family: inherit;
+      margin: 4px;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 0 3px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .button-secondary {
+      background: #f1f3f4;
+      color: #1a1a1a;
+      box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .button-secondary:hover {
+      background: #e8eaed;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .button-center {
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    #output {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    #output img {
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    #decode-output {
+      background: #fafbfc;
+      color: #1a1a1a;
+      padding: 16px;
+      border-radius: 12px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      border: 1px solid #e1e5e9;
+      margin-top: 16px;
+      min-height: 60px;
+    }
+
+    #camera-video {
+      width: 100%;
+      max-width: 100%;
+      margin-top: 16px;
+      border: 2px solid #e1e5e9;
+      border-radius: 12px;
+      object-fit: cover;
+      display: none;
+    }
+
+    #camera-canvas {
+      display: none;
+    }
+
+    .status-message {
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-top: 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .status-success {
+      background: #e8f5e8;
+      color: #1b5e20;
+      border: 1px solid #c8e6c9;
+    }
+
+    .status-error {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
+    }
+
+    .status-info {
+      background: #e3f2fd;
+      color: #1565c0;
+      border: 1px solid #bbdefb;
+    }
+
+    .file-type-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #667eea;
+      color: white;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        border-radius: 0;
+        min-height: 100vh;
+      }
+      
+      .content {
+        padding: 16px;
+      }
+      
+      .section {
+        padding: 20px 16px;
+        margin-bottom: 24px;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+      
+      .button {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>BBQr 文本 QR 生成器</h1>
-  <textarea id="text-input" placeholder="在此输入任意原始文本，回车或点击生成"></textarea>
-  <p>或者上传 PSBT 文件：</p>
-  <input type="file" id="file-input" accept=".psbt" />
-  <button id="generate-btn">生成 QR 码</button>
-  <div id="output"></div>
+  <div class="container">
+    <div class="header">
+      <a href="/" class="back-link">←</a>
+      <h1>BBQr 生成器</h1>
+      <p>比特币 QR 码编码和解码工具</p>
+    </div>
+
+    <div class="content">
+      <!-- 生成部分 -->
+      <div class="section">
+        <div class="section-title">生成 BBQr 码</div>
+        
+        <div class="label">输入文本或JSON数据</div>
+        <textarea id="text-input" placeholder="在此输入任意文本、JSON或其他数据..."></textarea>
+        
+        <div class="label" style="margin-top: 16px;">或上传 PSBT 文件</div>
+        <input type="file" id="file-input" accept=".psbt" />
+        
+        <div class="button-center">
+          <button id="generate-btn" class="button">生成 QR 码</button>
+        </div>
+        
+        <div id="output"></div>
+      </div>
+
+      <!-- 解码部分 -->
+      <div class="section">
+        <div class="section-title">解码 BBQr 码</div>
+        
+        <div class="label">上传 PNG 图片文件</div>
+        <input type="file" id="decode-input" accept="image/png" multiple />
+        
+        <div class="button-group">
+          <button id="decode-btn" class="button">解码 PNG</button>
+          <button id="scan-btn" class="button">扫描相机</button>
+          <button id="copy-btn" class="button button-secondary hidden">复制结果</button>
+        </div>
+        
+        <video id="camera-video" autoplay playsinline webkit-playsinline muted></video>
+        <canvas id="camera-canvas"></canvas>
+        
+        <div id="decode-output"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- load BBQr IIFE before our bundle -->
+  <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
   <script src="./dist/bbqr.iife.js"></script>
   <script src="./dist/bbqr.bundle.js"></script>
 </body>

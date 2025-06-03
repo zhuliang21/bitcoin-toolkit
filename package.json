@@ -7,7 +7,9 @@
     "test": "npm run build && node test/example.test.js && node test/browserify.test.js",
     "start": "node index.js",
     "dev": "node --watch index.js",
-    "build": "mkdir -p dist && npx browserify src/brain-wallet.js -o dist/brain-wallet.bundle.js && npx browserify src/bbqr.js -o dist/bbqr.bundle.js && npx browserify src/qr.js -o dist/qr.bundle.js"
+    "build": "mkdir -p dist && npx browserify src/brain-wallet.js -o dist/brain-wallet.bundle.js && npx browserify src/bbqr.js -o dist/bbqr.bundle.js && npx browserify src/qr.js -o dist/qr.bundle.js",
+    "serve": "npx http-server -p 8080",
+    "serve-https": "npx http-server -p 8443 -S -C cert.pem -K key.pem"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +24,7 @@
     "tiny-secp256k1": "^1.1.0"
   },
   "devDependencies": {
-    "browserify": "^17.0.1"
+    "browserify": "^17.0.1",
+    "http-server": "^14.1.1"
   }
 }

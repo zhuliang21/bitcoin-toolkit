@@ -13,6 +13,8 @@ const translations = {
     title: 'Brain Wallet Generator',
     inputPlaceholder: 'Enter any text to generate wallet',
     generateBtn: 'Generate Wallet',
+    inputTextTitle: 'Input Text',
+    inputTextLabel: 'SHA256 hash → Entropy → Mnemonic',
     mnemonicTitle: 'Mnemonic Phrase',
     copyBtn: '📋 Copy Mnemonic',
     copiedBtn: '✅ Copied!',
@@ -33,6 +35,8 @@ const translations = {
     title: '脑钱包生成器',
     inputPlaceholder: '输入任意文本生成钱包',
     generateBtn: '生成钱包',
+    inputTextTitle: '输入文本',
+    inputTextLabel: 'SHA256哈希 → 熵值 → 助记词',
     mnemonicTitle: '助记词',
     copyBtn: '📋 复制助记词',
     copiedBtn: '✅ 已复制！',
@@ -131,6 +135,15 @@ window.addEventListener('load', () => {
     document.getElementById('mainSection').style.display = 'block';
     const usageDiv = document.getElementById('usageResults');
     if (usageDiv) { usageDiv.innerHTML = ''; usageDiv.style.display = 'none'; }
+
+    // Display input text in the new card
+    const inputTextDisplay = document.getElementById('inputTextDisplay');
+    const inputTextLength = document.getElementById('inputTextLength');
+    if (inputTextDisplay && inputTextLength) {
+      inputTextDisplay.textContent = text;
+      const lengthText = currentLanguage === 'zh' ? `${text.length} 个字符` : `${text.length} characters`;
+      inputTextLength.textContent = lengthText;
+    }
 
     const hash = crypto.createHash('sha256').update(text).digest();
     const entropyHex = hash.slice(0, 16).toString('hex');
