@@ -1,5 +1,12 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-const { splitQRs, renderQRImage } = window.BBQr;
+// Check if BBQr library is available
+if (!window.BBQr) {
+  console.error('BBQr library not found. Please ensure bbqr.iife.js is loaded.');
+  document.addEventListener('DOMContentLoaded', () => {
+    document.body.innerHTML = '<div style="padding: 20px; text-align: center; color: red;">Error: BBQr library not loaded. Please check the script tags.</div>';
+  });
+} else {
+  const { splitQRs, renderQRImage } = window.BBQr;
 
 // Application state
 const state = {
@@ -168,80 +175,6 @@ async function generateBBQR(raw, fileType) {
     elements.generateBtn.disabled = false;
     elements.generateBtn.textContent = '生成 QR 码';
   }
-}
-
-// Event handlers
-function handleGenerateClick() {
-  // Priority: use uploaded file if available
-  if (state.uploadedFile.raw) {
-    const { raw, type, name } = state.uploadedFile;
-    
-    // Clear uploaded file state
-    state.uploadedFile = { raw: null, type: null, name: null };
-    elements.fileInput.value = '';
-    updateFileInputStatus('文件已处理，可以重新上传', 'info');
-    
-    return generateBBQR(raw, type);
-  }
-  
-  // Otherwise use text input
-  const text = elements.textInput.value.trim();
-  if (!text) {
-    showStatus(elements.output, '请输入文本或上传文件', 'error');
-    return;
-  }
-  
-  const encoder = new TextEncoder();
-  const raw = encoder.encode(text);
-  const fileType = detectTextFileType(text);
-  
-  generateBBQR(raw, fileType);
-}
-
-async function handleFileInputChange() {
-  const file = elements.fileInput.files[0];
-  if (!file) {
-    state.uploadedFile = { raw: null, type: null, name: null };
-    return;
-  }
-  
-  await processUploadedFile(file);
-}
-
-// Decode result formatting
-function formatDecodeResult(fileType, raw, isFromCamera = false) {
-  const u8 = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
-  const prefix = isFromCamera ? '📱 扫描成功!\n\n' : '';
-  
-  const typeLabels = {
-    'U': 'Unicode 文本',
-    'J': 'JSON 数据',
-    'P': 'PSBT (部分签名比特币交易)',
-    'B': '二进制数据'
-  };
-  
-  let result = `${prefix}📄 文件类型: ${typeLabels[fileType] || fileType}\n📊 数据长度: ${u8.length} 字节\n\n`;
-  
-  if (fileType === 'U') {
-    const text = new TextDecoder().decode(u8);
-    result += `📝 内容:\n${text}`;
-  } else if (fileType === 'J') {
-    const text = new TextDecoder().decode(u8);
-    try {
-      const parsed = JSON.parse(text);
-      result += `✅ 格式化 JSON:\n${JSON.stringify(parsed, null, 2)}`;
-    } catch (e) {
-      result += `⚠️ JSON 解析失败，显示原始内容:\n${text}`;
-    }
-  } else if (fileType === 'P') {
-    const b64 = btoa(String.fromCharCode(...u8));
-    result += `📊 Base64 长度: ${b64.length} 字符\n\n🔗 Base64 编码:\n${b64}\n\n🔍 十六进制预览 (前64字节):\n${Array.from(u8.slice(0, 64)).map(b => b.toString(16).padStart(2, '0')).join(' ')}${u8.length > 64 ? '...' : ''}`;
-  } else {
-    const b64 = btoa(String.fromCharCode(...u8));
-    result += `🔗 Base64 编码:\n${b64}`;
-  }
-  
-  return result;
 }
 
 // Event handlers
@@ -713,4 +646,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
   console.log('BBQr Generator initialized successfully');
 });
+
+} // End BBQr availability check
 },{}]},{},[1]);

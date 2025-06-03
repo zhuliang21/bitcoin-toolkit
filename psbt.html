@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PSBT Decoder</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; color:#1a1a1a; }
+    .container { max-width:430px; margin:0 auto; background:white; border-radius:24px 24px 0 0; overflow:hidden; min-height:100vh; }
+    .header { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); padding:60px 24px 40px; position:relative; color:white; text-align:center; }
+    .back-link { position:absolute; top:24px; left:24px; color:rgba(255,255,255,0.8); text-decoration:none; font-size:0.9rem; background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:20px; }
+    .content { padding:24px; background:white; }
+    .section { margin-bottom:24px; }
+    .label { display:block; margin-bottom:8px; font-weight:600; }
+    textarea { width:100%; min-height:120px; padding:16px; border:2px solid #f1f3f4; border-radius:16px; font-size:14px; background:#fafbfc; }
+    .button-center { text-align:center; }
+    .button { padding:12px 20px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border:none; border-radius:12px; cursor:pointer; font-weight:600; }
+    .section-title { font-weight:700; margin-bottom:8px; }
+    pre { background:#f9f9f9; padding:16px; border-radius:12px; max-height:300px; overflow:auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="index.html" class="back-link">← Tools</a>
+      <h1>PSBT Decoder</h1>
+    </div>
+    <div class="content">
+      <div class="section">
+        <label class="label">PSBT Base64</label>
+        <textarea id="psbtInput" placeholder="Paste PSBT Base64 here"></textarea>
+      </div>
+      <div class="section button-center">
+        <button id="decodeBtn" class="button">Decode</button>
+      </div>
+      <div class="section">
+        <div class="section-title">Decoded Transaction</div>
+        <pre id="output"></pre>
+      </div>
+    </div>
+  </div>
+  <script src="dist/psbt.bundle.js"></script>
+  <script>
+    document.getElementById('decodeBtn').addEventListener('click', ()=>{
+      const input = document.getElementById('psbtInput').value;
+      const result = decodePSBT(input);
+      document.getElementById('output').textContent = JSON.stringify(result,null,2);
+    });
+  </script>
+</body>
+</html>

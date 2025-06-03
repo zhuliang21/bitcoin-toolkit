@@ -7,7 +7,7 @@
     "test": "npm run build && node test/example.test.js && node test/browserify.test.js",
     "start": "node index.js",
     "dev": "node --watch index.js",
-    "build": "mkdir -p dist && npx browserify src/brain-wallet.js -o dist/brain-wallet.bundle.js && npx browserify src/bbqr.js -o dist/bbqr.bundle.js && npx browserify src/qr.js -o dist/qr.bundle.js",
+    "build": "mkdir -p dist && npx browserify src/brain-wallet.js -o dist/brain-wallet.bundle.js && npx browserify src/bbqr.js -o dist/bbqr.bundle.js && npx browserify src/qr.js -o dist/qr.bundle.js && npx browserify src/psbt.js -o dist/psbt.bundle.js",
     "serve": "npx http-server -p 8080",
     "serve-https": "npx http-server -p 8443 -S -C cert.pem -K key.pem"
   },
