@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Price Tracker</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; 
+      background: #000000; 
+      min-height: 100vh; 
+      color: #ffffff; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container { 
+      max-width: 100%;
+      margin: 0;
+      background: transparent;
+      border-radius: 0;
+      overflow: visible;
+      min-height: auto;
+      text-align: center;
+    }
+    .error {
+      background: #333333;
+      color: #ff4444;
+      padding: 16px;
+      border-radius: 12px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    
+    /* Animation container */
+    .animation-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1000;
+      overflow: hidden;
+    }
+    
+    /* Falling price animation */
+    .falling-price {
+      position: absolute;
+      font-family: 'Courier New', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+      font-weight: bold;
+      color: #00ff41;
+      text-shadow: 0 0 8px #00ff41, 0 0 16px #00ff41;
+      animation: smoothFall 8s linear forwards;
+      pointer-events: none;
+      font-size: 4rem;
+      letter-spacing: 0.15em;
+      text-align: center;
+      white-space: nowrap;
+      left: 50%;
+    }
+    
+    /* 响应式字体大小 */
+    @media (max-width: 768px) {
+      .falling-price {
+        font-size: 3rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .falling-price {
+        font-size: 2.5rem;
+      }
+    }
+    
+    @media (max-width: 360px) {
+      .falling-price {
+        font-size: 2rem;
+      }
+    }
+    
+    @keyframes smoothFall {
+      0% {
+        transform: translateX(-50%) translateY(-100px);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(-50%) translateY(100vh);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="errorMessage" style="display: none;"></div>
+  </div>
+    
+    <!-- Animation container for falling prices -->
+    <div class="animation-container" id="animationContainer"></div>
+  </div>
+
+  <script>
+    let previousPrice = null;
+    let updateInterval = null;
+    let currentApiIndex = 0;
+
+    // 多个API备选方案 - 包含对中国用户友好的API
+    const apiEndpoints = [
+      {
+        name: 'OKX (中国用户友好)',
+        url: 'https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT',
+        parser: (data) => parseFloat(data.data[0].last)
+      },
+      {
+        name: 'Huobi Global (中国用户友好)', 
+        url: 'https://api.huobi.pro/market/detail/merged?symbol=btcusdt',
+        parser: (data) => parseFloat(data.tick.close)
+      },
+      {
+        name: 'Gate.io (中国用户友好)',
+        url: 'https://api.gateio.ws/api/v4/spot/tickers?currency_pair=BTC_USDT',
+        parser: (data) => parseFloat(data[0].last)
+      },
+      {
+        name: 'CoinGecko (全球通用)',
+        url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
+        parser: (data) => data.bitcoin.usd
+      },
+      {
+        name: 'Binance (备用)',
+        url: 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT',
+        parser: (data) => parseFloat(data.lastPrice)
+      },
+      {
+        name: 'Coinbase (备用)',
+        url: 'https://api.exchange.coinbase.com/products/BTC-USD/ticker',
+        parser: (data) => parseFloat(data.price)
+      },
+      {
+        name: 'Kraken (备用)',
+        url: 'https://api.kraken.com/0/public/Ticker?pair=XBTUSD',
+        parser: (data) => parseFloat(data.result.XXBTZUSD.c[0])
+      },
+      {
+        name: 'Bitfinex (备用)',
+        url: 'https://api.bitfinex.com/v1/pubticker/btcusd',
+        parser: (data) => parseFloat(data.last_price)
+      }
+    ];
+
+    async function fetchPrice() {
+      let lastError = null;
+      
+      // 尝试所有API直到成功
+      for (let i = 0; i < apiEndpoints.length; i++) {
+        const apiIndex = (currentApiIndex + i) % apiEndpoints.length;
+        const api = apiEndpoints[apiIndex];
+        
+        try {
+          console.log(`尝试API ${apiIndex + 1}: ${api.name} - ${api.url}`);
+          const response = await fetch(api.url);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          const price = api.parser(data);
+          
+          if (price && !isNaN(price)) {
+            updatePriceDisplay(price);
+            hideError();
+            
+            // 成功后更新当前API索引
+            currentApiIndex = apiIndex;
+            console.log(`✅ 成功获取价格: $${price.toLocaleString()} (来源: ${api.name})`);
+            return;
+          } else {
+            throw new Error('Invalid price data');
+          }
+          
+        } catch (error) {
+          console.error(`❌ API ${apiIndex + 1} (${api.name}) 失败:`, error);
+          lastError = error;
+          continue;
+        }
+      }
+      
+      // 所有API都失败了
+      console.error('所有API都失败了，最后一个错误:', lastError);
+      showError('Failed to fetch price data from all sources. Please check your internet connection.');
+    }
+
+    function updatePriceDisplay(price) {
+      const currentPrice = parseInt(price);
+      
+      // Always create falling price animation
+      createFallingPriceAnimation(currentPrice);
+      
+      previousPrice = currentPrice;
+    }
+    
+    let currentColumn = 0;
+
+    function createFallingPriceAnimation(price) {
+      const container = document.getElementById('animationContainer');
+      
+      // 不清除现有的动画，让它们同时进行
+      // container.innerHTML = '';  // 移除这行
+      
+      const priceElement = document.createElement('div');
+      priceElement.className = 'falling-price';
+      priceElement.textContent = price.toLocaleString('en-US');
+      
+      // 价格始终显示在中央位置 (通过CSS的left: 50%和动画实现)
+      
+      container.appendChild(priceElement);
+      
+      // Remove element after animation completes (8 seconds)
+      setTimeout(() => {
+        if (container.contains(priceElement)) {
+          container.removeChild(priceElement);
+        }
+      }, 8000);
+    }
+
+    function showError(message) {
+      const errorElement = document.getElementById('errorMessage');
+      errorElement.innerHTML = '<div class="error">' + message + '</div>';
+      errorElement.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('errorMessage').style.display = 'none';
+    }
+
+    // Initialize
+    function startPriceUpdates() {
+      // Fetch immediately
+      fetchPrice();
+      
+      // Then update every 2 seconds
+      updateInterval = setInterval(fetchPrice, 2000);
+    }
+
+    // Start when page loads
+    document.addEventListener('DOMContentLoaded', startPriceUpdates);
+    
+    // Clean up interval when page unloads
+    window.addEventListener('beforeunload', () => {
+      if (updateInterval) {
+        clearInterval(updateInterval);
+      }
+    });
+  </script>
+</body>
+</html>
