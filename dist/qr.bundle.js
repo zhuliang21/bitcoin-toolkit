@@ -2919,6 +2919,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const generateBtn = document.getElementById('generate');
   const downloadBtn = document.getElementById('download');
   const canvas = document.getElementById('qr-canvas');
+  const qrImage = document.getElementById('qr-image');
 
   function renderQR() {
     const text = textInput.value.trim();
@@ -3022,6 +3023,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         downloadBtn.disabled = false;
+        
+        // 将canvas转换为图片并显示
+        const imageDataUrl = canvas.toDataURL('image/png');
+        qrImage.src = imageDataUrl;
+        qrImage.style.display = 'block';
+        canvas.style.display = 'none';
+        
         const mainSection = document.getElementById('mainSection');
         mainSection.style.display = 'block';
       };
@@ -3040,23 +3048,20 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Add click event for fullscreen view
-  canvas.addEventListener('click', () => {
+  qrImage.addEventListener('click', () => {
     openModal();
   });
 });
 
 // 全屏模态框函数
 function openModal() {
-  const canvas = document.getElementById('qr-canvas');
+  const qrImage = document.getElementById('qr-image');
   const modalOverlay = document.getElementById('modal-overlay');
-  const modalCanvas = document.getElementById('modal-canvas');
+  const modalImage = document.getElementById('modal-image');
   
-  if (canvas && modalCanvas) {
-    // 复制原始canvas到模态框canvas
-    modalCanvas.width = canvas.width;
-    modalCanvas.height = canvas.height;
-    const modalCtx = modalCanvas.getContext('2d');
-    modalCtx.drawImage(canvas, 0, 0);
+  if (qrImage && modalImage && qrImage.src) {
+    // 将原始图片源复制到模态框图片
+    modalImage.src = qrImage.src;
     
     modalOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
