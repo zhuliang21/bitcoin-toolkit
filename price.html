@@ -109,6 +109,8 @@
     let previousPrice = null;
     let updateInterval = null;
     let currentApiIndex = 0;
+    let isPageVisible = true;
+    let pendingAnimations = 0;
 
     // 多个API备选方案 - 包含对中国用户友好的API
     const apiEndpoints = [
@@ -211,21 +213,38 @@
     function createFallingPriceAnimation(price) {
       const container = document.getElementById('animationContainer');
       
-      // 不清除现有的动画，让它们同时进行
-      // container.innerHTML = '';  // 移除这行
+      // 只有在页面不可见或者动画过多时才清理，但要更保守一些
+      if (!isPageVisible || pendingAnimations > 5) {
+        // 只清理已经完成70%以上的动画元素
+        const existingElements = container.querySelectorAll('.falling-price');
+        existingElements.forEach(element => {
+          const animationStartTime = element.dataset.startTime;
+          if (animationStartTime) {
+            const elapsed = Date.now() - parseInt(animationStartTime);
+            // 如果动画已经进行了70%以上（5.6秒），则清理
+            if (elapsed > 5600) {
+              container.removeChild(element);
+              pendingAnimations = Math.max(0, pendingAnimations - 1);
+            }
+          }
+        });
+      }
       
       const priceElement = document.createElement('div');
       priceElement.className = 'falling-price';
       priceElement.textContent = price.toLocaleString('en-US');
+      priceElement.dataset.startTime = Date.now().toString();
       
       // 价格始终显示在中央位置 (通过CSS的left: 50%和动画实现)
       
       container.appendChild(priceElement);
+      pendingAnimations++;
       
       // Remove element after animation completes (8 seconds)
       setTimeout(() => {
         if (container.contains(priceElement)) {
           container.removeChild(priceElement);
+          pendingAnimations = Math.max(0, pendingAnimations - 1);
         }
       }, 8000);
     }
@@ -242,6 +261,18 @@
 
     // Initialize
     function startPriceUpdates() {
+      // 清理任何现有的间隔
+      if (updateInterval) {
+        clearInterval(updateInterval);
+      }
+      
+      // 清理现有动画
+      const container = document.getElementById('animationContainer');
+      if (container) {
+        container.innerHTML = '';
+        pendingAnimations = 0;
+      }
+      
       // Fetch immediately
       fetchPrice();
       
@@ -249,14 +280,43 @@
       updateInterval = setInterval(fetchPrice, 2000);
     }
 
+    function stopPriceUpdates() {
+      if (updateInterval) {
+        clearInterval(updateInterval);
+        updateInterval = null;
+      }
+    }
+
+    // 页面可见性变化处理
+    function handleVisibilityChange() {
+      if (document.hidden) {
+        isPageVisible = false;
+        stopPriceUpdates();
+        console.log('页面隐藏，停止价格更新');
+      } else {
+        isPageVisible = true;
+        console.log('页面可见，重新开始价格更新');
+        // 延迟一下再开始，避免立即重复请求
+        // 不清理现有动画，让它们继续完成
+        setTimeout(() => {
+          if (updateInterval) {
+            clearInterval(updateInterval);
+          }
+          fetchPrice();
+          updateInterval = setInterval(fetchPrice, 2000);
+        }, 500);
+      }
+    }
+
     // Start when page loads
     document.addEventListener('DOMContentLoaded', startPriceUpdates);
     
+    // 监听页面可见性变化
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
     // Clean up interval when page unloads
     window.addEventListener('beforeunload', () => {
-      if (updateInterval) {
-        clearInterval(updateInterval);
-      }
+      stopPriceUpdates();
     });
   </script>
 </body>
