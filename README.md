@@ -7,7 +7,7 @@ A modern, secure, and mobile-optimized collection of cryptocurrency wallet utili
 ### 🧠 Brain Wallet Generator
 
 - **Deterministic Wallet Generation**: Create Bitcoin wallets from any memorable text input
-- **Multiple Address Types**: Support for Legacy (P2PKH), Nested SegWit (P2SH-P2WPKH), and Native SegWit (P2WPKH)
+- **Multiple Address Types**: Support for Legacy (P2PKH), Nested SegWit (P2SH-P2WPKH), Native SegWit (P2WPKH), and Taproot (P2TR)
 - **Beautiful Mnemonic Display**: 4×3 grid layout with sequence numbers and one-click copy functionality
 - **QR Code Generation**: Generate QR codes for easy backup and sharing
 - **Wallet Usage Verification**: Check if generated addresses have been used on the blockchain
@@ -144,6 +144,7 @@ const mnemonic = bip39.entropyToMnemonic(entropyHex)
 const p2pkh = payments.p2pkh({ pubkey: node.publicKey }).address
 const p2sh = payments.p2sh({ redeem: payments.p2wpkh({ pubkey: node.publicKey }) }).address
 const p2wpkh = payments.p2wpkh({ pubkey: node.publicKey }).address
+const p2tr = payments.p2tr({ internalPubkey: node.publicKey.slice(1) }).address
 ```
 
 ## 🤝 Contributing
