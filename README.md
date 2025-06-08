@@ -1,6 +1,6 @@
-# Crypto Wallet Tools
+# Bitcoin Toolkit
 
-A modern, secure, and mobile-optimized collection of cryptocurrency wallet utilities built with vanilla JavaScript. Features beautiful UI design with minimalist aesthetics and comprehensive Bitcoin wallet functionality.
+A modern, secure, and mobile-optimized collection of Bitcoin wallet utilities built with vanilla JavaScript. Features beautiful UI design with minimalist aesthetics and comprehensive Bitcoin wallet functionality.
 
 ## 🚀 Features
 
@@ -39,8 +39,8 @@ Open `index.html` in your browser to access the tools:
 ### Setup
 
 ```bash
-git clone [your-repo-url]
-cd seed-demo
+git clone https://github.com/zhuliang21/bitcoin-toolkit.git
+cd bitcoin-toolkit
 npm install
 ```
 
@@ -55,15 +55,22 @@ This will generate the bundled JavaScript file in the `dist/` directory.
 ## 📂 Project Structure
 
 ```text
-crypto-wallet-tools/
+bitcoin-toolkit/
 ├── index.html              # Main landing page with tool overview
 ├── brain-wallet.html        # Brain wallet generator interface
+├── price.html              # Bitcoin price tracker with Matrix animation
+├── bbqr.html               # BBQr generator for animated QR sequences
+├── psbt.html               # PSBT decoder tool
+├── qr.html                 # QR code generator
 ├── src/
-│   └── brain-wallet.js     # Core wallet generation logic
+│   ├── brain-wallet.js     # Core wallet generation logic
+│   ├── bbqr.js            # BBQr encoding/decoding logic
+│   ├── psbt.js            # PSBT decoding functionality
+│   └── qr.js              # QR code generation logic
 ├── dist/
-│   └── brain-wallet.bundle.js # Bundled JavaScript output
-├── package.json            # Node.js dependencies and scripts
-└── README.md              # This file
+│   └── *.bundle.js        # Bundled JavaScript output files
+├── package.json           # Node.js dependencies and scripts
+└── README.md             # This file
 ```
 
 ## 🔧 Technical Implementation

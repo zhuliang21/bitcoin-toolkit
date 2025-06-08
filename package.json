@@ -1,7 +1,7 @@
 {
-  "name": "seed-demo",
+  "name": "bitcoin-toolkit",
   "version": "1.0.0",
-  "description": "A JavaScript seed project",
+  "description": "A modern, secure collection of Bitcoin wallet utilities and tools",
   "main": "index.js",
   "scripts": {
     "test": "npm run build && node test/example.test.js && node test/browserify.test.js",
