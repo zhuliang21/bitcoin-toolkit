@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Laughing Man</title>
+  <style>
+    html { 
+      background-color: #fff;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    svg {
+      width: 450px;
+      height: 450px;
+    }
+    
+    .back-button {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 6px 12px;
+      color: rgba(102, 126, 234, 0.8);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      height: 32px;
+    }
+    
+    .back-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <!-- SVG 核心内容 -->
+  <svg viewBox="-160 -160 360 320"
+       xmlns="http://www.w3.org/2000/svg"
+       xmlns:xlink="http://www.w3.org/1999/xlink">
+    <path id="f"
+          d="m123,0a123,123 0,0 1-246,0a123,123 0,0 1 246,0"/>
+    <g fill="#057">
+      <circle r="160"/>
+      <circle r="150" fill="#fff"/>
+      <text font-size="28"
+            font-stretch="condensed"
+            font-family="Impact">
+        <animateTransform
+          type="rotate"
+          from="360 0 0"
+          to="0 0 0"
+          dur="10s"
+          attributeName="transform"
+          repeatCount="indefinite"/>
+        <textPath xlink:href="#f">
+          I thought what I’d do was, I’d pretend I was one of those deaf-mutes
+        </textPath>
+      </text>
+      <circle r="115"/>
+      <circle r="95" fill="#fff"/>
+      <path d="m-8-119h16 l2,5h-20z"/>
+      <circle cx="160" cy="0" r="40"/>
+      <path d="m-95-20v-20h255a40,40 0,0 1 0,80h-55v-20z"/>
+      <path d="m-85 0a85,85 0,0 0 170,0h-20a65,65 0,0 1-130,0z"/>
+      <path d="m-65 20v20h140v-20z"/>
+      <path d="m-115-20v10h25v30h250a20,20 0,0 0 0,-40z" fill="#fff"/>
+      <path d="m-20 10c-17-14-27-14-44 0 6-25 37-25 44 0z"/>
+      <path d="m60 10c-17-14-27-14-44 0 6-25 37-25 44 0z"/>
+    </g>
+  </svg>
+</body>
+</html>
