@@ -2,57 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Price Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTC Price Tracker - Matrix Style</title>
   <link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
   <link rel="shortcut icon" href="icon/favicon.ico">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'mono': ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', 'monospace'],
+          },
+          animation: {
+            'smoothFall': 'smoothFall 8s linear forwards',
+            'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+            'matrix-glow': 'matrix-glow 1.5s ease-in-out infinite alternate',
+          },
+          keyframes: {
+            smoothFall: {
+              '0%': {
+                transform: 'translateX(-50%) translateY(-100px)',
+                opacity: '1'
+              },
+              '100%': {
+                transform: 'translateX(-50%) translateY(100vh)',
+                opacity: '0'
+              }
+            },
+            'pulse-glow': {
+              '0%, 100%': {
+                textShadow: '0 0 8px #00ff41, 0 0 16px #00ff41'
+              },
+              '50%': {
+                textShadow: '0 0 12px #00ff41, 0 0 24px #00ff41, 0 0 32px #00ff41'
+              }
+            },
+            'matrix-glow': {
+              '0%': {
+                textShadow: '0 0 8px #00ff41, 0 0 16px #00ff41',
+                filter: 'brightness(1)'
+              },
+              '100%': {
+                textShadow: '0 0 12px #00ff41, 0 0 24px #00ff41, 0 0 32px #00ff41',
+                filter: 'brightness(1.2)'
+              }
+            }
+          },
+          colors: {
+            'matrix-green': '#00ff41',
+            'matrix-dark': '#001100',
+          }
+        }
+      }
+    }
+  </script>
+  
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; 
-      background: #000000; 
-      min-height: 100vh; 
-      color: #ffffff; 
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container { 
-      max-width: 100%;
-      margin: 0;
-      background: transparent;
-      border-radius: 0;
-      overflow: visible;
-      min-height: auto;
-      text-align: center;
-    }
-    .error {
-      background: #333333;
-      color: #ff4444;
-      padding: 16px;
-      border-radius: 12px;
-      margin: 16px 0;
-      text-align: center;
-    }
-    
-    /* Animation container */
-    .animation-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 1000;
-      overflow: hidden;
-    }
-    
-    /* Falling price animation */
+    /* Custom styles for matrix effect */
     .falling-price {
       position: absolute;
-      font-family: 'Courier New', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+      font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
       font-weight: bold;
       color: #00ff41;
       text-shadow: 0 0 8px #00ff41, 0 0 16px #00ff41;
@@ -65,7 +79,7 @@
       left: 50%;
     }
     
-    /* 响应式字体大小 */
+    /* Responsive font sizes */
     @media (max-width: 768px) {
       .falling-price {
         font-size: 3rem;
@@ -94,15 +108,130 @@
         opacity: 0;
       }
     }
+
+    /* Matrix background effect */
+    .matrix-bg {
+      background: radial-gradient(ellipse at center, #001100 0%, #000000 70%);
+    }
+
+    /* Glow effect for status messages */
+    .status-glow {
+      text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+    }
+
+    /* Auto-hide animations */
+    .auto-hide {
+      transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
+    }
+
+    .hidden-state {
+      opacity: 0;
+      transform: translateY(-30px) scale(0.95);
+      pointer-events: none;
+    }
+
+    .visible-state {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    
+    /* Falling price blur effects when interface is visible */
+    .falling-price {
+      transition: filter 1.5s ease-in-out, text-shadow 1.5s ease-in-out;
+    }
+    
+    .falling-price.blurred {
+      filter: blur(25px) saturate(300%) brightness(180%) contrast(60%);
+      text-shadow: 0 0 30px currentColor, 0 0 60px currentColor, 0 0 90px currentColor;
+    }
   </style>
 </head>
-<body>
-  <div class="container">
-    <div id="errorMessage" style="display: none;"></div>
+<body class="matrix-bg min-h-screen font-mono text-matrix-green flex items-center justify-center overflow-hidden">
+  
+  <!-- Back Button -->
+  <button onclick="window.history.back()" 
+          class="fixed top-4 left-4 md:top-6 md:left-6 z-50
+                 bg-black/20 hover:bg-black/40 border border-matrix-green/30 hover:border-matrix-green/60
+                 rounded-full w-10 h-10 md:w-12 md:h-12
+                 flex items-center justify-center
+                 text-matrix-green hover:text-white
+                 transition-all duration-300 hover:scale-110
+                 backdrop-blur-sm status-glow auto-hide visible-state"
+          id="backButton"
+          title="Back to Home">
+    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+    </svg>
+  </button>
+
+  <!-- Language Toggle -->
+  <button class="language-toggle fixed top-4 right-4 md:top-6 md:right-6 z-50
+                 bg-black/20 hover:bg-black/40 border border-matrix-green/30 hover:border-matrix-green/60
+                 rounded-full px-3 py-1.5 md:px-4 md:py-2 h-10 md:h-12
+                 flex items-center justify-center
+                 text-matrix-green hover:text-white font-mono text-xs md:text-sm font-bold
+                 transition-all duration-300 hover:scale-110
+                 backdrop-blur-sm status-glow auto-hide visible-state"
+          onclick="toggleLanguage()" 
+          id="langButton"
+          title="Switch Language">
+    ENG
+  </button>
+
+  <!-- Main Container -->
+  <div id="mainPanel" 
+       class="relative z-30 max-w-4xl mx-auto px-4 text-center auto-hide visible-state">
+    
+    <!-- Title -->
+    <div class="mb-8 md:mb-12">
+      <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold text-matrix-green 
+                 animate-matrix-glow mb-4 tracking-widest font-mono"
+          data-i18n="title">
+        ⚡ BTC PRICE TRACKER ⚡
+      </h1>
+      <p class="text-sm md:text-base text-matrix-green/80 animate-pulse-glow font-mono tracking-wider"
+         data-i18n="subtitle">
+        Matrix-Style Real-Time Bitcoin Price Monitor
+      </p>
+    </div>
+
+    <!-- Status Display -->
+    <div class="mb-8">
+      <div id="statusDisplay" class="text-xs md:text-sm text-matrix-green/60 animate-pulse font-mono tracking-wide"
+           data-i18n="initializing">
+        Initializing price feed...
+      </div>
+    </div>
+
+    <!-- API Status Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-8 max-w-2xl mx-auto">
+      <div id="apiStatus" class="contents">
+        <!-- API status indicators will be populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="text-xs md:text-sm text-matrix-green/40 space-y-2">
+      <p data-i18n="update1">🔄 Real-time updates every 2 seconds</p>
+      <p data-i18n="update2">🌐 8 API sources with smart failover</p>
+      <p data-i18n="update3">💚 China-friendly endpoints prioritized</p>
+    </div>
+
+    <!-- Error Display -->
+    <div id="errorMessage" style="display: none;" 
+         class="mt-6 bg-red-900/20 border-2 border-red-500/30 rounded-lg 
+                p-4 text-red-400 text-sm md:text-base animate-pulse">
+    </div>
   </div>
     
-    <!-- Animation container for falling prices -->
-    <div class="animation-container" id="animationContainer"></div>
+  <!-- Animation container for falling prices -->
+  <div class="fixed inset-0 pointer-events-none z-40 overflow-hidden" 
+       id="animationContainer">
+  </div>
+
+  <!-- Floating particles background -->
+  <div class="fixed inset-0 pointer-events-none z-0" id="particlesContainer">
   </div>
 
   <script>
@@ -111,61 +240,125 @@
     let currentApiIndex = 0;
     let isPageVisible = true;
     let pendingAnimations = 0;
+    let apiStatuses = {};
+    
+    // Auto-hide functionality
+    let hideTimeout = null;
+    let isInterfaceVisible = true;
+    let lastInteractionTime = Date.now();
+    const HIDE_DELAY = 5000; // 5 seconds of inactivity
 
-    // 多个API备选方案 - 包含对中国用户友好的API
+    // Multiple API endpoints with China-friendly options
     const apiEndpoints = [
       {
-        name: 'OKX (中国用户友好)',
+        name: 'OKX',
+        region: 'CN',
         url: 'https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT',
         parser: (data) => parseFloat(data.data[0].last)
       },
       {
-        name: 'Huobi Global (中国用户友好)', 
+        name: 'Huobi',
+        region: 'CN', 
         url: 'https://api.huobi.pro/market/detail/merged?symbol=btcusdt',
         parser: (data) => parseFloat(data.tick.close)
       },
       {
-        name: 'Gate.io (中国用户友好)',
+        name: 'Gate.io',
+        region: 'CN',
         url: 'https://api.gateio.ws/api/v4/spot/tickers?currency_pair=BTC_USDT',
         parser: (data) => parseFloat(data[0].last)
       },
       {
-        name: 'CoinGecko (全球通用)',
+        name: 'CoinGecko',
+        region: 'Global',
         url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
         parser: (data) => data.bitcoin.usd
       },
       {
-        name: 'Binance (备用)',
+        name: 'Binance',
+        region: 'Global',
         url: 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT',
         parser: (data) => parseFloat(data.lastPrice)
       },
       {
-        name: 'Coinbase (备用)',
+        name: 'Coinbase',
+        region: 'US',
         url: 'https://api.exchange.coinbase.com/products/BTC-USD/ticker',
         parser: (data) => parseFloat(data.price)
       },
       {
-        name: 'Kraken (备用)',
+        name: 'Kraken',
+        region: 'US',
         url: 'https://api.kraken.com/0/public/Ticker?pair=XBTUSD',
         parser: (data) => parseFloat(data.result.XXBTZUSD.c[0])
       },
       {
-        name: 'Bitfinex (备用)',
+        name: 'Bitfinex',
+        region: 'Global',
         url: 'https://api.bitfinex.com/v1/pubticker/btcusd',
         parser: (data) => parseFloat(data.last_price)
       }
     ];
 
+    // Initialize API status display
+    function initApiStatusDisplay() {
+      const container = document.getElementById('apiStatus');
+      container.innerHTML = '';
+      
+      apiEndpoints.forEach((api, index) => {
+        const statusElement = document.createElement('div');
+        statusElement.className = 'bg-black/20 border border-matrix-green/20 rounded-lg p-2 text-xs';
+        statusElement.innerHTML = `
+          <div class="font-semibold text-matrix-green/80">${api.name}</div>
+          <div class="text-matrix-green/40">${api.region}</div>
+          <div id="status-${index}" class="text-yellow-400">●</div>
+        `;
+        container.appendChild(statusElement);
+        apiStatuses[index] = 'pending';
+      });
+    }
+
+    function updateApiStatus(index, status) {
+      const statusElement = document.getElementById(`status-${index}`);
+      if (statusElement) {
+        apiStatuses[index] = status;
+        switch(status) {
+          case 'success':
+            statusElement.textContent = '●';
+            statusElement.className = 'text-matrix-green animate-pulse-glow';
+            break;
+          case 'error':
+            statusElement.textContent = '●';
+            statusElement.className = 'text-red-400';
+            break;
+          case 'pending':
+            statusElement.textContent = '●';
+            statusElement.className = 'text-yellow-400 animate-pulse';
+            break;
+        }
+      }
+    }
+
+    function updateStatusDisplay(message) {
+      const statusElement = document.getElementById('statusDisplay');
+      statusElement.textContent = message;
+      statusElement.className = 'text-xs md:text-sm text-matrix-green/80 animate-matrix-glow';
+    }
+
     async function fetchPrice() {
       let lastError = null;
       
-      // 尝试所有API直到成功
+      // Try all APIs until success
       for (let i = 0; i < apiEndpoints.length; i++) {
         const apiIndex = (currentApiIndex + i) % apiEndpoints.length;
         const api = apiEndpoints[apiIndex];
         
+        updateApiStatus(apiIndex, 'pending');
+        
         try {
-          console.log(`尝试API ${apiIndex + 1}: ${api.name} - ${api.url}`);
+          console.log(`Trying API ${apiIndex + 1}: ${api.name} - ${api.url}`);
+          updateStatusDisplay(`Fetching from ${api.name} (${api.region})...`);
+          
           const response = await fetch(api.url);
           
           if (!response.ok) {
@@ -177,25 +370,29 @@
           
           if (price && !isNaN(price)) {
             updatePriceDisplay(price);
+            updateApiStatus(apiIndex, 'success');
+            updateStatusDisplay(`✅ Live: $${price.toLocaleString()} from ${api.name}`);
             hideError();
             
-            // 成功后更新当前API索引
+            // Update current API index on success
             currentApiIndex = apiIndex;
-            console.log(`✅ 成功获取价格: $${price.toLocaleString()} (来源: ${api.name})`);
+            console.log(`✅ Successfully fetched price: $${price.toLocaleString()} (source: ${api.name})`);
             return;
           } else {
             throw new Error('Invalid price data');
           }
           
         } catch (error) {
-          console.error(`❌ API ${apiIndex + 1} (${api.name}) 失败:`, error);
+          console.error(`❌ API ${apiIndex + 1} (${api.name}) failed:`, error);
+          updateApiStatus(apiIndex, 'error');
           lastError = error;
           continue;
         }
       }
       
-      // 所有API都失败了
-      console.error('所有API都失败了，最后一个错误:', lastError);
+      // All APIs failed
+      console.error('All APIs failed, last error:', lastError);
+      updateStatusDisplay('❌ All API sources failed');
       showError('Failed to fetch price data from all sources. Please check your internet connection.');
     }
 
@@ -208,20 +405,17 @@
       previousPrice = currentPrice;
     }
     
-    let currentColumn = 0;
-
     function createFallingPriceAnimation(price) {
       const container = document.getElementById('animationContainer');
       
-      // 只有在页面不可见或者动画过多时才清理，但要更保守一些
+      // Clean up old animations when page is not visible or too many animations
       if (!isPageVisible || pendingAnimations > 5) {
-        // 只清理已经完成70%以上的动画元素
         const existingElements = container.querySelectorAll('.falling-price');
         existingElements.forEach(element => {
           const animationStartTime = element.dataset.startTime;
           if (animationStartTime) {
             const elapsed = Date.now() - parseInt(animationStartTime);
-            // 如果动画已经进行了70%以上（5.6秒），则清理
+            // Clean up animations that are 70% complete (5.6 seconds)
             if (elapsed > 5600) {
               container.removeChild(element);
               pendingAnimations = Math.max(0, pendingAnimations - 1);
@@ -235,7 +429,12 @@
       priceElement.textContent = price.toLocaleString('en-US');
       priceElement.dataset.startTime = Date.now().toString();
       
-      // 价格始终显示在中央位置 (通过CSS的left: 50%和动画实现)
+      // Apply blur if interface is currently visible
+      if (isInterfaceVisible) {
+        priceElement.classList.add('blurred');
+      }
+      
+      // Price always displays in center position (via CSS left: 50% and animation)
       
       container.appendChild(priceElement);
       pendingAnimations++;
@@ -251,7 +450,12 @@
 
     function showError(message) {
       const errorElement = document.getElementById('errorMessage');
-      errorElement.innerHTML = '<div class="error">' + message + '</div>';
+      errorElement.innerHTML = `
+        <div class="flex items-center justify-center space-x-2">
+          <span class="text-red-400">⚠️</span>
+          <span>${message}</span>
+        </div>
+      `;
       errorElement.style.display = 'block';
     }
 
@@ -259,19 +463,148 @@
       document.getElementById('errorMessage').style.display = 'none';
     }
 
+    // Create floating particles background effect
+    function createParticles() {
+      const container = document.getElementById('particlesContainer');
+      
+      for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'absolute w-1 h-1 bg-matrix-green/20 rounded-full animate-pulse';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 2 + 's';
+        particle.style.animationDuration = (2 + Math.random() * 3) + 's';
+        container.appendChild(particle);
+      }
+    }
+
+    // Auto-hide interface functions
+    function hideInterface() {
+      if (!isInterfaceVisible) return;
+      
+      isInterfaceVisible = false;
+      const mainPanel = document.getElementById('mainPanel');
+      const backButton = document.getElementById('backButton');
+      const langButton = document.getElementById('langButton');
+      
+      if (mainPanel) {
+        mainPanel.classList.remove('visible-state');
+        mainPanel.classList.add('hidden-state');
+      }
+      
+      if (backButton) {
+        backButton.classList.remove('visible-state');
+        backButton.classList.add('hidden-state');
+      }
+      
+      if (langButton) {
+        langButton.classList.remove('visible-state');
+        langButton.classList.add('hidden-state');
+      }
+      
+      // Remove blur from all falling prices
+      const fallingPrices = document.querySelectorAll('.falling-price');
+      fallingPrices.forEach(price => {
+        price.classList.remove('blurred');
+      });
+      
+      console.log('🫥 Interface hidden - entering zen mode');
+    }
+
+    function showInterface() {
+      if (isInterfaceVisible) return;
+      
+      isInterfaceVisible = true;
+      const mainPanel = document.getElementById('mainPanel');
+      const backButton = document.getElementById('backButton');
+      const langButton = document.getElementById('langButton');
+      
+      if (mainPanel) {
+        mainPanel.classList.remove('hidden-state');
+        mainPanel.classList.add('visible-state');
+      }
+      
+      if (backButton) {
+        backButton.classList.remove('hidden-state');
+        backButton.classList.add('visible-state');
+      }
+      
+      if (langButton) {
+        langButton.classList.remove('hidden-state');
+        langButton.classList.add('visible-state');
+      }
+      
+      // Add blur to all falling prices
+      const fallingPrices = document.querySelectorAll('.falling-price');
+      fallingPrices.forEach(price => {
+        price.classList.add('blurred');
+      });
+      
+      console.log('👁️ Interface visible - controls restored');
+    }
+
+    function resetHideTimer() {
+      lastInteractionTime = Date.now();
+      
+      // Show interface if it's hidden
+      if (!isInterfaceVisible) {
+        showInterface();
+      }
+      
+      // Clear existing timer
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+      }
+      
+      // Set new timer
+      hideTimeout = setTimeout(() => {
+        if (Date.now() - lastInteractionTime >= HIDE_DELAY) {
+          hideInterface();
+        }
+      }, HIDE_DELAY);
+    }
+
+    // Event listeners for user interaction
+    function setupInteractionListeners() {
+      const events = [
+        'mousedown', 'mousemove', 'mouseup', 'click',
+        'touchstart', 'touchmove', 'touchend',
+        'keydown', 'scroll', 'wheel'
+      ];
+      
+      events.forEach(eventType => {
+        document.addEventListener(eventType, resetHideTimer, { passive: true });
+      });
+      
+      // Special handling for touch events to ensure mobile compatibility
+      document.addEventListener('touchstart', (e) => {
+        resetHideTimer();
+      }, { passive: true });
+      
+      document.addEventListener('touchmove', (e) => {
+        resetHideTimer();
+      }, { passive: true });
+      
+      // Initial timer
+      resetHideTimer();
+    }
+
     // Initialize
     function startPriceUpdates() {
-      // 清理任何现有的间隔
+      // Clear any existing intervals
       if (updateInterval) {
         clearInterval(updateInterval);
       }
       
-      // 清理现有动画
+      // Clear existing animations
       const container = document.getElementById('animationContainer');
       if (container) {
         container.innerHTML = '';
         pendingAnimations = 0;
       }
+      
+      // Initialize API status display
+      initApiStatusDisplay();
       
       // Fetch immediately
       fetchPrice();
@@ -287,17 +620,27 @@
       }
     }
 
-    // 页面可见性变化处理
+    // Handle page visibility changes
     function handleVisibilityChange() {
       if (document.hidden) {
         isPageVisible = false;
         stopPriceUpdates();
-        console.log('页面隐藏，停止价格更新');
+        updateStatusDisplay('⏸️ Paused (page hidden)');
+        console.log('Page hidden, stopping price updates');
+        
+        // Clear hide timer when page is hidden
+        if (hideTimeout) {
+          clearTimeout(hideTimeout);
+        }
       } else {
         isPageVisible = true;
-        console.log('页面可见，重新开始价格更新');
-        // 延迟一下再开始，避免立即重复请求
-        // 不清理现有动画，让它们继续完成
+        updateStatusDisplay('🔄 Resuming updates...');
+        console.log('Page visible, restarting price updates');
+        
+        // Reset interaction timer when page becomes visible
+        resetHideTimer();
+        
+        // Delay restart to avoid immediate duplicate requests
         setTimeout(() => {
           if (updateInterval) {
             clearInterval(updateInterval);
@@ -309,15 +652,78 @@
     }
 
     // Start when page loads
-    document.addEventListener('DOMContentLoaded', startPriceUpdates);
+    document.addEventListener('DOMContentLoaded', () => {
+      createParticles();
+      startPriceUpdates();
+      setupInteractionListeners();
+      
+      // Set initial blur state for any existing elements
+      if (isInterfaceVisible) {
+        const fallingPrices = document.querySelectorAll('.falling-price');
+        fallingPrices.forEach(price => {
+          price.classList.add('blurred');
+        });
+      }
+    });
     
-    // 监听页面可见性变化
+    // Listen for page visibility changes
     document.addEventListener('visibilitychange', handleVisibilityChange);
     
     // Clean up interval when page unloads
     window.addEventListener('beforeunload', () => {
       stopPriceUpdates();
+      if (hideTimeout) {
+        clearTimeout(hideTimeout);
+      }
     });
+
+    // Language support
+    const translations = {
+      en: {
+        title: '⚡ BTC PRICE TRACKER ⚡',
+        subtitle: 'Matrix-Style Real-Time Bitcoin Price Monitor',
+        initializing: 'Initializing price feed...',
+        update1: '🔄 Real-time updates every 2 seconds',
+        update2: '🌐 8 API sources with smart failover',
+        update3: '💚 China-friendly endpoints prioritized'
+      },
+      zh: {
+        title: '⚡ BTC价格追踪器 ⚡',
+        subtitle: '矩阵风格实时比特币价格监控',
+        initializing: '正在初始化价格数据...',
+        update1: '🔄 每2秒实时更新',
+        update2: '🌐 8个API源智能故障转移',
+        update3: '💚 中国用户友好的API端点'
+      }
+    };
+
+    let currentLanguage = localStorage.getItem('language') || 'en';
+
+    function updateTexts() {
+      const texts = translations[currentLanguage];
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (texts[key]) {
+          element.textContent = texts[key];
+        }
+      });
+
+      const toggleBtn = document.querySelector('.language-toggle');
+      if (toggleBtn) {
+        toggleBtn.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
+      }
+
+      document.documentElement.lang = currentLanguage;
+    }
+
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
+      localStorage.setItem('language', currentLanguage);
+      updateTexts();
+    }
+
+    // Initialize language on page load
+    updateTexts();
   </script>
 </body>
 </html>

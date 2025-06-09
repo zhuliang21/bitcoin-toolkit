@@ -8,473 +8,361 @@
   <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
   <link rel="shortcut icon" href="icon/favicon.ico">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'mono': ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', 'monospace'],
+          },
+          animation: {
+            'pulse-subtle': 'pulse 1.5s ease-in-out infinite',
+            'fadeInUp': 'fadeInUp 0.3s ease-out',
+            'fadeIn': 'fadeIn 0.2s ease-out',
+            'modalZoomIn': 'modalZoomIn 0.25s ease-out'
+          },
+          keyframes: {
+            fadeInUp: {
+              from: {
+                opacity: '0',
+                transform: 'translateY(15px)'
+              },
+              to: {
+                opacity: '1',
+                transform: 'translateY(0)'
+              }
+            },
+            fadeIn: {
+              from: { opacity: '0' },
+              to: { opacity: '1' }
+            },
+            modalZoomIn: {
+              from: {
+                transform: 'scale(0.9)',
+                opacity: '0'
+              },
+              to: {
+                transform: 'scale(1)',
+                opacity: '1'
+              }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    /* Custom styles for elements that need specific behavior */
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .gradient-button-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .gradient-button-purple {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    }
+    
+    .backdrop-blur-glass {
+      backdrop-filter: blur(10px);
     }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      line-height: 1.6;
-      color: #1a1a1a;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 0;
-      margin: 0;
-      transition: opacity 0.1s ease-in-out;
+    /* Modal overlay */
+    .modal-overlay {
+      backdrop-filter: blur(20px);
     }
 
     /* Prevent flash of unstyled content during language initialization */
     body.loading {
       visibility: hidden;
     }
-
-    .container {
-      max-width: 430px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 24px 24px 0 0;
-      box-shadow: 0 -4px 40px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
-      min-height: 100vh;
-      position: relative;
-    }
-
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 60px 24px 40px;
-      text-align: center;
-      color: white;
-      position: relative;
-    }
-
-    .header::before {
-      content: '';
-      position: absolute;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 36px;
-      height: 5px;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 3px;
-    }
-
-    .back-link {
-      position: absolute;
-      top: 20px;
-      left: 24px;
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      padding: 6px 12px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      min-width: 44px;
-      height: 32px;
-    }
-
-    .back-link:hover {
-      color: white;
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .language-toggle {
-      position: absolute;
-      top: 20px;
-      right: 24px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 20px;
-      padding: 6px 12px;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-      min-width: 44px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .language-toggle:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-    }
-
-    .header h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      text-shadow: none;
-      letter-spacing: -0.5px;
-    }
-
-    .input-section {
-      padding: 24px;
-      background: white;
-      border-bottom: none;
-    }
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin-bottom: 0;
-    }
-
-    .button-center {
-      text-align: center;
-      margin-top: 8px;
-    }
-
-    .field {
-      margin-bottom: 16px;
-    }
-
-    .label {
-      font-weight: 700;
-      color: #1a1a1a;
-      margin-bottom: 8px;
-      font-size: 0.95rem;
-      letter-spacing: -0.2px;
-      display: block;
-    }
-
-    .textarea, .input {
-      width: 100%;
-      padding: 16px 20px;
-      border: 2px solid #f1f3f4;
-      border-radius: 16px;
-      font-size: 16px;
-      transition: all 0.3s ease;
-      background: #fafbfc;
-      color: #1a1a1a;
-      font-weight: 400;
-      resize: vertical;
-      font-family: inherit;
-    }
-
-    .textarea {
-      min-height: 120px;
-    }
-
-    .textarea:focus, .input:focus {
-      outline: none;
-      border-color: #667eea;
-      background: white;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-      transform: translateY(-2px) scale(1.01);
-    }
-
-    .button {
-      display: inline-block;
-      min-width: 120px;
-      padding: 14px 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 3px 15px rgba(102, 126, 234, 0.3);
-      text-transform: none;
-      letter-spacing: normal;
-    }
-
-    .button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    .button:active {
-      transform: translateY(0);
-    }
-
-    .button:disabled {
-      opacity: 0.6;
-      transform: none;
-      box-shadow: 0 3px 15px rgba(102, 126, 234, 0.3);
-      cursor: not-allowed;
-    }
-
-    .button.is-primary {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      box-shadow: 0 3px 15px rgba(99, 102, 241, 0.3);
-    }
-
-    .button.is-primary:hover {
-      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-    }
-
-    .content {
-      padding: 0 24px 24px;
-      background: white;
-    }
-
-    .section {
-      margin-bottom: 32px;
-      background: white;
-      border-radius: 20px;
-      padding: 24px;
-      border: none;
-      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
-      border: 1px solid #f1f3f4;
-    }
-
-    .section:last-child {
-      margin-bottom: 40px;
-    }
-
-    .section h2 {
-      color: #1a1a1a;
-      margin-bottom: 16px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      letter-spacing: -0.3px;
-    }
-
-    .section h2::before {
-      content: '📱';
-      font-size: 1rem;
-    }
-
-    #qr-image {
-      display: block;
-      margin: 0 auto;
-      border-radius: 16px;
-      border: 1px solid #f1f3f4;
-      cursor: pointer;
-      transition: transform 0.2s ease-out;
-      max-width: 100%;
-      height: auto;
-      will-change: transform;
-    }
-
-    #qr-image:hover {
-      transform: scale(1.01);
-    }
-
-    .qr-result {
-      display: none;
-      animation: fadeInUp 0.3s ease-out;
-    }
-    
-    .qr-result.show {
-      display: block;
-    }
-    
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(15px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* 全屏模态框样式 */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      backdrop-filter: blur(20px);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      animation: fadeIn 0.2s ease-out;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    
-    .modal-overlay.active {
-      display: flex;
-    }
-    
-    .modal-canvas {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      animation: modalZoomIn 0.25s ease-out;
-    }
-    
-    @keyframes modalZoomIn {
-      from {
-        transform: scale(0.9);
-        opacity: 0;
-      }
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    /* 手机端响应式设计 */
-    @media (max-width: 768px) {
-      body {
-        padding: 0;
-      }
-
-      .container {
-        margin: 0;
-        border-radius: 0;
-        max-width: 100%;
-      }
-
-      .header {
-        padding: 50px 20px 30px;
-        border-radius: 0;
-      }
-
-      .back-link {
-        left: 20px;
-        font-size: 0.85rem;
-        padding: 6px 10px;
-      }
-
-      .language-toggle {
-        right: 20px;
-        font-size: 0.8rem;
-        padding: 5px 10px;
-      }
-
-      .header h1 {
-        font-size: 1.5rem;
-      }
-
-      .input-section {
-        padding: 20px;
-      }
-
-      .content {
-        padding: 0 20px 20px;
-      }
-
-      .section {
-        padding: 20px;
-        margin-bottom: 24px;
-        border-radius: 16px;
-      }
-
-      .section h2 {
-        font-size: 1rem;
-      }
-
-      .button {
-        padding: 16px 20px;
-        font-size: 15px;
-      }
-
-      #qr-image {
-        border-radius: 12px;
-      }
-    }
-
-    @media (max-width: 375px) {
-      .header {
-        padding: 40px 16px 24px;
-      }
-
-      .back-link {
-        left: 16px;
-        font-size: 0.8rem;
-        padding: 4px 8px;
-      }
-
-      .language-toggle {
-        right: 16px;
-        font-size: 0.75rem;
-        padding: 4px 8px;
-      }
-
-      .input-section {
-        padding: 16px;
-      }
-
-      .content {
-        padding: 0 16px 16px;
-      }
-
-      .section {
-        padding: 16px;
-        border-radius: 12px;
-      }
-
-      .button {
-        padding: 14px 18px;
-        font-size: 14px;
-      }
-    }
   </style>
 </head>
-<body style="visibility: hidden;">
-  <div class="container">
-    <div class="header">
-      <a href="index.html" class="back-link" data-i18n="back">←</a>
-      <button class="language-toggle" onclick="toggleLanguage()">ENG</button>
-      <h1 data-i18n="title">QR Code Generator</h1>
+<body class="bg-white min-h-screen font-sans text-gray-900 transition-opacity duration-100" style="visibility: hidden;">
+  <!-- Main Container -->
+  <div class="max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto bg-white 
+              rounded-t-3xl md:rounded-3xl md:my-5 lg:my-8 
+              overflow-hidden min-h-screen md:min-h-0 md:shadow-xl">
+    
+    <!-- Header with Gradient Background -->
+    <div class="gradient-bg text-white relative rounded-b-3xl 
+                px-6 py-16 md:px-12 md:py-20 lg:px-16 lg:py-24 text-center">
+      
+      <!-- Top Handle (Mobile) -->
+      <div class="absolute top-3 left-1/2 transform -translate-x-1/2 
+                  w-9 h-1.5 bg-white/30 rounded-full md:hidden"></div>
+      
+      <!-- Back Link -->
+      <a href="index.html" 
+         class="absolute top-5 left-6 md:left-12 lg:left-16 
+                text-white/80 hover:text-white text-sm font-medium 
+                flex items-center justify-center px-3 py-1.5 md:px-4 md:py-2 
+                rounded-full bg-white/10 hover:bg-white/20 
+                backdrop-blur-glass border border-white/20 
+                transition-all duration-300 min-w-11 h-8 md:min-w-12 md:h-10" 
+         data-i18n="back">
+        ←
+      </a>
+      
+      <!-- Language Toggle -->
+      <button class="language-toggle absolute top-5 right-6 md:right-12 lg:right-16 
+                     bg-white/10 hover:bg-white/20 border border-white/20 
+                     rounded-full px-3 py-1.5 md:px-4 md:py-2 
+                     text-white/80 hover:text-white text-sm font-medium 
+                     cursor-pointer transition-all duration-300 
+                     backdrop-blur-glass min-w-11 h-8 md:min-w-12 md:h-10 
+                     flex items-center justify-center" 
+              onclick="toggleLanguage()">
+        ENG
+      </button>
+      
+      <!-- Title -->
+      <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 tracking-tight" 
+          data-i18n="title">
+        QR Code Generator
+      </h1>
     </div>
     
-    <div class="input-section">
-      <div class="input-group">
-        <div class="field">
-          <label class="label" data-i18n="textLabel">Text/URL</label>
-          <textarea class="textarea" id="text" data-i18n-placeholder="textPlaceholder" placeholder="Enter text, URL, or any content" rows="3"></textarea>
+    <!-- Input Section -->
+    <div class="p-6 md:p-12 lg:p-16 bg-white border-b border-gray-100">
+      <div class="space-y-6">
+        <!-- Text Input -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-900 mb-2 tracking-tight" 
+                 data-i18n="textLabel">
+            Text/URL
+          </label>
+          <textarea 
+            id="text" 
+            rows="3"
+            data-i18n-placeholder="textPlaceholder"
+            placeholder="Enter text, URL, or any content"
+            class="w-full p-4 md:p-5 border-2 border-gray-100 
+                   rounded-2xl text-base bg-gray-50/50 text-gray-900 
+                   font-normal resize-y transition-all duration-300 
+                   focus:outline-none focus:border-indigo-500 focus:bg-white 
+                   focus:shadow-lg focus:-translate-y-0.5 focus:scale-101
+                   placeholder-gray-400">
+          </textarea>
         </div>
-        <div class="field">
-          <label class="label" data-i18n="tagLabel">Tag (Optional)</label>
-          <input class="input" type="text" id="tag" data-i18n-placeholder="tagPlaceholder" placeholder="Enter tag for organizing">
+        
+        <!-- Tag Input -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-900 mb-2 tracking-tight" 
+                 data-i18n="tagLabel">
+            Tag (Optional)
+          </label>
+          <input 
+            type="text" 
+            id="tag"
+            data-i18n-placeholder="tagPlaceholder"
+            placeholder="Enter tag for organizing"
+            class="w-full p-4 md:p-5 border-2 border-gray-100 
+                   rounded-2xl text-base bg-gray-50/50 text-gray-900 
+                   font-normal transition-all duration-300 
+                   focus:outline-none focus:border-indigo-500 focus:bg-white 
+                   focus:shadow-lg focus:-translate-y-0.5 focus:scale-101
+                   placeholder-gray-400">
         </div>
-        <div class="button-center">
-          <button class="button" id="generate" data-i18n="generateBtn">Generate QR Code</button>
+        
+        <!-- Generate Button -->
+        <div class="text-center pt-2">
+          <button 
+            id="generate"
+            class="gradient-button-primary text-white px-8 py-3 md:px-10 md:py-4 
+                   rounded-xl md:rounded-2xl text-base font-semibold cursor-pointer 
+                   transition-all duration-300 shadow-lg 
+                   hover:-translate-y-0.5 hover:shadow-xl 
+                   active:translate-y-0 min-w-40"
+            data-i18n="generateBtn">
+            Generate QR Code
+          </button>
         </div>
       </div>
     </div>
     
-    <div class="content" id="mainSection" style="display:none;">
-      <div class="section">
-        <h2><span data-i18n="qrTitle">QR Code</span></h2>
-        <canvas id="qr-canvas" style="display: none;"></canvas>
-        <img id="qr-image" style="display: none; max-width: 100%; height: auto; border-radius: 16px; border: 1px solid #f1f3f4; cursor: pointer; transition: transform 0.2s ease-out;" onclick="openModal()"/>
-        <div style="text-align: center; margin-top: 16px;">
-          <button class="button is-primary" id="download" disabled data-i18n="downloadBtn">📥 Download PNG</button>
+    <!-- Content Section -->
+    <div id="mainSection" class="p-6 md:p-12 lg:p-16 bg-white hidden">
+      <div class="bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 
+                  border border-gray-100 shadow-sm hover:shadow-md 
+                  transition-all duration-300">
+        <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8 tracking-tight 
+                   flex items-center gap-2">
+          <span class="text-2xl">📱</span>
+          <span data-i18n="qrTitle">QR Code</span>
+        </h2>
+        
+        <!-- QR Code Display -->
+        <div class="text-center mb-6">
+          <canvas id="qr-canvas" class="hidden"></canvas>
+          <img 
+            id="qr-image" 
+            class="hidden max-w-full h-auto rounded-2xl border border-gray-100 
+                   cursor-pointer transition-transform duration-200 ease-out 
+                   hover:scale-105 mx-auto shadow-lg" 
+            onclick="openModal()" />
+        </div>
+        
+        <!-- Download Button -->
+        <div class="text-center">
+          <button 
+            id="download" 
+            disabled
+            class="gradient-button-purple text-white px-6 py-3 md:px-8 md:py-4 
+                   rounded-xl md:rounded-2xl text-base font-semibold cursor-pointer 
+                   transition-all duration-300 shadow-lg 
+                   hover:-translate-y-0.5 hover:shadow-xl 
+                   active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed 
+                   disabled:transform-none disabled:shadow-lg min-w-40"
+            data-i18n="downloadBtn">
+            📥 Download PNG
+          </button>
         </div>
       </div>
     </div>
   </div>
   
-  <!-- 全屏模态框 -->
-  <div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
-    <img class="modal-canvas" id="modal-image" />
+  <!-- Full Screen Modal -->
+  <div 
+    id="modal-overlay" 
+    class="modal-overlay fixed inset-0 bg-black/90 z-50 
+           justify-center items-center cursor-pointer 
+           animate-fadeIn hidden"
+    onclick="closeModal()">
+    <img 
+      id="modal-image" 
+      class="max-w-[90%] max-h-[90%] rounded-3xl border border-white/10 
+             animate-modalZoomIn" />
   </div>
   
+  <!-- Scripts -->
   <script src="dist/qr.bundle.js"></script>
+  
+  <script>
+    // Enhanced functions for Tailwind integration
+    function showQRResult() {
+      const mainSection = document.getElementById('mainSection');
+      if (mainSection) {
+        mainSection.classList.remove('hidden');
+        mainSection.classList.add('animate-fadeInUp');
+      }
+    }
+
+    function hideQRResult() {
+      const mainSection = document.getElementById('mainSection');
+      if (mainSection) {
+        mainSection.classList.add('hidden');
+        mainSection.classList.remove('animate-fadeInUp');
+      }
+    }
+
+    function openModal() {
+      const modal = document.getElementById('modal-overlay');
+      const modalImage = document.getElementById('modal-image');
+      const qrImage = document.getElementById('qr-image');
+      
+      if (modal && modalImage && qrImage) {
+        modalImage.src = qrImage.src;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('modal-overlay');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Override original functions if they exist
+    if (typeof window !== 'undefined') {
+      // Make functions available globally
+      window.showQRResult = showQRResult;
+      window.hideQRResult = hideQRResult;
+      window.openModal = openModal;
+      window.closeModal = closeModal;
+    }
+
+    // Language support
+    const translations = {
+      en: {
+        title: 'QR Code Generator',
+        back: '←',
+        textLabel: 'Text/URL',
+        textPlaceholder: 'Enter text, URL, or any content',
+        tagLabel: 'Tag (Optional)',
+        tagPlaceholder: 'Enter tag for organizing',
+        generateBtn: 'Generate QR Code',
+        qrTitle: 'QR Code',
+        downloadBtn: '📥 Download PNG'
+      },
+      zh: {
+        title: '二维码生成器',
+        back: '←',
+        textLabel: '文本/网址',
+        textPlaceholder: '输入文本、网址或任何内容',
+        tagLabel: '标签（可选）',
+        tagPlaceholder: '输入用于组织的标签',
+        generateBtn: '生成二维码',
+        qrTitle: '二维码',
+        downloadBtn: '📥 下载PNG'
+      }
+    };
+
+    let currentLanguage = localStorage.getItem('language') || 'en';
+
+    function updateTexts() {
+      const texts = translations[currentLanguage];
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (texts[key]) {
+          element.textContent = texts[key];
+        }
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        if (texts[key]) {
+          element.placeholder = texts[key];
+        }
+      });
+
+      const toggleBtn = document.querySelector('.language-toggle');
+      if (toggleBtn) {
+        toggleBtn.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
+      }
+
+      document.documentElement.lang = currentLanguage;
+    }
+
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
+      localStorage.setItem('language', currentLanguage);
+      updateTexts();
+    }
+
+    // Initialize language on page load
+    updateTexts();
+
+    // Show content after language is set
+    setTimeout(() => {
+      document.body.style.visibility = 'visible';
+    }, 50);
+  </script>
 </body>
 </html>

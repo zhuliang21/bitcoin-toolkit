@@ -131,7 +131,7 @@ function toggleLanguage() {
 function updateLanguage() {
   const langToggle = document.querySelector('.language-toggle');
   if (langToggle) {
-    langToggle.textContent = currentLanguage === 'en' ? 'ENG' : '中文';
+    langToggle.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
   }
 
   // Update all elements with data-i18n attributes

@@ -8,49 +8,363 @@
   <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
   <link rel="shortcut icon" href="icon/favicon.ico">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'mono': ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', 'monospace'],
+          },
+          animation: {
+            'pulse-subtle': 'pulse 1.5s ease-in-out infinite',
+          }
+        }
+      }
+    }
+  </script>
+  
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; color:#1a1a1a; }
-    .container { max-width:430px; margin:0 auto; background:white; border-radius:24px 24px 0 0; overflow:hidden; min-height:100vh; }
-    .header { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); padding:60px 24px 40px; position:relative; color:white; text-align:center; }
-    .back-link { position:absolute; top:24px; left:24px; color:rgba(255,255,255,0.8); text-decoration:none; font-size:0.9rem; background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:20px; }
-    .content { padding:24px; background:white; }
-    .section { margin-bottom:24px; }
-    .label { display:block; margin-bottom:8px; font-weight:600; }
-    textarea { width:100%; min-height:120px; padding:16px; border:2px solid #f1f3f4; border-radius:16px; font-size:14px; background:#fafbfc; }
-    .button-center { text-align:center; }
-    .button { padding:12px 20px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border:none; border-radius:12px; cursor:pointer; font-weight:600; }
-    .section-title { font-weight:700; margin-bottom:8px; }
-    pre { background:#f9f9f9; padding:16px; border-radius:12px; max-height:300px; overflow:auto; }
+    /* Custom styles for elements that need specific behavior */
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .gradient-button-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .gradient-button-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+    
+    .gradient-button-purple {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    }
+    
+    .backdrop-blur-glass {
+      backdrop-filter: blur(10px);
+    }
   </style>
 </head>
-<body>
-  <div class="container">
-    <div class="header">
-      <a href="index.html" class="back-link">← Tools</a>
-      <h1>PSBT Decoder</h1>
+<body class="bg-white min-h-screen font-sans text-gray-900 transition-opacity duration-100">
+  <!-- Main Container -->
+  <div class="max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto bg-white 
+              rounded-t-3xl md:rounded-3xl md:my-5 lg:my-8 
+              overflow-hidden min-h-screen md:min-h-0 md:shadow-xl">
+    
+    <!-- Header with Gradient Background -->
+    <div class="gradient-bg text-white relative rounded-b-3xl 
+                px-6 py-16 md:px-12 md:py-20 lg:px-16 lg:py-24 text-center">
+      
+      <!-- Top Handle (Mobile) -->
+      <div class="absolute top-3 left-1/2 transform -translate-x-1/2 
+                  w-9 h-1.5 bg-white/30 rounded-full md:hidden"></div>
+      
+      <!-- Back Link -->
+      <a href="index.html" 
+         class="absolute top-6 left-6 md:left-12 lg:left-16 
+                text-white/80 hover:text-white text-sm font-medium 
+                flex items-center justify-center px-3 py-1.5 md:px-4 md:py-2 
+                rounded-full bg-white/10 hover:bg-white/20 
+                backdrop-blur-glass border border-white/20 
+                transition-all duration-300 min-w-16 h-8 md:min-w-20 md:h-10"
+         data-i18n="backBtn">
+        ← Tools
+      </a>
+      
+      <!-- Language Toggle -->
+      <button class="language-toggle absolute top-5 right-6 md:right-12 lg:right-16 
+                     bg-white/10 hover:bg-white/20 border border-white/20 
+                     rounded-full px-3 py-1.5 md:px-4 md:py-2 
+                     text-white/80 hover:text-white text-sm font-medium 
+                     cursor-pointer transition-all duration-300 
+                     backdrop-blur-glass min-w-11 h-8 md:min-w-12 md:h-10 
+                     flex items-center justify-center" 
+              onclick="toggleLanguage()">
+        ENG
+      </button>
+      
+      <!-- Title -->
+      <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-2 tracking-tight"
+          data-i18n="title">
+        PSBT Decoder
+      </h1>
+      <p class="text-white/85 text-sm md:text-base font-normal"
+         data-i18n="subtitle">
+        Decode Bitcoin Partially Signed Transactions
+      </p>
     </div>
-    <div class="content">
-      <div class="section">
-        <label class="label">PSBT Base64</label>
-        <textarea id="psbtInput" placeholder="Paste PSBT Base64 here"></textarea>
+    
+    <!-- Content -->
+    <div class="p-6 md:p-12 lg:p-16 bg-white space-y-8 md:space-y-12">
+      
+      <!-- Input Section -->
+      <div class="bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 
+                  border border-gray-100 shadow-sm hover:shadow-md 
+                  transition-all duration-300">
+        <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8 tracking-tight"
+            data-i18n="inputTitle">
+          Input PSBT
+        </h2>
+        
+        <!-- PSBT Input -->
+        <div class="mb-6">
+          <label class="block text-sm font-semibold text-gray-900 mb-2 tracking-tight"
+                 data-i18n="inputLabel">
+            PSBT Base64
+          </label>
+          <textarea 
+            id="psbtInput" 
+            placeholder="Paste PSBT Base64 here"
+            class="w-full min-h-32 p-4 md:p-5 border-2 border-gray-100 
+                   rounded-2xl text-base bg-gray-50/50 text-gray-900 
+                   font-normal resize-y transition-all duration-300 
+                   focus:outline-none focus:border-indigo-500 focus:bg-white 
+                   focus:shadow-lg focus:-translate-y-0.5 focus:scale-101
+                   placeholder-gray-400 font-mono">
+          </textarea>
+        </div>
+        
+        <!-- Decode Button -->
+        <div class="text-center">
+          <button 
+            id="decodeBtn"
+            class="gradient-button-primary text-white px-8 py-3 md:px-10 md:py-4 
+                   rounded-xl md:rounded-2xl text-base font-semibold cursor-pointer 
+                   transition-all duration-300 shadow-lg 
+                   hover:-translate-y-0.5 hover:shadow-xl 
+                   active:translate-y-0 min-w-32">
+            Decode
+          </button>
+        </div>
       </div>
-      <div class="section button-center">
-        <button id="decodeBtn" class="button">Decode</button>
+
+      <!-- Output Section -->
+      <div class="bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 
+                  border border-gray-100 shadow-sm hover:shadow-md 
+                  transition-all duration-300">
+        <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8 tracking-tight">
+          Decoded Transaction
+        </h2>
+        
+        <!-- Output Display -->
+        <div class="relative">
+          <pre 
+            id="output"
+            class="bg-gray-50/50 text-gray-900 p-4 md:p-6 rounded-xl 
+                   font-mono text-sm leading-relaxed border border-gray-200 
+                   max-h-80 overflow-auto whitespace-pre-wrap break-all
+                   scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          </pre>
+          
+          <!-- Copy Button -->
+          <button 
+            id="copyBtn"
+            class="absolute top-3 right-3 bg-white hover:bg-gray-50 
+                   text-gray-600 hover:text-gray-900 p-2 rounded-lg 
+                   border border-gray-200 transition-all duration-200 
+                   opacity-0 hover:opacity-100 focus:opacity-100"
+            onclick="copyToClipboard()"
+            title="Copy to clipboard">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
+              </path>
+            </svg>
+          </button>
+        </div>
       </div>
-      <div class="section">
-        <div class="section-title">Decoded Transaction</div>
-        <pre id="output"></pre>
+
+      <!-- Status Messages -->
+      <div id="statusContainer" class="hidden">
+        <div id="statusMessage" 
+             class="p-4 rounded-xl text-sm font-medium border"></div>
       </div>
     </div>
   </div>
+  
+  <!-- Scripts -->
   <script src="dist/psbt.bundle.js"></script>
+  
   <script>
-    document.getElementById('decodeBtn').addEventListener('click', ()=>{
-      const input = document.getElementById('psbtInput').value;
-      const result = decodePSBT(input);
-      document.getElementById('output').textContent = JSON.stringify(result,null,2);
+    // Enhanced decode function with better error handling and UI feedback
+    document.getElementById('decodeBtn').addEventListener('click', function() {
+      const input = document.getElementById('psbtInput').value.trim();
+      const output = document.getElementById('output');
+      const copyBtn = document.getElementById('copyBtn');
+      
+      if (!input) {
+        showStatus('Please enter a PSBT Base64 string', 'error');
+        return;
+      }
+
+      try {
+        // Show loading state
+        this.innerHTML = '<div class="inline-flex items-center"><svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Decoding...</div>';
+        this.disabled = true;
+        
+        // Decode PSBT
+        const result = decodePSBT(input);
+        const formattedResult = JSON.stringify(result, null, 2);
+        
+        // Display result
+        output.textContent = formattedResult;
+        copyBtn.classList.remove('opacity-0');
+        
+        showStatus('PSBT decoded successfully', 'success');
+        
+      } catch (error) {
+        console.error('Decode error:', error);
+        output.textContent = 'Error: ' + error.message;
+        copyBtn.classList.add('opacity-0');
+        showStatus('Failed to decode PSBT: ' + error.message, 'error');
+      } finally {
+        // Reset button
+        this.innerHTML = 'Decode';
+        this.disabled = false;
+      }
     });
+
+    // Copy to clipboard function
+    function copyToClipboard() {
+      const output = document.getElementById('output');
+      const copyBtn = document.getElementById('copyBtn');
+      
+      if (output.textContent) {
+        navigator.clipboard.writeText(output.textContent).then(function() {
+          // Show success feedback
+          const originalContent = copyBtn.innerHTML;
+          copyBtn.innerHTML = '<svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+          copyBtn.classList.add('text-green-600', 'bg-green-50', 'border-green-200');
+          
+          setTimeout(() => {
+            copyBtn.innerHTML = originalContent;
+            copyBtn.classList.remove('text-green-600', 'bg-green-50', 'border-green-200');
+          }, 1000);
+          
+          showStatus('Copied to clipboard', 'success');
+        }).catch(function(err) {
+          showStatus('Failed to copy: ' + err.message, 'error');
+        });
+      }
+    }
+
+    // Status message function
+    function showStatus(message, type = 'info') {
+      const statusContainer = document.getElementById('statusContainer');
+      const statusMessage = document.getElementById('statusMessage');
+      
+      const statusClasses = {
+        success: 'bg-green-50 text-green-800 border-green-200',
+        error: 'bg-red-50 text-red-800 border-red-200',
+        info: 'bg-blue-50 text-blue-800 border-blue-200'
+      };
+      
+      // Reset classes
+      statusMessage.className = `p-4 rounded-xl text-sm font-medium border ${statusClasses[type]}`;
+      statusMessage.textContent = message;
+      statusContainer.classList.remove('hidden');
+      
+      // Auto-hide after 5 seconds for non-error messages
+      if (type !== 'error') {
+        setTimeout(() => {
+          statusContainer.classList.add('hidden');
+        }, 5000);
+      }
+    }
+
+    // Show copy button on hover over output
+    const output = document.getElementById('output');
+    const copyBtn = document.getElementById('copyBtn');
+    
+    output.addEventListener('mouseenter', () => {
+      if (output.textContent.trim()) {
+        copyBtn.style.opacity = '1';
+      }
+    });
+    
+    output.addEventListener('mouseleave', () => {
+      if (!copyBtn.matches(':focus')) {
+        copyBtn.style.opacity = '0';
+      }
+    });
+
+    // Auto-resize textarea
+    const psbtInput = document.getElementById('psbtInput');
+    psbtInput.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.max(128, this.scrollHeight) + 'px';
+    });
+
+    // Clear status when input changes
+    psbtInput.addEventListener('input', function() {
+      const statusContainer = document.getElementById('statusContainer');
+      statusContainer.classList.add('hidden');
+    });
+
+    // Language support
+    const translations = {
+      en: {
+        title: 'PSBT Decoder',
+        subtitle: 'Decode Bitcoin Partially Signed Transactions',
+        backBtn: '← Tools',
+        inputTitle: 'Input PSBT',
+        inputLabel: 'PSBT Base64',
+        inputPlaceholder: 'Paste your PSBT Base64 string here...',
+        decodeBtn: 'Decode PSBT',
+        outputTitle: 'Decoded PSBT',
+        copyBtn: 'Copy'
+      },
+      zh: {
+        title: 'PSBT解码器',
+        subtitle: '解码比特币部分签名交易',
+        backBtn: '← 工具',
+        inputTitle: '输入PSBT',
+        inputLabel: 'PSBT Base64',
+        inputPlaceholder: '在此粘贴您的PSBT Base64字符串...',
+        decodeBtn: '解码PSBT',
+        outputTitle: '解码后的PSBT',
+        copyBtn: '复制'
+      }
+    };
+
+    let currentLanguage = localStorage.getItem('language') || 'en';
+
+    function updateTexts() {
+      const texts = translations[currentLanguage];
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (texts[key]) {
+          element.textContent = texts[key];
+        }
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        if (texts[key]) {
+          element.placeholder = texts[key];
+        }
+      });
+
+      const toggleBtn = document.querySelector('.language-toggle');
+      if (toggleBtn) {
+        toggleBtn.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
+      }
+
+      document.documentElement.lang = currentLanguage;
+    }
+
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
+      localStorage.setItem('language', currentLanguage);
+      updateTexts();
+    }
+
+    // Initialize language on page load
+    updateTexts();
   </script>
 </body>
 </html>
