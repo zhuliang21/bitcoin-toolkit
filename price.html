@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BTC Price Tracker - Matrix Style</title>
+  <title>USD Exchange Rate - Matrix Style</title>
   <link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
@@ -16,7 +16,7 @@
       theme: {
         extend: {
           fontFamily: {
-            'mono': ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', 'monospace'],
+            'mono': ['Courier New', 'Monaco', 'Consolas', 'Lucida Console', 'monospace'],
           },
           animation: {
             'smoothFall': 'smoothFall 8s linear forwards',
@@ -66,7 +66,7 @@
     /* Custom styles for matrix effect */
     .falling-price {
       position: absolute;
-      font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
+      font-family: 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', monospace;
       font-weight: bold;
       color: #00ff41;
       text-shadow: 0 0 8px #00ff41, 0 0 16px #00ff41;
@@ -188,11 +188,11 @@
       <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold text-matrix-green 
                  animate-matrix-glow mb-4 tracking-widest font-mono"
           data-i18n="title">
-        ⚡ BTC PRICE TRACKER ⚡
+        USD EXCHANGE RATE
       </h1>
       <p class="text-sm md:text-base text-matrix-green/80 animate-pulse-glow font-mono tracking-wider"
          data-i18n="subtitle">
-        Matrix-Style Real-Time Bitcoin Price Monitor
+        Matrix-Style Real-Time Exchange Rate Monitor
       </p>
     </div>
 
@@ -200,7 +200,7 @@
     <div class="mb-8">
       <div id="statusDisplay" class="text-xs md:text-sm text-matrix-green/60 animate-pulse font-mono tracking-wide"
            data-i18n="initializing">
-        Initializing price feed...
+        Initializing exchange rate feed...
       </div>
     </div>
 
@@ -228,10 +228,6 @@
   <!-- Animation container for falling prices -->
   <div class="fixed inset-0 pointer-events-none z-40 overflow-hidden" 
        id="animationContainer">
-  </div>
-
-  <!-- Floating particles background -->
-  <div class="fixed inset-0 pointer-events-none z-0" id="particlesContainer">
   </div>
 
   <script>
@@ -376,7 +372,7 @@
             
             // Update current API index on success
             currentApiIndex = apiIndex;
-            console.log(`✅ Successfully fetched price: $${price.toLocaleString()} (source: ${api.name})`);
+            console.log(`✅ Successfully fetched rate: $${price.toLocaleString()} (source: ${api.name})`);
             return;
           } else {
             throw new Error('Invalid price data');
@@ -393,7 +389,7 @@
       // All APIs failed
       console.error('All APIs failed, last error:', lastError);
       updateStatusDisplay('❌ All API sources failed');
-      showError('Failed to fetch price data from all sources. Please check your internet connection.');
+      showError('Failed to fetch exchange rate data from all sources. Please check your internet connection.');
     }
 
     function updatePriceDisplay(price) {
@@ -463,22 +459,19 @@
       document.getElementById('errorMessage').style.display = 'none';
     }
 
-    // Create floating particles background effect
-    function createParticles() {
-      const container = document.getElementById('particlesContainer');
+    // Start when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      startPriceUpdates();
+      setupInteractionListeners();
       
-      for (let i = 0; i < 20; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'absolute w-1 h-1 bg-matrix-green/20 rounded-full animate-pulse';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.top = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 2 + 's';
-        particle.style.animationDuration = (2 + Math.random() * 3) + 's';
-        container.appendChild(particle);
+      // Set initial blur state for any existing elements
+      if (isInterfaceVisible) {
+        const fallingPrices = document.querySelectorAll('.falling-price');
+        fallingPrices.forEach(price => {
+          price.classList.add('blurred');
+        });
       }
-    }
-
-    // Auto-hide interface functions
+    });
     function hideInterface() {
       if (!isInterfaceVisible) return;
       
@@ -653,7 +646,6 @@
 
     // Start when page loads
     document.addEventListener('DOMContentLoaded', () => {
-      createParticles();
       startPriceUpdates();
       setupInteractionListeners();
       
@@ -680,17 +672,17 @@
     // Language support
     const translations = {
       en: {
-        title: '⚡ BTC PRICE TRACKER ⚡',
-        subtitle: 'Matrix-Style Real-Time Bitcoin Price Monitor',
-        initializing: 'Initializing price feed...',
+        title: 'USD EXCHANGE RATE',
+        subtitle: 'Matrix-Style Real-Time Exchange Rate Monitor',
+        initializing: 'Initializing exchange rate feed...',
         update1: '🔄 Real-time updates every 2 seconds',
         update2: '🌐 8 API sources with smart failover',
         update3: '💚 China-friendly endpoints prioritized'
       },
       zh: {
-        title: '⚡ BTC价格追踪器 ⚡',
-        subtitle: '矩阵风格实时比特币价格监控',
-        initializing: '正在初始化价格数据...',
+        title: 'USD汇率追踪器',
+        subtitle: '矩阵风格实时汇率监控',
+        initializing: '正在初始化汇率数据...',
         update1: '🔄 每2秒实时更新',
         update2: '🌐 8个API源智能故障转移',
         update3: '💚 中国用户友好的API端点'
