@@ -19,40 +19,26 @@
             'mono': ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', 'monospace'],
           },
           animation: {
-            'pulse-subtle': 'pulse 1.5s ease-in-out infinite',
-            'fadeInUp': 'fadeInUp 0.3s ease-out',
-            'slideUp': 'slideUp 0.4s ease-out',
+            'fadeInUp': 'fadeInUp 0.5s ease-out forwards',
             'float': 'float 3s ease-in-out infinite',
+            'gradient-shift': 'gradient-shift 15s ease infinite',
           },
           keyframes: {
             fadeInUp: {
-              from: {
-                opacity: '0',
-                transform: 'translateY(20px)'
-              },
-              to: {
-                opacity: '1',
-                transform: 'translateY(0)'
-              }
-            },
-            slideUp: {
-              from: {
-                opacity: '0',
-                transform: 'translateY(30px)'
-              },
-              to: {
-                opacity: '1',
-                transform: 'translateY(0)'
-              }
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
             },
             float: {
-              '0%, 100%': {
-                transform: 'translateY(0px)'
-              },
-              '50%': {
-                transform: 'translateY(-5px)'
-              }
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-8px)' }
+            },
+            'gradient-shift': {
+              '0%, 100%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' }
             }
+          },
+          backdropBlur: {
+            '20': '20px',
           }
         }
       }
@@ -60,82 +46,95 @@
   </script>
   
   <style>
-    /* Custom styles for elements that need specific behavior */
+    /* Minimal custom styles */
+    body.loading { visibility: hidden; }
+    
     .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(-45deg, 
+        #f8f7ff 0%, 
+        #f0edff 15%, 
+        #e8e3ff 30%, 
+        #ebe8ff 45%, 
+        #f3f0ff 60%, 
+        #f8f5ff 75%, 
+        #faf8ff 90%, 
+        #f8f7ff 100%);
+      background-size: 400% 400%;
+      animation: gradient-shift 20s ease infinite;
     }
     
-    .gradient-card {
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    .glass-card {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
     
-    .tool-icon-gradient {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .backdrop-blur-glass {
-      backdrop-filter: blur(10px);
-    }
-
-    /* Prevent flash of unstyled content during language initialization */
-    body.loading {
-      visibility: hidden;
+    .glass-card:hover {
+      background: rgba(255, 255, 255, 0.35);
+      border-color: rgba(255, 255, 255, 0.5);
     }
   </style>
 </head>
-<body class="bg-white min-h-screen font-sans text-gray-900 transition-opacity duration-100" style="visibility: hidden;">
+
+<body class="gradient-bg min-h-screen font-sans text-slate-700 relative overflow-x-hidden" style="visibility: hidden;">
+  
+  <!-- Subtle background texture -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="absolute inset-0 bg-gradient-to-br from-purple-100/30 via-transparent to-violet-100/20"></div>
+    <div class="absolute inset-0 bg-gradient-to-tl from-indigo-100/20 via-transparent to-purple-100/25"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.05)_0%,transparent_50%)] animate-pulse" style="animation-duration: 8s;"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04)_0%,transparent_50%)] animate-pulse" style="animation-duration: 12s; animation-delay: 2s;"></div>
+  </div>
+
   <!-- Main Container -->
-  <div class="max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto bg-white 
-              rounded-t-3xl md:rounded-3xl md:my-5 lg:my-8 
-              overflow-hidden min-h-screen md:min-h-0 md:shadow-xl">
+  <div class="relative z-10 max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto 
+              md:rounded-3xl md:my-6 lg:my-8 
+              overflow-hidden min-h-screen md:min-h-0">
     
-    <!-- Header with Gradient Background -->
-    <div class="gradient-bg text-white relative rounded-b-3xl 
-                px-6 py-16 md:px-12 md:py-20 lg:px-16 lg:py-24 text-center">
+    <!-- Security Notice -->
+    <div id="securityNotice" class="glass-card border-b border-white/20 px-6 py-3 md:px-12 md:py-4 text-center 
+                                     relative overflow-hidden shadow-lg shadow-slate-500/10 
+                                     bg-white/30 backdrop-blur-xl ring-1 ring-white/25 ring-inset">
+      <!-- Top highlight line -->
+      <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
       
-      <!-- Top Handle (Mobile) -->
+      <div class="flex items-center justify-center gap-2 relative z-10">
+        <span class="text-base md:text-lg">⚠️</span>
+        <span class="text-xs md:text-sm font-medium text-slate-600" data-i18n="securityNotice">
+          For educational and testing purposes only. Use at your own risk.
+        </span>
+        <button onclick="closeSecurityNotice()" 
+                class="ml-2 text-slate-400 hover:text-slate-600 transition-colors duration-200 
+                       text-lg leading-none hover:scale-110 transform">
+          ×
+        </button>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="text-slate-700 relative px-6 py-4 md:px-12 md:py-6 lg:px-16 lg:py-8 text-center">
+      
+      <!-- Mobile handle -->
       <div class="absolute top-3 left-1/2 transform -translate-x-1/2 
-                  w-9 h-1.5 bg-white/30 rounded-full md:hidden"></div>
+                  w-9 h-1.5 bg-slate-400/40 rounded-full md:hidden"></div>
       
       <!-- Language Toggle -->
       <button class="language-toggle absolute top-5 right-6 md:right-12 lg:right-16 
-                     bg-white/10 hover:bg-white/20 border border-white/20 
-                     rounded-full px-3 py-1.5 md:px-4 md:py-2 ··························································································
-                     text-white/80 hover:text-white text-sm font-medium 
-                     cursor-pointer transition-all duration-300 
-                     backdrop-blur-glass min-w-11 h-8 md:min-w-12 md:h-10 
-                     flex items-center justify-center" 
+                     glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2 
+                     text-slate-500 hover:text-slate-700 text-sm font-medium 
+                     cursor-pointer transition-all duration-300 hover:scale-105 transform
+                     min-w-11 h-8 md:min-w-12 md:h-10 
+                     flex items-center justify-center
+                     shadow-lg shadow-slate-500/10 hover:shadow-xl hover:shadow-slate-500/20
+                     bg-white/25 backdrop-blur-xl border border-white/30 hover:border-white/50
+                     ring-1 ring-white/30 hover:ring-white/40 ring-inset" 
               onclick="toggleLanguage()">
         ENG
       </button>
-      
-      <!-- Title -->
-      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-2 tracking-tight animate-float" 
-          data-i18n="title">
-        ⚡🧰⚡
-      </h1>
-      <p class="text-white/85 text-base md:text-lg font-normal mt-4" 
-         data-i18n="subtitle">
-        Bitcoin Developer Tools
-      </p>
     </div>
     
     <!-- Content -->
-    <div class="p-6 md:p-12 lg:p-16 bg-white">
-      
-      <!-- Security Warning -->
-      <div class="bg-blue-50 border-2 border-blue-100 rounded-2xl md:rounded-3xl 
-                  p-4 md:p-6 lg:p-8 mb-8 md:mb-12 text-center animate-slideUp">
-        <div class="flex items-center justify-center mb-3">
-          <span class="text-xl md:text-2xl mr-2">⚠️</span>
-          <span class="text-sm md:text-base font-bold text-gray-900" data-i18n="warningTitle">
-            安全提醒：
-          </span>
-        </div>
-        <p class="text-xs md:text-sm text-gray-600 leading-relaxed" data-i18n="securityWarning">
-          本页面工具开源并且可以离线使用，但在使用时请充分了解其风险。本工具仅供教育和测试目的，请勿用于正式的生产环境或关键业务场景。
-        </p>
-      </div>
+    <div class="p-6 md:p-12 lg:p-16">
       
       <!-- Tools Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 
@@ -143,323 +142,271 @@
         
         <!-- Brain Wallet Tool -->
         <a href="brain-wallet.html" 
-           class="group bg-gray-50/50 hover:bg-white border-2 border-gray-100 
-                  hover:border-indigo-200 rounded-2xl md:rounded-3xl 
-                  p-6 md:p-8 transition-all duration-300 
-                  hover:-translate-y-1 hover:shadow-xl 
-                  cursor-pointer animate-fadeInUp">
-          <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-            <div class="tool-icon-gradient text-white w-12 h-12 md:w-14 md:h-14 
-                        rounded-xl md:rounded-2xl flex items-center justify-center 
-                        text-xl md:text-2xl font-semibold group-hover:scale-110 
-                        transition-transform duration-300">
-              🧠
+           class="group glass-card hover:glass-card
+                  rounded-2xl md:rounded-3xl 
+                  p-6 md:p-8 transition-all duration-500 ease-out
+                  hover:-translate-y-2 hover:scale-[1.02] transform
+                  cursor-pointer animate-fadeInUp
+                  relative overflow-hidden
+                  shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
+                  bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
+                  ring-1 ring-white/20 hover:ring-white/35 ring-inset
+                  before:absolute before:top-0 before:left-0 before:right-0 before:h-px
+                  before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent">
+          
+          <!-- Hover glow effect -->
+          <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 
+                      opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl md:rounded-3xl"></div>
+          
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-4 md:mb-6">
+              <span class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform duration-300">🧠</span>
+              <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
+                         tracking-tight group-hover:text-slate-600 transition-colors duration-300" 
+                  data-i18n="brainWalletTitle">
+                Brain Wallet Generator
+              </h2>
             </div>
-            <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 
-                       tracking-tight group-hover:text-indigo-600 transition-colors" 
-                data-i18n="brainWalletTitle">
-              Brain Wallet Generator
-            </h2>
+            <p class="text-sm md:text-base text-slate-500 leading-relaxed 
+               group-hover:text-slate-600 transition-colors duration-300" 
+               data-i18n="brainWalletDesc">
+              Generate Bitcoin wallets from memorable text using deterministic algorithms.
+            </p>
           </div>
-          <p class="text-sm md:text-base text-gray-600 mb-4 md:mb-6 leading-relaxed" 
-             data-i18n="brainWalletDesc">
-            Generate Bitcoin wallets from memorable text using deterministic algorithms.
-          </p>
-          <ul class="space-y-2">
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="feature1">Text-to-wallet conversion</span>
-            </li>
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="feature2">Multiple address formats</span>
-            </li>
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="feature3">Usage verification</span>
-            </li>
-          </ul>
         </a>
 
         <!-- QR Code Tool -->
         <a href="qr.html" 
-           class="group bg-gray-50/50 hover:bg-white border-2 border-gray-100 
-                  hover:border-indigo-200 rounded-2xl md:rounded-3xl 
-                  p-6 md:p-8 transition-all duration-300 
-                  hover:-translate-y-1 hover:shadow-xl 
-                  cursor-pointer animate-fadeInUp"
+           class="group glass-card hover:glass-card
+                  rounded-2xl md:rounded-3xl 
+                  p-6 md:p-8 transition-all duration-500 ease-out
+                  hover:-translate-y-2 hover:scale-[1.02] transform
+                  cursor-pointer animate-fadeInUp
+                  relative overflow-hidden
+                  shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
+                  bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
+                  ring-1 ring-white/20 hover:ring-white/35 ring-inset
+                  before:absolute before:top-0 before:left-0 before:right-0 before:h-px
+                  before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent"
            style="animation-delay: 0.1s;">
-          <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-            <div class="tool-icon-gradient text-white w-12 h-12 md:w-14 md:h-14 
-                        rounded-xl md:rounded-2xl flex items-center justify-center 
-                        text-xl md:text-2xl font-semibold group-hover:scale-110 
-                        transition-transform duration-300">
-              📱
+          
+          <!-- Hover glow effect -->
+          <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 
+                      opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl md:rounded-3xl"></div>
+          
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-4 md:mb-6">
+              <span class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform duration-300">📱</span>
+              <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
+                         tracking-tight group-hover:text-slate-600 transition-colors duration-300" 
+                  data-i18n="qrTitle">
+                QR Code Generator
+              </h2>
             </div>
-            <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 
-                       tracking-tight group-hover:text-indigo-600 transition-colors" 
-                data-i18n="qrTitle">
-              QR Code Generator
-            </h2>
+            <p class="text-sm md:text-base text-slate-500 leading-relaxed 
+               group-hover:text-slate-600 transition-colors duration-300" 
+               data-i18n="qrDesc">
+              Create QR codes for text and URLs with instant download.
+            </p>
           </div>
-          <p class="text-sm md:text-base text-gray-600 mb-4 md:mb-6 leading-relaxed" 
-             data-i18n="qrDesc">
-            Create QR codes for text and URLs with instant download.
-          </p>
-          <ul class="space-y-2">
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="qrFeature1">Text & URL encoding</span>
-            </li>
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="qrFeature2">High-quality PNG export</span>
-            </li>
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="qrFeature3">Fullscreen preview</span>
-            </li>
-          </ul>
         </a>
 
         <!-- BBQR Tool -->
         <a href="bbqr.html" 
-           class="group bg-gray-50/50 hover:bg-white border-2 border-gray-100 
-                  hover:border-indigo-200 rounded-2xl md:rounded-3xl 
-                  p-6 md:p-8 transition-all duration-300 
-                  hover:-translate-y-1 hover:shadow-xl 
-                  cursor-pointer animate-fadeInUp"
+           class="group glass-card hover:glass-card
+                  rounded-2xl md:rounded-3xl 
+                  p-6 md:p-8 transition-all duration-500 ease-out
+                  hover:-translate-y-2 hover:scale-[1.02] transform
+                  cursor-pointer animate-fadeInUp
+                  relative overflow-hidden
+                  shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
+                  bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
+                  ring-1 ring-white/20 hover:ring-white/35 ring-inset
+                  before:absolute before:top-0 before:left-0 before:right-0 before:h-px
+                  before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent"
            style="animation-delay: 0.2s;">
-          <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-            <div class="tool-icon-gradient text-white w-12 h-12 md:w-14 md:h-14 
-                        rounded-xl md:rounded-2xl flex items-center justify-center 
-                        text-xl md:text-2xl font-semibold group-hover:scale-110 
-                        transition-transform duration-300">
-              🔗
+          
+          <!-- Hover glow effect -->
+          <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 
+                      opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl md:rounded-3xl"></div>
+          
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-4 md:mb-6">
+              <span class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform duration-300">🔥</span>
+              <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
+                         tracking-tight group-hover:text-slate-600 transition-colors duration-300" 
+                  data-i18n="bbqrTitle">
+                BBQR Generator
+              </h2>
             </div>
-            <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 
-                       tracking-tight group-hover:text-indigo-600 transition-colors" 
-                data-i18n="bbqrTitle">
-              BBQR Generator
-            </h2>
+            <p class="text-sm md:text-base text-slate-500 leading-relaxed 
+               group-hover:text-slate-600 transition-colors duration-300" 
+               data-i18n="bbqrDesc">
+              Split large data into animated QR sequences for Bitcoin transactions.
+            </p>
           </div>
-          <p class="text-sm md:text-base text-gray-600 mb-4 md:mb-6 leading-relaxed" 
-             data-i18n="bbqrDesc">
-            Split large data into animated QR sequences for Bitcoin transactions.
-          </p>
-          <ul class="space-y-2">
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="bbqrFeature1">Animated QR sequences</span>
-            </li>
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="bbqrFeature2">Large data splitting</span>
-            </li>
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="bbqrFeature3">Bitcoin transaction support</span>
-            </li>
-          </ul>
         </a>
 
         <!-- PSBT Tool -->
         <a href="psbt.html" 
-           class="group bg-gray-50/50 hover:bg-white border-2 border-gray-100 
-                  hover:border-indigo-200 rounded-2xl md:rounded-3xl 
-                  p-6 md:p-8 transition-all duration-300 
-                  hover:-translate-y-1 hover:shadow-xl 
-                  cursor-pointer animate-fadeInUp"
+           class="group glass-card hover:glass-card
+                  rounded-2xl md:rounded-3xl 
+                  p-6 md:p-8 transition-all duration-500 ease-out
+                  hover:-translate-y-2 hover:scale-[1.02] transform
+                  cursor-pointer animate-fadeInUp
+                  relative overflow-hidden
+                  shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
+                  bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
+                  ring-1 ring-white/20 hover:ring-white/35 ring-inset
+                  before:absolute before:top-0 before:left-0 before:right-0 before:h-px
+                  before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent"
            style="animation-delay: 0.3s;">
-          <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-            <div class="tool-icon-gradient text-white w-12 h-12 md:w-14 md:h-14 
-                        rounded-xl md:rounded-2xl flex items-center justify-center 
-                        text-xl md:text-2xl font-semibold group-hover:scale-110 
-                        transition-transform duration-300">
-              📦
+          
+          <!-- Hover glow effect -->
+          <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 
+                      opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl md:rounded-3xl"></div>
+          
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-4 md:mb-6">
+              <span class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform duration-300">🔓</span>
+              <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
+                         tracking-tight group-hover:text-slate-600 transition-colors duration-300" 
+                  data-i18n="psbtTitle">
+                PSBT Decoder
+              </h2>
             </div>
-            <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 
-                       tracking-tight group-hover:text-indigo-600 transition-colors" 
-                data-i18n="psbtTitle">
-              PSBT Decoder
-            </h2>
+            <p class="text-sm md:text-base text-slate-500 leading-relaxed 
+               group-hover:text-slate-600 transition-colors duration-300" 
+               data-i18n="psbtDesc">
+              Decode PSBT Base64 to readable transaction info.
+            </p>
           </div>
-          <p class="text-sm md:text-base text-gray-600 mb-4 md:mb-6 leading-relaxed" 
-             data-i18n="psbtDesc">
-            Decode PSBT Base64 to readable transaction info.
-          </p>
-          <ul class="space-y-2">
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="psbtFeature1">PSBT Base64 decoding</span>
-            </li>
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="psbtFeature2">Transaction details view</span>
-            </li>
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="psbtFeature3">Offline using bitcoinjs-lib</span>
-            </li>
-          </ul>
         </a>
 
         <!-- Price Tracker Tool -->
         <a href="price.html" 
-           class="group bg-gray-50/50 hover:bg-white border-2 border-gray-100 
-                  hover:border-indigo-200 rounded-2xl md:rounded-3xl 
-                  p-6 md:p-8 transition-all duration-300 
-                  hover:-translate-y-1 hover:shadow-xl 
-                  cursor-pointer animate-fadeInUp"
+           class="group glass-card hover:glass-card
+                  rounded-2xl md:rounded-3xl 
+                  p-6 md:p-8 transition-all duration-500 ease-out
+                  hover:-translate-y-2 hover:scale-[1.02] transform
+                  cursor-pointer animate-fadeInUp
+                  relative overflow-hidden
+                  shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
+                  bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
+                  ring-1 ring-white/20 hover:ring-white/35 ring-inset
+                  before:absolute before:top-0 before:left-0 before:right-0 before:h-px
+                  before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent"
            style="animation-delay: 0.4s;">
-          <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-            <div class="tool-icon-gradient text-white w-12 h-12 md:w-14 md:h-14 
-                        rounded-xl md:rounded-2xl flex items-center justify-center 
-                        text-xl md:text-2xl font-semibold group-hover:scale-110 
-                        transition-transform duration-300">
-              💰
+          
+          <!-- Hover glow effect -->
+          <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 
+                      opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl md:rounded-3xl"></div>
+          
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-4 md:mb-6">
+              <span class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform duration-300">💰</span>
+              <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
+                         tracking-tight group-hover:text-slate-600 transition-colors duration-300" 
+                  data-i18n="priceTitle">
+                USD Exchange Rate
+              </h2>
             </div>
-            <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 
-                       tracking-tight group-hover:text-indigo-600 transition-colors" 
-                data-i18n="priceTitle">
-              USD Exchange Rate
-            </h2>
+            <p class="text-sm md:text-base text-slate-500 leading-relaxed 
+               group-hover:text-slate-600 transition-colors duration-300" 
+               data-i18n="priceDesc">
+              Matrix-style falling digital rain with real-time USD exchange rates.
+            </p>
           </div>
-          <p class="text-sm md:text-base text-gray-600 mb-4 md:mb-6 leading-relaxed" 
-             data-i18n="priceDesc">
-            Matrix-style falling digital rain with real-time USD exchange rates.
-          </p>
-          <ul class="space-y-2">
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="priceFeature1">8 API sources with smart failover</span>
-            </li>
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="priceFeature2">Falling green digital rain animation</span>
-            </li>
-            <li class="flex items-center text-xs md:text-sm text-gray-500">
-              <span class="text-green-500 mr-2 font-semibold">✓</span>
-              <span data-i18n="priceFeature3">China-friendly API endpoints</span>
-            </li>
-          </ul>
         </a>
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="text-center p-6 md:p-8 lg:p-12 text-gray-500 text-sm 
-                border-t border-gray-100 bg-gray-50/50">
-      <p class="mb-2">
-        <span data-i18n="footerText">⚡🧰⚡</span>
-      </p>
-      <p>
-        <a href="https://github.com/zhuliang21/seed-demo" 
-           target="_blank" 
-           class="text-indigo-600 hover:text-indigo-800 font-medium hover:underline 
-                  transition-colors duration-200" 
-           data-i18n="githubLink">
-          View on GitHub
-        </a>
-      </p>
-    </div>
   </div>
-</body>
-<script>
-// Language support for index page
-const indexTranslations = {
-  en: {
-    title: '⚡🧰⚡',
-    brainWalletTitle: 'Brain Wallet Generator',
-    brainWalletDesc: 'Generate Bitcoin wallets from memorable text using deterministic algorithms.',
-    feature1: 'Text-to-wallet conversion',
-    feature2: 'Multiple address formats',
-    feature3: 'Usage verification',
-    qrTitle: 'QR Code Generator',
-    qrDesc: 'Create QR codes for text and URLs with instant download.',
-    qrFeature1: 'Text & URL encoding',
-    qrFeature2: 'High-quality PNG export',
-    qrFeature3: 'Fullscreen preview',
-    bbqrTitle: 'BBQR Generator',
-    bbqrDesc: 'Split large data into animated QR sequences for Bitcoin transactions.',
-    bbqrFeature1: 'Animated QR sequences',
-    bbqrFeature2: 'Large data splitting',
-    bbqrFeature3: 'Bitcoin transaction support',
-    priceTitle: 'USD Exchange Rate',
-    priceDesc: 'Matrix-style falling digital rain with real-time USD exchange rates.',
-    priceFeature1: '8 API sources with smart failover',
-    priceFeature2: 'Falling green digital rain animation',
-    priceFeature3: 'China-friendly API endpoints',
-    securityWarning: 'This tool is open source and can be used offline, but please understand the risks when using it. This tool is for educational and testing purposes only and should not be used in formal production environments or critical business scenarios.',
-    warningTitle: 'Security Notice:',
-    footerText: '⚡🧰⚡',
-    githubLink: 'View on GitHub'
-  },
-  zh: {
-    title: '⚡🧰⚡',
-    brainWalletTitle: '脑钱包生成器',
-    brainWalletDesc: '使用确定性算法从易记文本生成比特币钱包。',
-    feature1: '文本转钱包',
-    feature2: '多种地址格式',
-    feature3: '使用情况验证',
-    qrTitle: '二维码生成器',
-    qrDesc: '为文本和网址创建二维码，支持即时下载。',
-    qrFeature1: '文本与网址编码',
-    qrFeature2: '高质量PNG导出',
-    qrFeature3: '全屏预览',
-    bbqrTitle: 'BBQR生成器',
-    bbqrDesc: '将大数据分割为动画二维码序列，用于比特币交易。',
-    bbqrFeature1: '动画二维码序列',
-    bbqrFeature2: '大数据分割',
-    bbqrFeature3: '比特币交易支持',
-    priceTitle: 'USD汇率追踪器',
-    priceDesc: '矩阵风格的绿色数字雨，实时显示USD汇率。',
-    priceFeature1: '8个API源智能故障转移',
-    priceFeature2: '绿色数字雨下落动画',
-    priceFeature3: '中国用户友好的API',
-    securityWarning: '本页面工具开源并且可以离线使用，但在使用时请充分了解其风险。本工具仅供教育和测试目的，请勿用于正式的生产环境或关键业务场景。',
-    warningTitle: '安全提醒：',
-    footerText: '⚡🧰⚡',
-    githubLink: '在GitHub上查看'
-  }
-};
 
-let currentLanguage = localStorage.getItem('language') || 'en';
+  <script>
+    // Language support for index page
+    const indexTranslations = {
+      en: {
+        securityNotice: 'For educational and testing purposes only. Use at your own risk.',
+        brainWalletTitle: 'Brain Wallet',
+        brainWalletDesc: 'Generate Bitcoin wallets from memorable text using deterministic algorithms.',
+        qrTitle: 'QR Code',
+        qrDesc: 'Create QR codes for text and URLs with instant download.',
+        bbqrTitle: 'BBQR',
+        bbqrDesc: 'Split large data into animated QR sequences for Bitcoin transactions.',
+        psbtTitle: 'PSBT Decoder',
+        psbtDesc: 'Decode PSBT Base64 to readable transaction info.',
+        priceTitle: 'USD Rate',
+        priceDesc: 'Matrix-style falling digital rain with real-time USD exchange rates.'
+      },
+      zh: {
+        securityNotice: '仅供教育和测试目的使用，使用风险自负。',
+        brainWalletTitle: '脑钱包',
+        brainWalletDesc: '使用确定性算法从易记文本生成比特币钱包。',
+        qrTitle: '二维码',
+        qrDesc: '为文本和网址创建二维码，支持即时下载。',
+        bbqrTitle: 'BBQR',
+        bbqrDesc: '将大数据分割为动画二维码序列，用于比特币交易。',
+        psbtTitle: 'PSBT解码器',
+        psbtDesc: '将PSBT Base64解码为可读的交易信息。',
+        priceTitle: 'USD汇率',
+        priceDesc: '矩阵风格的绿色数字雨，实时显示USD汇率。'
+      }
+    };
 
-function updateTexts() {
-  const texts = indexTranslations[currentLanguage];
-  document.querySelectorAll('[data-i18n]').forEach(element => {
-    const key = element.getAttribute('data-i18n');
-    if (texts[key]) {
-      element.textContent = texts[key];
+    let currentLanguage = localStorage.getItem('language') || 'en';
+
+    function closeSecurityNotice() {
+      const notice = document.getElementById('securityNotice');
+      if (notice) {
+        notice.style.display = 'none';
+        localStorage.setItem('securityNoticeClosed', 'true');
+      }
     }
-  });
 
-  // Update language toggle button
-  const toggleBtn = document.querySelector('.language-toggle');
-  if (toggleBtn) {
-    toggleBtn.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
-  }
+    function updateTexts() {
+      const texts = indexTranslations[currentLanguage];
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (texts[key]) {
+          element.textContent = texts[key];
+        }
+      });
 
-  // Update document language
-  document.documentElement.lang = currentLanguage;
-}
+      // Update language toggle button
+      const toggleBtn = document.querySelector('.language-toggle');
+      if (toggleBtn) {
+        toggleBtn.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
+      }
 
-function toggleLanguage() {
-  currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
-  localStorage.setItem('language', currentLanguage);
-  updateTexts();
-}
+      // Update document language
+      document.documentElement.lang = currentLanguage;
+    }
 
-// Initialize language on page load
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize language
-  updateTexts();
-  
-  // Show content after language is set
-  setTimeout(() => {
-    document.body.style.visibility = 'visible';
-  }, 50);
-});
-</script>
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
+      localStorage.setItem('language', currentLanguage);
+      updateTexts();
+    }
+
+    // Initialize language on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if security notice was previously closed
+      if (localStorage.getItem('securityNoticeClosed') === 'true') {
+        const notice = document.getElementById('securityNotice');
+        if (notice) {
+          notice.style.display = 'none';
+        }
+      }
+      
+      // Initialize language
+      updateTexts();
+      
+      // Show content after language is set
+      setTimeout(() => {
+        document.body.style.visibility = 'visible';
+      }, 50);
+    });
+  </script>
+</body>
 </html>

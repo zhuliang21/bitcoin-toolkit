@@ -150,20 +150,21 @@
 <body class="matrix-bg min-h-screen font-mono text-matrix-green flex items-center justify-center overflow-hidden">
   
   <!-- Back Button -->
-  <button onclick="window.history.back()" 
-          class="fixed top-4 left-4 md:top-6 md:left-6 z-50
-                 bg-black/20 hover:bg-black/40 border border-matrix-green/30 hover:border-matrix-green/60
-                 rounded-full w-10 h-10 md:w-12 md:h-12
-                 flex items-center justify-center
-                 text-matrix-green hover:text-white
-                 transition-all duration-300 hover:scale-110
-                 backdrop-blur-sm status-glow auto-hide visible-state"
-          id="backButton"
-          title="Back to Home">
+  <a href="index.html" 
+     class="fixed top-4 left-4 md:top-6 md:left-6 z-50
+            bg-black/20 hover:bg-black/40 border border-matrix-green/30 hover:border-matrix-green/60
+            rounded-full w-10 h-10 md:w-12 md:h-12
+            flex items-center justify-center
+            text-matrix-green hover:text-white
+            transition-all duration-300 hover:scale-110
+            backdrop-blur-sm status-glow auto-hide visible-state
+            no-underline"
+     id="backButton"
+     title="Back to Home">
     <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
     </svg>
-  </button>
+  </a>
 
   <!-- Language Toggle -->
   <button class="language-toggle fixed top-4 right-4 md:top-6 md:right-6 z-50
@@ -186,14 +187,10 @@
     <!-- Title -->
     <div class="mb-8 md:mb-12">
       <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold text-matrix-green 
-                 animate-matrix-glow mb-4 tracking-widest font-mono"
-          data-i18n="title">
-        USD EXCHANGE RATE
+                 animate-matrix-glow mb-4 tracking-widest font-mono flex items-center justify-center gap-3">
+        <span class="text-2xl md:text-3xl lg:text-4xl">💰</span>
+        <span data-i18n="title">USD Rate</span>
       </h1>
-      <p class="text-sm md:text-base text-matrix-green/80 animate-pulse-glow font-mono tracking-wider"
-         data-i18n="subtitle">
-        Matrix-Style Real-Time Exchange Rate Monitor
-      </p>
     </div>
 
     <!-- Status Display -->
@@ -209,13 +206,6 @@
       <div id="apiStatus" class="contents">
         <!-- API status indicators will be populated by JavaScript -->
       </div>
-    </div>
-
-    <!-- Instructions -->
-    <div class="text-xs md:text-sm text-matrix-green/40 space-y-2">
-      <p data-i18n="update1">🔄 Real-time updates every 2 seconds</p>
-      <p data-i18n="update2">🌐 8 API sources with smart failover</p>
-      <p data-i18n="update3">💚 China-friendly endpoints prioritized</p>
     </div>
 
     <!-- Error Display -->
@@ -672,20 +662,12 @@
     // Language support
     const translations = {
       en: {
-        title: 'USD EXCHANGE RATE',
-        subtitle: 'Matrix-Style Real-Time Exchange Rate Monitor',
-        initializing: 'Initializing exchange rate feed...',
-        update1: '🔄 Real-time updates every 2 seconds',
-        update2: '🌐 8 API sources with smart failover',
-        update3: '💚 China-friendly endpoints prioritized'
+        title: 'USD Rate',
+        initializing: 'Initializing exchange rate feed...'
       },
       zh: {
-        title: 'USD汇率追踪器',
-        subtitle: '矩阵风格实时汇率监控',
-        initializing: '正在初始化汇率数据...',
-        update1: '🔄 每2秒实时更新',
-        update2: '🌐 8个API源智能故障转移',
-        update3: '💚 中国用户友好的API端点'
+        title: 'USD汇率',
+        initializing: '正在初始化汇率数据...'
       }
     };
 

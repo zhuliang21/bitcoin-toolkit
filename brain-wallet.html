@@ -1,478 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <style>html,body{opacity:0!important;transition:opacity .3s ease-in-out}html.loaded,body.loaded{opacity:1!important}</style>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Brain Wallet Generator</title>
+  <title>Brain Wallet</title>
+  
+  <!-- Preload critical resources to reduce flash -->
+  <link rel="preload" href="dist/brain-wallet.bundle.js" as="script">
+  <link rel="preconnect" href="https://cdn.tailwindcss.com">
+  <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
+  
   <link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
   <link rel="shortcut icon" href="icon/favicon.ico">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'mono': ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', 'monospace'],
+          },
+          animation: {
+            'fadeInUp': 'fadeInUp 0.5s ease-out forwards',
+            'float': 'float 3s ease-in-out infinite',
+            'gradient-shift': 'gradient-shift 15s ease infinite',
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-8px)' }
+            },
+            'gradient-shift': {
+              '0%, 100%': { backgroundPosition: '0% 50%' },
+              '50%': { backgroundPosition: '100% 50%' }
+            }
+          },
+          backdropBlur: {
+            '20': '20px',
+          }
+        }
+      }
+    }
+  </script>
+  
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    /* Custom styles */
+    body.loading { visibility: hidden; }
+
+    .gradient-bg {
+      background: linear-gradient(-45deg, 
+        #f8f7ff 0%, 
+        #f0edff 15%, 
+        #e8e3ff 30%, 
+        #ebe8ff 45%, 
+        #f3f0ff 60%, 
+        #f8f5ff 75%, 
+        #faf8ff 90%, 
+        #f8f7ff 100%);
+      background-size: 400% 400%;
+      animation: gradient-shift 20s ease infinite;
     }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      line-height: 1.6;
-      color: #1a1a1a;
-      background: white;
-      min-height: 100vh;
-      padding: 0;
-      margin: 0;
-      transition: opacity 0.1s ease-in-out;
+    .glass-card {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    /* Prevent flash of unstyled content during language initialization */
-    body.loading {
-      visibility: hidden;
+    .glass-card:hover {
+      background: rgba(255, 255, 255, 0.35);
+      border-color: rgba(255, 255, 255, 0.5);
     }
 
-    .container {
-      max-width: 430px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 24px 24px 0 0;
-      overflow: hidden;
-      min-height: 100vh;
-      position: relative;
-    }
-
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 60px 24px 40px;
-      text-align: center;
-      color: white;
-      position: relative;
-      border-radius: 0 0 24px 24px;
-    }
-
-    .header::before {
-      content: '';
-      position: absolute;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 36px;
-      height: 5px;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 3px;
-    }
-
-    .back-link {
-      position: absolute;
-      top: 20px;
-      left: 24px;
-      color: rgba(255, 255, 255, 0.8);
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      padding: 6px 12px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      min-width: 44px;
-      height: 32px;
-    }
-
-    .back-link:hover {
-      color: white;
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .language-toggle {
-      position: absolute;
-      top: 20px;
-      right: 24px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 20px;
-      padding: 6px 12px;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-      min-width: 44px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .language-toggle:hover {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-    }
-
-    .header h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      text-shadow: none;
-      letter-spacing: -0.5px;
-    }
-
-    .header p {
-      font-size: 0.9rem;
-      opacity: 0.85;
-      font-weight: 400;
-    }
-
-    .input-section {
-      padding: 24px;
-      background: white;
-      border-bottom: none;
-    }
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 0;
-    }
-
-    #entropyInput {
-      width: 100%;
-      padding: 16px 20px;
-      border: 2px solid #f1f3f4;
-      border-radius: 16px;
-      font-size: 16px;
-      transition: all 0.3s ease;
-      background: #fafbfc;
-      color: #1a1a1a;
-      font-weight: 400;
-      text-align: left;
-    }
-
-    #entropyInput:focus {
-      outline: none;
-      border-color: #667eea;
-      background: white;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-      transform: translateY(-2px) scale(1.01);
-      text-align: left;
-    }
-
-    #genMnemonic {
-      display: inline-block;
-      min-width: 120px;
-      padding: 14px 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 3px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    #genMnemonic:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    #genMnemonic:active {
-      transform: translateY(0);
-    }
-
-    .content {
-      padding: 0 24px 24px;
-      background: white;
-    }
-
-    .section {
-      margin-bottom: 32px;
-      background: white;
-      border-radius: 20px;
-      padding: 24px;
-      border: none;
-      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
-      border: 1px solid #f1f3f4;
-    }
-
-    .section:last-child {
-      border-bottom: none;
-      margin-bottom: 40px;
-    }
-
-    .section h2 {
-      color: #1a1a1a;
-      margin-bottom: 16px;
-      font-size: 1.3rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      letter-spacing: -0.3px;
-    }
-
-    .section h2::before {
-      content: '';
-      font-size: 1.2rem;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .section:nth-child(1) h2::before { content: '📝'; }
-    .section:nth-child(2) h2::before { content: '🔐'; }
-    .section:nth-child(3) h2::before { content: '📱'; }
-    .section:nth-child(4) h2::before { content: '🌱'; }
-    .section:nth-child(5) h2::before { content: '🔑'; }
-
-    .monospace {
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-      width: 100%;
-      padding: 16px;
-      border: 2px solid #f1f3f4;
-      border-radius: 12px;
-      background: #fafbfc;
-      font-size: 13px;
-      line-height: 1.5;
-      resize: vertical;
-      transition: all 0.3s ease;
-      color: #1a1a1a;
-    }
-
-    .monospace:focus {
-      outline: none;
-      border-color: #667eea;
-      background: white;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-    }
-
-    #qrcode {
-      display: block;
-      margin: 0 auto;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      border: 1px solid #f1f3f4;
-    }
-
-    .keys-list {
-      list-style: none;
-      padding: 0;
-    }
-
-    .key-item {
-      background: #fafbfc;
-      border: 2px solid #f1f3f4;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 16px;
-      transition: all 0.3s ease;
-    }
-
-    .key-item:hover {
-      border-color: #667eea;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
-    }
-
-    .key-label {
-      font-weight: 700;
-      color: #1a1a1a;
-      margin-bottom: 12px;
-      font-size: 0.95rem;
-      letter-spacing: -0.2px;
-    }
-
-    .key-value {
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-      background: white;
-      padding: 12px 16px;
-      border-radius: 12px;
-      word-break: break-all;
-      font-size: 12px;
-      margin-bottom: 12px;
-      border: 2px solid #f1f3f4;
-      color: #4a5568;
-      line-height: 1.4;
-    }
-
-    .address-label {
-      font-weight: 600;
-      color: #6b7280;
-      margin-bottom: 8px;
-      font-size: 0.85rem;
-    }
-
-    .address-value {
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-      background: white;
-      padding: 12px 16px;
-      border-radius: 12px;
-      word-break: break-all;
-      font-size: 12px;
-      border: 2px solid #f1f3f4;
-      color: #667eea;
-      font-weight: 600;
-      line-height: 1.4;
-    }
-
-    #fetchUsage {
-      display: inline-block;
-      margin: 24px 0 0 0;
-      min-width: 120px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: white;
-      border: none;
-      padding: 14px 24px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 3px 15px rgba(16, 185, 129, 0.3);
-    }
-
-    #fetchUsage:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-    }
-
-    #usageResults {
-      margin-top: 24px;
-      padding: 24px;
-      background: #fafbfc;
-      border-radius: 16px;
-      border: 2px solid #f1f3f4;
-      text-align: center;
-    }
-
-    .usage-item {
-      background: white;
-      padding: 24px;
-      border-radius: 16px;
-      margin: 0 auto;
-      border: 2px solid #f1f3f4;
-      font-size: 18px;
-      font-weight: 700;
-      color: #1a1a1a;
-      max-width: 100%;
-      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
-      letter-spacing: -0.3px;
-    }
-
-    .usage-item:last-child {
-      margin-bottom: 0;
-    }
-
-    .checking-status {
-      color: #6b7280;
-      font-size: 15px;
-      font-weight: 500;
-      margin: 0;
-      padding: 20px;
-      background: white;
-      border-radius: 12px;
-      border: 2px solid #f1f3f4;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
-
-    .usage-result {
-      background: white;
-      border-radius: 16px;
-      padding: 0;
-      border: 2px solid #f1f3f4;
-      overflow: hidden;
-    }
-
-    .usage-status {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      padding: 24px;
-    }
-
-    .usage-status.used {
-      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-      border-color: #f59e0b;
-    }
-
-    .usage-status.unused {
-      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-      border-color: #10b981;
-    }
-
-    .status-icon {
-      font-size: 28px;
-      flex-shrink: 0;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .status-text {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-
-    .status-text strong {
-      display: block;
-      font-size: 18px;
-      font-weight: 700;
-      color: #1a1a1a;
-      letter-spacing: -0.3px;
-      line-height: 1.2;
-    }
-
-    .status-text p {
-      font-size: 14px;
-      color: #4b5563;
-      margin: 0 0 12px 0;
-      font-weight: 500;
-    }
-
-    .status-text small {
-      font-size: 12px;
-      color: #6b7280;
-      font-weight: 400;
-      line-height: 1.4;
-      display: block;
-    }
-
-    .usage-status.used .status-text small {
-      color: #92400e;
-    }
-
-    .usage-status.unused .status-text small {
-      color: #065f46;
-    }
-
-    .mnemonic-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
+    /* Custom styles for mnemonic words */
     .mnemonic-word {
-      background: #fafbfc;
-      border: 2px solid #f1f3f4;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
       border-radius: 12px;
       padding: 12px 8px;
       text-align: center;
@@ -481,10 +94,10 @@
     }
 
     .mnemonic-word:hover {
-      border-color: #667eea;
-      background: white;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+      background: rgba(255, 255, 255, 0.7);
+      border-color: rgba(147, 51, 234, 0.5);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 4px 12px rgba(147, 51, 234, 0.15);
     }
 
     .word-number {
@@ -503,621 +116,511 @@
       display: block;
     }
 
-    .copy-btn {
-      display: inline-block;
-      min-width: 120px;
-      padding: 12px 20px;
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 3px 15px rgba(99, 102, 241, 0.3);
-    }
-
-    .copy-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-    }
-
-    .copy-btn:active {
-      transform: translateY(0);
-    }
-
-    .copy-btn.copied {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      box-shadow: 0 3px 15px rgba(16, 185, 129, 0.3);
-    }
-
-    .input-text-card {
-      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-      border: 2px solid #d1d5db;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 16px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .input-text-content {
-      font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-      background: white;
-      padding: 16px 20px;
-      border-radius: 12px;
-      border: 2px solid #f1f3f4;
-      font-size: 14px;
-      line-height: 1.6;
-      color: #374151;
-      word-break: break-all;
-      margin-bottom: 12px;
-      min-height: 50px;
-      text-align: left;
-    }
-
-    .input-text-meta {
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      font-size: 12px;
-      color: #6b7280;
-    }
-
-    .input-text-length {
-      background: #f9fafb;
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid #e5e7eb;
-      font-weight: 500;
-    }
-
-    @media (max-width: 768px) {
-      body {
-        padding: 0;
-      }
-
-      .container {
-        margin: 0;
-        border-radius: 0;
-        max-width: 100%;
-      }
-
-      .header {
-        padding: 50px 20px 30px;
-        border-radius: 0 0 20px 20px;
-      }
-
-      .back-link {
-        left: 20px;
-        font-size: 0.85rem;
-        padding: 6px 10px;
-      }
-
-      .language-toggle {
-        right: 20px;
-        font-size: 0.8rem;
-        padding: 5px 10px;
-      }
-
-      .header h1 {
-        font-size: 1.5rem;
-      }
-
-      .header p {
-        font-size: 0.85rem;
-      }
-
-      .input-section {
+      justify-content: center;
         padding: 20px;
       }
 
-      .content {
-        padding: 0 20px 20px;
-      }
+    .modal-content {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      padding: 32px;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      animation: modalFadeIn 0.3s ease-out;
+    }
 
-      .section {
-        padding: 20px;
-        margin-bottom: 24px;
-        border-radius: 16px;
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
       }
-
-      .section h2 {
-        font-size: 1.2rem;
-      }
-
-      .key-item {
-        padding: 16px;
-        border-radius: 12px;
-      }
-
-      .key-label {
-        font-size: 0.9rem;
-      }
-
-      .key-value, .address-value, .monospace {
-        font-size: 11px;
-        padding: 12px;
-        border-radius: 10px;
-      }
-
-      #fetchUsage {
-        display: inline-block;
-        padding: 16px 24px;
-        border-radius: 12px;
-      }
-
-      .usage-item {
-        font-size: 16px;
-        padding: 20px;
-        border-radius: 12px;
-      }
-
-      .checking-status {
-        font-size: 14px;
-        padding: 16px;
-        border-radius: 10px;
-      }
-
-      .usage-status {
-        padding: 20px;
-        gap: 12px;
-      }
-
-      .status-icon {
-        font-size: 20px;
-      }
-
-      .status-text strong {
-        font-size: 15px;
-      }
-
-      .status-text p {
-        font-size: 13px;
-      }
-
-      .status-text small {
-        font-size: 11px;
-      }
-
-      #qrcode {
-        border-radius: 12px;
-      }
-
-      .mnemonic-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
-      }
-
-      .mnemonic-word {
-        padding: 10px 6px;
-        border-radius: 10px;
-      }
-
-      .word-number {
-        font-size: 9px;
-        margin-bottom: 3px;
-      }
-
-      .word-text {
-        font-size: 11px;
-      }
-
-      .copy-btn {
-        padding: 14px 20px;
-        font-size: 13px;
-      }
-
-      .input-text-card {
-        padding: 16px;
-        border-radius: 12px;
-        margin-bottom: 12px;
-      }
-
-      .input-text-content {
-        padding: 12px 16px;
-        font-size: 13px;
-        border-radius: 10px;
-        margin-bottom: 10px;
-      }
-
-      .input-text-meta {
-        font-size: 11px;
-      }
-
-      .input-text-length {
-        padding: 3px 6px;
-        font-size: 10px;
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
       }
     }
 
-    @media (max-width: 375px) {
-      .header {
-        padding: 40px 16px 24px;
-        border-radius: 0 0 16px 16px;
-      }
-
-      .back-link {
-        left: 16px;
-        font-size: 0.8rem;
-        padding: 4px 8px;
-      }
-
-      .language-toggle {
-        right: 16px;
-        font-size: 0.75rem;
-        padding: 4px 8px;
-      }
-
-      .input-section {
-        padding: 16px;
-      }
-
-      .content {
-        padding: 0 16px 16px;
-      }
-
-      .section {
-        padding: 16px;
-        border-radius: 12px;
-      }
-
-      .section h2 {
-        font-size: 1.1rem;
-        gap: 10px;
-      }
-
-      .section h2::before {
-        font-size: 1.1rem;
-      }
-
-      .key-item {
-        padding: 12px;
-      }
-
-      .key-value, .address-value {
-        font-size: 10px;
-        padding: 10px;
-      }
-
-      .checking-status {
-        font-size: 13px;
-        padding: 12px;
-      }
-
-      .usage-status {
-        padding: 16px;
-        gap: 10px;
-      }
-
-      .status-icon {
-        font-size: 18px;
-      }
-
-      .status-text strong {
-        font-size: 14px;
-      }
-
-      .status-text p {
-        font-size: 12px;
-      }
-
-      .status-text small {
-        font-size: 10px;
-      }
-
-      .mnemonic-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 6px;
-      }
-
-      .mnemonic-word {
-        padding: 8px 4px;
-        border-radius: 8px;
-      }
-
-      .word-number {
-        font-size: 8px;
-        margin-bottom: 2px;
-      }
-
-      .word-text {
-        font-size: 10px;
-      }
-
-      .copy-btn {
-        padding: 12px 16px;
-        font-size: 12px;
-        min-width: 100px;
-      }
-
-      .input-text-card {
-        padding: 12px;
-        border-radius: 10px;
-        margin-bottom: 10px;
-      }
-
-      .input-text-content {
-        padding: 10px 12px;
-        font-size: 12px;
-        border-radius: 8px;
-        margin-bottom: 8px;
-      }
-
-      .input-text-meta {
-        font-size: 10px;
-      }
-
-      .input-text-length {
-        padding: 2px 5px;
-        font-size: 9px;
-      }
-    }
-
-    /* Landscape and larger screen optimizations */
-    @media (min-width: 768px) and (orientation: landscape) {
-      .container {
-        max-width: 800px;
-      }
-
-      .header {
-        padding: 50px 40px 35px;
-      }
-
-      .input-section {
-        padding: 30px 40px;
-      }
-
-      .content {
-        padding: 0 40px 30px;
-      }
-
-      .section {
-        padding: 30px;
-      }
-
-      .mnemonic-grid {
-        grid-template-columns: repeat(6, 1fr);
-        gap: 12px;
-      }
-
-      .keys-list {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-      }
-
-      .key-item {
-        margin-bottom: 0;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      body {
-        padding: 20px 0;
-      }
-
-      .container {
-        max-width: 1000px;
-        border-radius: 24px;
-        min-height: calc(100vh - 40px);
-        margin: 20px auto;
-      }
-
-      .header {
-        padding: 60px 50px 45px;
-        border-radius: 24px 24px 0 0;
-      }
-
-      .input-section {
-        padding: 40px 50px;
-      }
-
-      .input-group {
-        flex-direction: row;
-        justify-content: center;
-        max-width: 600px;
-        margin: 0 auto;
-      }
-
-      #entropyInput {
-        flex: 1;
-        margin-right: 16px;
-        margin-bottom: 0;
-      }
-
-      #genMnemonic {
-        flex-shrink: 0;
-        min-width: 140px;
-      }
-
-      .content {
-        padding: 0 50px 40px;
-      }
-
-      .section {
-        padding: 35px;
-        margin-bottom: 40px;
-      }
-
-      .mnemonic-grid {
-        grid-template-columns: repeat(6, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
-      }
-
-      .keys-list {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 24px;
-      }
-
-      .key-item {
-        margin-bottom: 0;
-        padding: 24px;
-      }
-
-      /* Two-column layout for QR and Seed sections */
-      .qr-seed-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-      }
-
-      .section.qr-section,
-      .section.seed-section {
-        margin-bottom: 0;
-      }
-
-      #qrcode {
-        max-width: 300px;
-        width: 100%;
-      }
-    }
-
-    @media (min-width: 1440px) {
-      .container {
-        max-width: 1200px;
-      }
-
-      .header {
-        padding: 70px 60px 50px;
-        border-radius: 24px 24px 0 0;
-      }
-
-      .input-section {
-        padding: 50px 60px;
-      }
-
-      .content {
-        padding: 0 60px 50px;
-      }
-
-      .section {
-        padding: 40px;
-      }
-
-      .mnemonic-grid {
-        grid-template-columns: repeat(6, 1fr);
-        gap: 20px;
-        margin-bottom: 30px;
-      }
-
-      .mnemonic-word {
-        padding: 16px 10px;
-      }
-
-      .word-number {
-        font-size: 11px;
-        margin-bottom: 6px;
-      }
-
-      .word-text {
-        font-size: 14px;
-      }
-
-      .keys-list {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 30px;
-      }
-
-      .key-item {
-        padding: 30px;
-      }
-
-      .key-value, .address-value {
-        font-size: 13px;
-        padding: 16px 20px;
-      }
+    .modal-hidden {
+      display: none;
     }
   </style>
+  
+
 </head>
-<body style="visibility: hidden;">
-  <div class="container">
-    <div class="header">
-      <a href="index.html" class="back-link" data-i18n="back">← Back to Tools</a>
-      <button class="language-toggle" onclick="toggleLanguage()">ENG</button>
-      <h1 data-i18n="title">Brain Wallet Generator</h1>
+
+<body class="gradient-bg min-h-screen font-sans text-slate-700 relative overflow-x-hidden">
+  
+  <!-- Disclaimer Modal -->
+  <div id="disclaimerModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-700 mb-2">
+          🧠 Brain Wallet
+        </h2>
+        <p class="text-slate-500 text-sm">
+          Important Disclaimer & Security Notice
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- English -->
+        <div class="space-y-4">
+          <h3 class="font-bold text-slate-700 text-lg border-b border-slate-200 pb-2">
+            English
+          </h3>
+          <ul class="space-y-3 text-sm text-slate-600">
+            <li class="flex items-start gap-2">
+              <span class="text-green-600 mt-1 text-xs">●</span>
+              <span><strong>Open Source:</strong> This project is open source and recommended for offline use to ensure maximum security.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-amber-600 mt-1 text-xs">●</span>
+              <span><strong>Security Risk:</strong> Brain wallets carry inherent risks. Please ensure you use sufficiently long and complex passphrases with high entropy.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-600 mt-1 text-xs">●</span>
+              <span><strong>Educational Only:</strong> This tool is for educational purposes only. Never use it with real funds or production environments.</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- Chinese -->
+        <div class="space-y-4">
+          <h3 class="font-bold text-slate-700 text-lg border-b border-slate-200 pb-2">
+            中文
+          </h3>
+          <ul class="space-y-3 text-sm text-slate-600">
+            <li class="flex items-start gap-2">
+              <span class="text-green-600 mt-1 text-xs">●</span>
+              <span><strong>开源项目：</strong> 本项目为开源项目，建议离线使用以确保最大安全性。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-amber-600 mt-1 text-xs">●</span>
+              <span><strong>安全风险：</strong> 脑钱包存在固有风险，请确保使用足够长且复杂的高熵密码短语。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-red-600 mt-1 text-xs">●</span>
+              <span><strong>仅供教育：</strong> 此工具仅供教育目的使用，请勿用于真实资金或生产环境。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="text-center">
+        <button id="acceptDisclaimer" 
+                class="px-8 py-3 bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700
+                       text-white font-semibold rounded-2xl
+                       transition-all duration-300 transform hover:scale-105 hover:-translate-y-1
+                       shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40
+                       text-sm md:text-base">
+          I Understand & Accept / 我已理解并接受
+        </button>
+      </div>
     </div>
+  </div>
+  
+  <!-- Subtle background texture -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="absolute inset-0 bg-gradient-to-br from-purple-100/30 via-transparent to-violet-100/20"></div>
+    <div class="absolute inset-0 bg-gradient-to-tl from-indigo-100/20 via-transparent to-purple-100/25"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.05)_0%,transparent_50%)] animate-pulse" style="animation-duration: 8s;"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04)_0%,transparent_50%)] animate-pulse" style="animation-duration: 12s; animation-delay: 2s;"></div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="relative z-10 max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto 
+              md:rounded-3xl md:my-6 lg:my-8 
+              overflow-hidden min-h-screen md:min-h-0">
     
-    <div class="input-section">
-      <div class="input-group">
-        <input type="text" id="entropyInput" data-i18n-placeholder="inputPlaceholder" placeholder="Enter any text to generate wallet" />
-        <button id="genMnemonic" data-i18n="generateBtn">Generate Wallet</button>
+    <!-- Header -->
+    <div class="relative px-6 py-8 md:px-12 md:py-10 lg:px-16 lg:py-12 text-center">
+      
+      <!-- Mobile handle -->
+      <div class="absolute top-3 left-1/2 transform -translate-x-1/2 
+                  w-9 h-1.5 bg-slate-400/40 rounded-full md:hidden"></div>
+      
+      <!-- Back Button -->
+      <a href="index.html" 
+         class="absolute top-5 left-6 md:left-12 lg:left-16
+                glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2
+                text-slate-500 hover:text-slate-700 text-sm font-medium 
+                transition-all duration-300 hover:scale-105 transform
+                flex items-center justify-center gap-1
+                shadow-lg shadow-slate-500/10 hover:shadow-xl hover:shadow-slate-500/20
+                bg-white/25 backdrop-blur-xl border border-white/30 hover:border-white/50
+                ring-1 ring-white/30 hover:ring-white/40 ring-inset
+                no-underline min-w-12 h-8 md:min-w-14 md:h-10"
+         data-i18n="back">
+        <span class="text-lg">←</span>
+      </a>
+      
+      <!-- Language Toggle -->
+      <button class="language-toggle absolute top-5 right-6 md:right-12 lg:right-16 
+                     glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2 
+                     text-slate-500 hover:text-slate-700 text-sm font-medium 
+                     cursor-pointer transition-all duration-300 hover:scale-105 transform
+                     min-w-11 h-8 md:min-w-12 md:h-10 
+                     flex items-center justify-center
+                     shadow-lg shadow-slate-500/10 hover:shadow-xl hover:shadow-slate-500/20
+                     bg-white/25 backdrop-blur-xl border border-white/30 hover:border-white/50
+                     ring-1 ring-white/30 hover:ring-white/40 ring-inset" 
+              onclick="toggleLanguage()">
+        ENG
+      </button>
+      
+      <!-- Title -->
+      <div class="relative z-10">
+        <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-700 
+                   tracking-tight mb-3 animate-fadeInUp" data-i18n="title">
+          🧠 Brain Wallet
+        </h1>
       </div>
     </div>
     
-    <div class="content" id="mainSection" style="display:none;">
-      <div class="section">
-        <h2><span data-i18n="inputTextTitle">Input Text</span></h2>
-        <div class="input-text-card">
-          <div class="input-text-content" id="inputTextDisplay"></div>
-          <div class="input-text-meta">
-            <span data-i18n="inputTextLabel">Source text for wallet generation</span>
-            <span class="input-text-length" id="inputTextLength"></span>
+    <!-- Input Section -->
+    <div class="p-6 md:p-12 lg:p-16">
+      <div class="glass-card hover:glass-card rounded-2xl md:rounded-3xl 
+                  p-6 md:p-8 transition-all duration-300 ease-out
+                  shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
+                  bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
+                  ring-1 ring-white/20 hover:ring-white/35 ring-inset
+                  animate-fadeInUp mb-8"
+           style="animation-delay: 0.2s;">
+        
+        <div class="flex flex-col lg:flex-row gap-4 items-center">
+          <input type="text" 
+                 id="entropyInput" 
+                 data-i18n-placeholder="inputPlaceholder" 
+                 placeholder="Enter any text to generate wallet"
+                 class="flex-1 w-full px-4 py-3 md:px-6 md:py-4
+                        bg-white/50 backdrop-blur-xl border border-white/40
+                        rounded-xl md:rounded-2xl text-slate-700 placeholder-slate-400
+                        focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-300
+                        transition-all duration-300 hover:bg-white/60
+                        text-sm md:text-base font-medium" />
+          
+          <button id="genMnemonic" 
+                  data-i18n="generateBtn"
+                  class="w-full lg:w-auto px-6 py-3 md:px-8 md:py-4
+                         bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700
+                         text-white font-semibold rounded-xl md:rounded-2xl
+                         transition-all duration-300 transform hover:scale-105 hover:-translate-y-1
+                         shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40
+                         text-sm md:text-base">
+            Generate Wallet
+          </button>
+        </div>
+      </div>
+
+      <!-- Content Sections -->
+      <div id="mainSection" style="display:none;" class="space-y-8">
+        
+        <!-- Input Text Display -->
+        <div class="glass-card hover:glass-card rounded-2xl md:rounded-3xl 
+                    p-6 md:p-8 transition-all duration-300 ease-out
+                    shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
+                    bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
+                    ring-1 ring-white/20 hover:ring-white/35 ring-inset
+                    animate-fadeInUp">
+          
+          <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
+                     tracking-tight mb-6 flex items-center gap-3">
+            <span class="text-2xl">📝</span>
+            <span data-i18n="inputTextTitle">Input Text</span>
+          </h2>
+          
+          <div class="bg-white/50 backdrop-blur-xl border border-white/40 rounded-xl md:rounded-2xl p-4 md:p-6">
+            <div id="inputTextDisplay" 
+                 class="font-mono text-sm md:text-base text-slate-600 mb-4 
+                        break-all leading-relaxed min-h-12">
+            </div>
+            <div class="flex justify-between items-center text-xs md:text-sm text-slate-500">
+              <span data-i18n="inputTextLabel">Source text for wallet generation</span>
+              <span id="inputTextLength" 
+                    class="bg-white/60 px-2 py-1 rounded-lg border border-white/40 font-medium">
+              </span>
+            </div>
           </div>
         </div>
+
+        <!-- Mnemonic Phrase -->
+        <div class="glass-card hover:glass-card rounded-2xl md:rounded-3xl 
+                    p-6 md:p-8 transition-all duration-300 ease-out
+                    shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
+                    bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
+                    ring-1 ring-white/20 hover:ring-white/35 ring-inset
+                    animate-fadeInUp">
+          
+          <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
+                     tracking-tight mb-6 flex items-center gap-3">
+            <span class="text-2xl">🔐</span>
+            <span data-i18n="mnemonicTitle">Mnemonic Phrase</span>
+          </h2>
+          
+          <div id="mnemonicGrid" 
+               class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 mb-6">
+          </div>
+          
+          <div class="text-center">
+            <button id="copyMnemonic" 
+                    data-i18n="copyBtn"
+                    class="px-6 py-3 md:px-8 md:py-4
+                           bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700
+                           text-white font-semibold rounded-xl md:rounded-2xl
+                           transition-all duration-300 transform hover:scale-105 hover:-translate-y-1
+                           shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/40
+                           text-sm md:text-base inline-flex items-center gap-2">
+              📋 <span>Copy Mnemonic</span>
+            </button>
       </div>
 
-      <div class="section">
-        <h2><span data-i18n="mnemonicTitle">Mnemonic Phrase</span></h2>
-        <div id="mnemonicGrid" class="mnemonic-grid"></div>
-        <div style="text-align: center; margin-top: 16px;">
-          <button id="copyMnemonic" class="copy-btn" data-i18n="copyBtn">📋 Copy Mnemonic</button>
+          <textarea id="mnemonic" 
+                    readonly 
+                    class="hidden w-full p-4 bg-white/50 backdrop-blur-xl border border-white/40 
+                           rounded-xl font-mono text-sm resize-none"
+                    rows="3">
+          </textarea>
         </div>
-        <textarea id="mnemonic" readonly class="monospace" rows="3" style="display: none;"></textarea>
+
+        <!-- QR Code and Seed Container -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          
+          <!-- QR Code -->
+          <div class="glass-card hover:glass-card rounded-2xl md:rounded-3xl 
+                      p-6 md:p-8 transition-all duration-300 ease-out
+                      shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
+                      bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
+                      ring-1 ring-white/20 hover:ring-white/35 ring-inset
+                      animate-fadeInUp">
+            
+            <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
+                       tracking-tight mb-6 flex items-center gap-3">
+              <span class="text-2xl">📱</span>
+              <span data-i18n="qrTitle">QR Code</span>
+            </h2>
+            
+            <div class="flex justify-center">
+              <canvas id="qrcode" 
+                      class="rounded-xl md:rounded-2xl shadow-lg shadow-slate-300/25 
+                             border border-white/40 bg-white/50 backdrop-blur-xl">
+              </canvas>
+            </div>
+          </div>
+
+          <!-- Seed -->
+          <div class="glass-card hover:glass-card rounded-2xl md:rounded-3xl 
+                      p-6 md:p-8 transition-all duration-300 ease-out
+                      shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
+                      bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
+                      ring-1 ring-white/20 hover:ring-white/35 ring-inset
+                      animate-fadeInUp">
+            
+            <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
+                       tracking-tight mb-6 flex items-center gap-3">
+              <span class="text-2xl">🌱</span>
+              <span data-i18n="seedTitle">Seed</span>
+            </h2>
+            
+            <textarea id="seed" 
+                      readonly 
+                      rows="4"
+                      class="w-full p-4 bg-white/50 backdrop-blur-xl border border-white/40 
+                             rounded-xl md:rounded-2xl font-mono text-sm text-slate-600 
+                             resize-none leading-relaxed">
+            </textarea>
+          </div>
+        </div>
+
+        <!-- Extended Public Keys and Addresses -->
+        <div class="glass-card hover:glass-card rounded-2xl md:rounded-3xl 
+                    p-6 md:p-8 transition-all duration-300 ease-out
+                    shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
+                    bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
+                    ring-1 ring-white/20 hover:ring-white/35 ring-inset
+                    animate-fadeInUp">
+          
+          <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
+                     tracking-tight mb-6 flex items-center gap-3">
+            <span class="text-2xl">🔑</span>
+            <span data-i18n="keysTitle">Extended Public Keys and Addresses</span>
+          </h2>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            
+            <!-- Legacy -->
+            <div class="bg-white/50 backdrop-blur-xl border border-white/40 rounded-xl md:rounded-2xl p-6
+                        hover:bg-white/60 hover:border-white/50 transition-all duration-300
+                        hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-300/25">
+              <div class="font-bold text-slate-700 mb-4 text-base md:text-lg" data-i18n="legacyLabel">
+                Legacy (P2PKH)
+    </div>
+              <div id="xpub44" 
+                   class="font-mono text-xs md:text-sm text-slate-600 bg-white/60 p-3 rounded-lg mb-3 
+                          break-all leading-relaxed border border-white/40">
+              </div>
+              <div class="text-sm font-medium text-slate-500 mb-2" data-i18n="addressLabel">
+                Address:
+              </div>
+              <div id="addr44" 
+                   class="font-mono text-xs md:text-sm text-purple-600 bg-white/60 p-3 rounded-lg 
+                          break-all leading-relaxed border border-white/40 font-semibold">
+      </div>
+    </div>
+    
+            <!-- Nested SegWit -->
+            <div class="bg-white/50 backdrop-blur-xl border border-white/40 rounded-xl md:rounded-2xl p-6
+                        hover:bg-white/60 hover:border-white/50 transition-all duration-300
+                        hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-300/25">
+              <div class="font-bold text-slate-700 mb-4 text-base md:text-lg" data-i18n="segwitLabel">
+                Nested SegWit (P2SH-P2WPKH)
+          </div>
+              <div id="xpub49" 
+                   class="font-mono text-xs md:text-sm text-slate-600 bg-white/60 p-3 rounded-lg mb-3 
+                          break-all leading-relaxed border border-white/40">
+        </div>
+              <div class="text-sm font-medium text-slate-500 mb-2" data-i18n="addressLabel">
+                Address:
+      </div>
+              <div id="addr49" 
+                   class="font-mono text-xs md:text-sm text-purple-600 bg-white/60 p-3 rounded-lg 
+                          break-all leading-relaxed border border-white/40 font-semibold">
+        </div>
       </div>
 
-      <div class="qr-seed-container">
-        <div class="section qr-section">
-          <h2><span data-i18n="qrTitle">QR Code</span></h2>
-          <canvas id="qrcode"></canvas>
+            <!-- Native SegWit -->
+            <div class="bg-white/50 backdrop-blur-xl border border-white/40 rounded-xl md:rounded-2xl p-6
+                        hover:bg-white/60 hover:border-white/50 transition-all duration-300
+                        hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-300/25">
+              <div class="font-bold text-slate-700 mb-4 text-base md:text-lg" data-i18n="nativeSegwitLabel">
+                Native SegWit (P2WPKH)
+              </div>
+              <div id="xpub84" 
+                   class="font-mono text-xs md:text-sm text-slate-600 bg-white/60 p-3 rounded-lg mb-3 
+                          break-all leading-relaxed border border-white/40">
+              </div>
+              <div class="text-sm font-medium text-slate-500 mb-2" data-i18n="addressLabel">
+                Address:
+              </div>
+              <div id="addr84" 
+                   class="font-mono text-xs md:text-sm text-purple-600 bg-white/60 p-3 rounded-lg 
+                          break-all leading-relaxed border border-white/40 font-semibold">
+              </div>
         </div>
 
-        <div class="section seed-section">
-          <h2><span data-i18n="seedTitle">Seed</span></h2>
-          <textarea id="seed" readonly class="monospace" rows="4"></textarea>
+            <!-- Taproot -->
+            <div class="bg-white/50 backdrop-blur-xl border border-white/40 rounded-xl md:rounded-2xl p-6
+                        hover:bg-white/60 hover:border-white/50 transition-all duration-300
+                        hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-300/25">
+              <div class="font-bold text-slate-700 mb-4 text-base md:text-lg" data-i18n="taprootLabel">
+                Taproot (P2TR)
+              </div>
+              <div id="xpub86" 
+                   class="font-mono text-xs md:text-sm text-slate-600 bg-white/60 p-3 rounded-lg mb-3 
+                          break-all leading-relaxed border border-white/40">
+              </div>
+              <div class="text-sm font-medium text-slate-500 mb-2" data-i18n="addressLabel">
+                Address:
+              </div>
+              <div id="addr86" 
+                   class="font-mono text-xs md:text-sm text-purple-600 bg-white/60 p-3 rounded-lg 
+                          break-all leading-relaxed border border-white/40 font-semibold">
+              </div>
         </div>
       </div>
 
-      <div class="section">
-        <h2><span data-i18n="keysTitle">Extended Public Keys and Addresses</span></h2>
-        <ul class="keys-list">
-          <li class="key-item">
-            <div class="key-label" data-i18n="legacyLabel">Legacy (P2PKH)</div>
-            <div class="key-value" id="xpub44"></div>
-            <div class="address-label" data-i18n="addressLabel">Address:</div>
-            <div class="address-value" id="addr44"></div>
-          </li>
-          <li class="key-item">
-            <div class="key-label" data-i18n="segwitLabel">Nested SegWit (P2SH-P2WPKH)</div>
-            <div class="key-value" id="xpub49"></div>
-            <div class="address-label" data-i18n="addressLabel">Address:</div>
-            <div class="address-value" id="addr49"></div>
-          </li>
-          <li class="key-item">
-            <div class="key-label" data-i18n="nativeSegwitLabel">Native SegWit (P2WPKH)</div>
-            <div class="key-value" id="xpub84"></div>
-            <div class="address-label" data-i18n="addressLabel">Address:</div>
-            <div class="address-value" id="addr84"></div>
-          </li>
-          <li class="key-item">
-            <div class="key-label" data-i18n="taprootLabel">Taproot (P2TR)</div>
-            <div class="key-value" id="xpub86"></div>
-            <div class="address-label" data-i18n="addressLabel">Address:</div>
-            <div class="address-value" id="addr86"></div>
-          </li>
-        </ul>
-
-        <div style="text-align: center;">
-          <button id="fetchUsage" data-i18n="checkUsageBtn">Check Wallet Usage</button>
+          <div class="text-center">
+            <button id="fetchUsage" 
+                    data-i18n="checkUsageBtn"
+                    class="px-6 py-3 md:px-8 md:py-4
+                           bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700
+                           text-white font-semibold rounded-xl md:rounded-2xl
+                           transition-all duration-300 transform hover:scale-105 hover:-translate-y-1
+                           shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40
+                           text-sm md:text-base">
+              Check Wallet Usage
+            </button>
+          </div>
+          
+          <div id="usageResults" class="mt-8 text-center"></div>
         </div>
-        <div id="usageResults"></div>
       </div>
     </div>
   </div>
 
   <script src="dist/brain-wallet.bundle.js"></script>
+  
+  <script>
+    // Disclaimer modal logic
+    function showDisclaimer() {
+      const modal = document.getElementById('disclaimerModal');
+      modal.classList.remove('modal-hidden');
+    }
+
+    function hideDisclaimer() {
+      const modal = document.getElementById('disclaimerModal');
+      modal.classList.add('modal-hidden');
+      localStorage.setItem('brainWalletDisclaimerAccepted', 'true');
+    }
+
+    // Initialize page
+    function initializePage() {
+      // Check if disclaimer was already accepted
+      const disclaimerAccepted = localStorage.getItem('brainWalletDisclaimerAccepted');
+      if (disclaimerAccepted !== 'true') {
+        showDisclaimer();
+      } else {
+        hideDisclaimer();
+      }
+      
+      // Handle disclaimer acceptance
+      document.getElementById('acceptDisclaimer').addEventListener('click', hideDisclaimer);
+      
+      // Show content with smooth fade-in after ensuring Tailwind is loaded
+      setTimeout(() => {
+        document.documentElement.classList.add('loaded');
+        document.body.classList.add('loaded');
+        
+        // Signal that page is ready for bundle.js initialization
+        window.pageReady = true;
+        
+        // Trigger bundle.js initialization if it's already loaded but waiting
+        if (window.initializeBundleApp && typeof window.initializeBundleApp === 'function') {
+          window.initializeBundleApp();
+        }
+      }, 50);
+    }
+
+    // Initialize as soon as DOM is ready and bundle is loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializePage);
+    } else {
+      // DOM is already ready
+      initializePage();
+    }
+    
+    // Fallback: ensure page is visible after maximum wait time
+    setTimeout(() => {
+      if (!document.documentElement.classList.contains('loaded')) {
+        document.documentElement.classList.add('loaded');
+        document.body.classList.add('loaded');
+      }
+    }, 500);
+  </script>
 </body>
 </html>

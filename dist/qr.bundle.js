@@ -2838,26 +2838,24 @@ const QRCode = require('qrcode');
 // Language support
 const translations = {
   en: {
-    title: 'QR Code Generator',
+    title: '📱 QR Code',
     back: '←',
     textLabel: 'Text/URL',
     textPlaceholder: 'Enter text, URL, or any content',
     tagLabel: 'Tag (Optional)',
     tagPlaceholder: 'Enter tag for organizing',
     generateBtn: 'Generate QR Code',
-    qrTitle: 'QR Code',
     downloadBtn: '📥 Download PNG'
   },
   zh: {
-    title: '二维码生成器',
+    title: '📱 二维码',
     back: '←',
     textLabel: '文本/网址',
     textPlaceholder: '输入文本、网址或任何内容',
-    tagLabel: '标签 (可选)',
-    tagPlaceholder: '输入标签便于整理',
+    tagLabel: '标签（可选）',
+    tagPlaceholder: '输入用于组织的标签',
     generateBtn: '生成二维码',
-    qrTitle: '二维码',
-    downloadBtn: '📥 下载图片'
+    downloadBtn: '📥 下载PNG'
   }
 };
 
@@ -2871,7 +2869,6 @@ function toggleLanguage() {
 }
 
 function updateLanguage() {
-  // Update language toggle button
   const langToggle = document.querySelector('.language-toggle');
   if (langToggle) {
     langToggle.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
@@ -2885,7 +2882,7 @@ function updateLanguage() {
     }
   });
 
-  // Update placeholders
+  // Update placeholder
   const textInput = document.getElementById('text');
   const tagInput = document.getElementById('tag');
   if (textInput) {
@@ -2894,25 +2891,76 @@ function updateLanguage() {
   if (tagInput) {
     tagInput.placeholder = translations[currentLanguage].tagPlaceholder;
   }
-
-  // Update page title
+  
+  // Update document title
   document.title = translations[currentLanguage].title;
   
-  // Update document language attribute  
+  // Update document language attribute
   document.documentElement.lang = currentLanguage;
 }
 
 // Make toggleLanguage available globally
 window.toggleLanguage = toggleLanguage;
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Initialize language on page load
-  updateLanguage();
+// Enhanced functions for Tailwind integration
+function showQRResult() {
+  const mainSection = document.getElementById('mainSection');
+  const placeholderSection = document.getElementById('placeholderSection');
   
-  // Show content after language is set
-  setTimeout(() => {
-    document.body.style.visibility = 'visible';
-  }, 50);
+  if (mainSection) {
+    mainSection.style.display = 'block';
+    mainSection.classList.add('animate-fadeInUp');
+  }
+  
+  // Hide placeholder on desktop
+  if (placeholderSection) {
+    placeholderSection.style.display = 'none';
+  }
+}
+
+function hideQRResult() {
+  const mainSection = document.getElementById('mainSection');
+  const placeholderSection = document.getElementById('placeholderSection');
+  
+  if (mainSection) {
+    mainSection.style.display = 'none';
+    mainSection.classList.remove('animate-fadeInUp');
+  }
+  
+  // Show placeholder on desktop
+  if (placeholderSection) {
+    placeholderSection.style.display = 'block';
+  }
+}
+
+function openModal() {
+  const modal = document.getElementById('modal-overlay');
+  const modalImage = document.getElementById('modal-image');
+  const qrImage = document.getElementById('qr-image');
+  
+  if (modal && modalImage && qrImage) {
+    modalImage.src = qrImage.src;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+}
+
+function closeModal() {
+  const modal = document.getElementById('modal-overlay');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+// Make modal functions available globally
+window.openModal = openModal;
+window.closeModal = closeModal;
+
+// UI Logic - Initialize as early as possible
+function initializeApp() {
+  // Initialize language immediately
+  updateLanguage();
   
   const textInput = document.getElementById('text');
   const tagInput = document.getElementById('tag');
@@ -2921,10 +2969,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('qr-canvas');
   const qrImage = document.getElementById('qr-image');
 
+  // Close modal on Escape key
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      closeModal();
+    }
+  });
+
   function renderQR() {
     const text = textInput.value.trim();
     const tag = tagInput.value.trim();
     if (!text) return;
+    
+    // Show the result section
+    showQRResult();
     
     // Modern QR styling
     const qrSize = 400;
@@ -3029,59 +3087,60 @@ document.addEventListener('DOMContentLoaded', () => {
         qrImage.src = imageDataUrl;
         qrImage.style.display = 'block';
         canvas.style.display = 'none';
-        
-        const mainSection = document.getElementById('mainSection');
-        mainSection.style.display = 'block';
       };
       img.src = url;
     });
   }
 
+  // Setup event listeners
   generateBtn.addEventListener('click', renderQR);
 
   downloadBtn.addEventListener('click', () => {
     const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
-    const filename = tagInput.value.trim() || 'qrcode';
-    link.download = `${filename}.png`;
+    link.download = 'qrcode.png';
+    link.href = canvas.toDataURL();
     link.click();
   });
 
-  // Add click event for fullscreen view
-  qrImage.addEventListener('click', () => {
-    openModal();
+  // Allow Enter key to generate QR code
+  textInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      renderQR();
+    }
   });
-});
 
-// 全屏模态框函数
-function openModal() {
-  const qrImage = document.getElementById('qr-image');
-  const modalOverlay = document.getElementById('modal-overlay');
-  const modalImage = document.getElementById('modal-image');
+  tagInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      renderQR();
+    }
+  });
+}
+
+// Make the initialization function available globally for coordination
+window.initializeBundleApp = initializeApp;
+
+// Check if page is ready, otherwise wait
+if (window.pageReady) {
+  // Page is already ready, initialize immediately
+  initializeApp();
+} else {
+  // Wait for page ready signal or use fallback timing
+  const checkPageReady = () => {
+    if (window.pageReady) {
+      initializeApp();
+    } else {
+      setTimeout(checkPageReady, 10); // Check every 10ms
+    }
+  };
   
-  if (qrImage && modalImage && qrImage.src) {
-    // 将原始图片源复制到模态框图片
-    modalImage.src = qrImage.src;
-    
-    modalOverlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
+  // Start checking, but also have a fallback timeout
+  setTimeout(() => {
+    if (!window.pageReady) {
+      console.log('Fallback: initializing bundle app after timeout');
+      initializeApp();
+    }
+  }, 200); // Fallback after 200ms
+  
+  checkPageReady();
 }
-
-function closeModal() {
-  const modalOverlay = document.getElementById('modal-overlay');
-  modalOverlay.classList.remove('active');
-  document.body.style.overflow = '';
-}
-
-// 将函数暴露到全局作用域
-window.openModal = openModal;
-window.closeModal = closeModal;
-
-// 按ESC键关闭模态框
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    closeModal();
-  }
-});
 },{"qrcode":2}]},{},[29]);

@@ -55,7 +55,7 @@ try {
 const translations = {
   en: {
     back: '←',
-    title: 'Brain Wallet Generator',
+    title: '🧠 Brain Wallet',
     inputPlaceholder: 'Enter any text to generate wallet',
     generateBtn: 'Generate Wallet',
     inputTextTitle: 'Input Text',
@@ -87,7 +87,7 @@ const translations = {
   },
   zh: {
     back: '←',
-    title: '脑钱包生成器',
+    title: '🧠 脑钱包',
     inputPlaceholder: '输入任意文本生成钱包',
     generateBtn: '生成钱包',
     inputTextTitle: '输入文本',
@@ -347,15 +347,10 @@ function generateKeysAndAddresses(seedBuffer) {
   });
 }
 
-// UI Logic
-window.addEventListener('load', () => {
-  // Initialize language after DOM is fully loaded
+// UI Logic - Initialize as early as possible
+function initializeApp() {
+  // Initialize language immediately
   updateLanguage();
-  
-  // Show content after language is set
-  setTimeout(() => {
-    document.body.style.visibility = 'visible';
-  }, 50);
   
   document.getElementById('genMnemonic').addEventListener('click', () => {
     const text = document.getElementById('entropyInput').value.trim();
@@ -451,7 +446,17 @@ window.addEventListener('load', () => {
         });
         
         usageDiv.style.display = 'block';
-        usageDiv.innerHTML = `<p class="checking-status">${translations[currentLanguage].checking}</p>`;
+        usageDiv.innerHTML = `
+          <div class="flex justify-center">
+            <div class="inline-flex items-center gap-3 px-6 py-4 
+                        bg-white/80 backdrop-blur-xl border border-white/40 
+                        rounded-2xl shadow-lg shadow-slate-300/25
+                        text-indigo-600 font-medium">
+              <span class="text-lg">🔍</span>
+              <span>${translations[currentLanguage].checking}</span>
+            </div>
+          </div>
+        `;
         
         // Disable the button during checking
         fetchBtn.disabled = true;
@@ -488,9 +493,9 @@ window.addEventListener('load', () => {
             }
           });
           
-          // Display results
+          // Display results with Tailwind classes
           const resultDiv = document.createElement('div');
-          resultDiv.className = 'usage-result';
+          resultDiv.className = 'flex justify-center';
           
           if (hasUsage) {
             const formattedDate = earliestUsageDate.toLocaleDateString(currentLanguage === 'zh' ? 'zh-CN' : 'en-US', {
@@ -502,19 +507,25 @@ window.addEventListener('load', () => {
             });
             
             resultDiv.innerHTML = `
-              <div class="usage-status used">
-                <span class="status-icon">⚠️</span>
-                <div class="status-text">
-                  <strong>${translations[currentLanguage].walletUsedSimple}</strong>
+              <div class="inline-flex items-center gap-3 px-6 py-4 max-w-md
+                          bg-red-50/90 backdrop-blur-xl border border-red-200/50 
+                          rounded-2xl shadow-lg shadow-red-300/25
+                          text-red-600">
+                <span class="text-xl flex-shrink-0">⚠️</span>
+                <div class="font-semibold">
+                  ${translations[currentLanguage].walletUsedSimple}
                 </div>
               </div>
             `;
           } else {
             resultDiv.innerHTML = `
-              <div class="usage-status unused">
-                <span class="status-icon">✅</span>
-                <div class="status-text">
-                  <strong>${translations[currentLanguage].walletUnusedSimple}</strong>
+              <div class="inline-flex items-center gap-3 px-6 py-4 max-w-md
+                          bg-green-50/90 backdrop-blur-xl border border-green-200/50 
+                          rounded-2xl shadow-lg shadow-green-300/25
+                          text-green-600">
+                <span class="text-xl flex-shrink-0">✅</span>
+                <div class="font-semibold">
+                  ${translations[currentLanguage].walletUnusedSimple}
                 </div>
               </div>
             `;
@@ -526,13 +537,20 @@ window.addEventListener('load', () => {
         } catch (error) {
           console.error('Error during address checking:', error);
           usageDiv.innerHTML = `
-            <div class="usage-status" style="background: #fef2f2; border-color: #fecaca;">
-              <span class="status-icon">❌</span>
-              <div class="status-text">
-                <strong>${translations[currentLanguage].errorOccurred}</strong>
-                <p style="margin: 8px 0 0 0; font-size: 14px; color: #6b7280;">
-                  ${translations[currentLanguage].retryOrCheckNetwork}
-                </p>
+            <div class="flex justify-center">
+              <div class="inline-flex items-start gap-3 px-6 py-4 max-w-md
+                          bg-red-50/90 backdrop-blur-xl border border-red-200/50 
+                          rounded-2xl shadow-lg shadow-red-300/25
+                          text-red-600">
+                <span class="text-xl flex-shrink-0 mt-0.5">❌</span>
+                <div>
+                  <div class="font-semibold mb-2">
+                    ${translations[currentLanguage].errorOccurred}
+                  </div>
+                  <p class="text-sm text-slate-500 leading-relaxed">
+                    ${translations[currentLanguage].retryOrCheckNetwork}
+                  </p>
+                </div>
               </div>
             </div>
           `;
@@ -544,4 +562,32 @@ window.addEventListener('load', () => {
       };
     }
   });
-});
+}
+
+// Make the initialization function available globally for coordination
+window.initializeBundleApp = initializeApp;
+
+// Check if page is ready, otherwise wait
+if (window.pageReady) {
+  // Page is already ready, initialize immediately
+  initializeApp();
+} else {
+  // Wait for page ready signal or use fallback timing
+  const checkPageReady = () => {
+    if (window.pageReady) {
+      initializeApp();
+    } else {
+      setTimeout(checkPageReady, 10); // Check every 10ms
+    }
+  };
+  
+  // Start checking, but also have a fallback timeout
+  setTimeout(() => {
+    if (!window.pageReady) {
+      console.log('Fallback: initializing bundle app after timeout');
+      initializeApp();
+    }
+  }, 200); // Fallback after 200ms
+  
+  checkPageReady();
+}
