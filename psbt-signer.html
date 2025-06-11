@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSBT Signer - BlueWallet + ColdCard Q</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin: 20px 0;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .step {
+            border-left: 4px solid #007bff;
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .step-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .step-description {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 12px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 12px 24px;
+            margin: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #bd2130);
+            color: white;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .status {
+            padding: 12px 16px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .status-info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            color: #1565c0;
+        }
+        .status-success {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            color: #2e7d32;
+        }
+        .status-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .status-error {
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+            color: #c62828;
+        }
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .qr-frame {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .qr-frame canvas {
+            max-width: 250px;
+            height: auto;
+        }
+        .frame-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+        }
+        .hidden {
+            display: none;
+        }
+        
+        /* File input styling */
+        input[type="file"] {
+            padding: 8px;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        input[type="file"]:hover {
+            border-color: #007bff;
+            background: #e3f2fd;
+        }
+        
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 PSBT Signer</h1>
+    <p style="color: #666; font-size: 16px;">BlueWallet + ColdCard Q signing workflow</p>
+
+    <!-- Step 1: PSBT Input -->
+    <div class="container">
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">1</span>
+                Paste PSBT
+            </div>
+            <div class="step-description">
+                Copy the PSBT (Base64 or hex format) from BlueWallet, Electrum, or other compatible wallet
+                <br>⚠️ Only properly constructed PSBTs are supported for security reasons
+            </div>
+            
+            <!-- File upload option -->
+            <div style="margin-bottom: 15px;">
+                <label for="psbt-file" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">
+                    📁 Or select a PSBT file:
+                </label>
+                <input type="file" id="psbt-file" accept=".psbt,.txt" style="margin-bottom: 10px;">
+                <div style="font-size: 12px; color: #666;">
+                    Supports .psbt files or text files containing PSBT data
+                </div>
+            </div>
+            
+            <!-- Text input option -->
+            <div style="margin-bottom: 15px;">
+                <label for="psbt-input" style="display: block; margin-bottom: 8px; font-weight: 500; color: #333;">
+                    📝 Or paste PSBT text:
+                </label>
+                <textarea id="psbt-input" placeholder="Paste your PSBT Base64 or hex string here..."></textarea>
+            </div>
+            
+            <div>
+                <button id="parse-psbt-btn" class="btn-primary">Parse Input</button>
+                <button id="generate-bbqr-btn" class="btn-success" disabled>Generate BBQr</button>
+            </div>
+            <div id="psbt-status" class="status status-info hidden"></div>
+        </div>
+    </div>
+
+    <!-- Step 2: BBQr Generation -->
+    <div class="container">
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">2</span>
+                BBQr for ColdCard Q
+            </div>
+            <div class="step-description">
+                Scan these QR codes with your ColdCard Q to sign the transaction
+            </div>
+            <div id="bbqr-output" class="qr-container"></div>
+        </div>
+    </div>
+
+
+
+    <!-- Debug Information -->
+    <div class="container">
+        <div class="step">
+            <div class="step-title">🐛 Debug Information</div>
+            <textarea id="debug-info" rows="6" placeholder="Debug information will appear here..." readonly></textarea>
+            <button id="clear-debug-btn" class="btn-secondary">Clear Debug</button>
+        </div>
+    </div>
+
+    <script src="dist/psbt-signer.bundle.js?v=20250610230000"></script>
+</body>
+</html> 

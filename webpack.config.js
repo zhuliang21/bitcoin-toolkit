@@ -8,7 +8,8 @@ module.exports = {
     'bbqr': './src/bbqr.js',
     'qr': './src/qr.js',
     'psbt': './src/psbt.js',
-    'convert': './src/convert.js'
+    'psbt-signer': './src/psbt-signer.js',
+    'bbqr-reader': './src/bbqr-reader.js'
   },
   output: {
     filename: '[name].bundle.js',
