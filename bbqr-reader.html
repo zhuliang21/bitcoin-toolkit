@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>BBQr Scanner</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
+  <link rel="shortcut icon" href="icon/favicon.ico">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'mono': ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', 'monospace'],
+          },
+          animation: {
+            'pulse-subtle': 'pulse 1.5s ease-in-out infinite',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Custom styles for elements that need specific behavior */
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .gradient-button-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .gradient-button-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+    
+    .gradient-button-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+    
+    .backdrop-blur-glass {
+      backdrop-filter: blur(10px);
+    }
+
+    .file-type-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      background: #667eea;
+      color: white;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .result-container {
+      background: rgba(249, 250, 251, 0.8);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(107, 114, 128, 0.1);
+    }
+
+    .camera-container {
+      position: relative;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-gray-900">
+  <!-- Main Container -->
+  <div class="max-w-md md:max-w-2xl mx-auto bg-white 
+              rounded-t-3xl md:rounded-3xl md:my-5 lg:my-8 
+              overflow-hidden min-h-screen md:min-h-0 md:shadow-xl">
+    
+    <!-- Header with Gradient Background -->
+    <div class="gradient-bg text-white relative rounded-b-3xl 
+                px-6 py-12 md:px-12 md:py-16 text-center">
+      
+      <!-- Top Handle (Mobile) -->
+      <div class="absolute top-3 left-1/2 transform -translate-x-1/2 
+                  w-9 h-1.5 bg-white/30 rounded-full md:hidden"></div>
+      
+      <!-- Back Link -->
+      <a href="/" 
+         class="absolute top-5 left-6 md:left-12 
+                text-white/80 hover:text-white text-sm font-medium 
+                flex items-center justify-center px-3 py-1.5 md:px-4 md:py-2 
+                rounded-full bg-white/10 hover:bg-white/20 
+                backdrop-blur-glass border border-white/20 
+                transition-all duration-300 min-w-11 h-8 md:min-w-12 md:h-10"
+         data-i18n="back">
+        ←
+      </a>
+      
+
+      
+      <!-- Language Toggle -->
+      <button class="language-toggle absolute top-5 right-6 md:right-12 
+                     bg-white/10 hover:bg-white/20 border border-white/20 
+                     rounded-full px-3 py-1.5 md:px-4 md:py-2 
+                     text-white/80 hover:text-white text-sm font-medium 
+                     cursor-pointer transition-all duration-300 
+                     backdrop-blur-glass min-w-11 h-8 md:min-w-12 md:h-10 
+                     flex items-center justify-center" 
+              onclick="toggleLanguage()">
+        ENG
+      </button>
+      
+      <!-- Title -->
+      <h1 class="text-3xl md:text-4xl font-bold mb-2 tracking-tight" data-i18n="title">
+        BBQr Scanner
+      </h1>
+      <p class="text-white/85 text-sm md:text-base font-normal" data-i18n="subtitle">
+        Bitcoin QR Code Scanning and Decoding
+      </p>
+    </div>
+    
+    <!-- Content -->
+    <div class="p-6 md:p-12 bg-white space-y-6 md:space-y-8">
+      
+      <!-- Camera Scanning Section -->
+      <div class="bg-white rounded-2xl md:rounded-3xl overflow-hidden
+                  border border-gray-100 shadow-sm hover:shadow-md 
+                  transition-all duration-300">
+        <div class="p-6 md:p-8 pb-4">
+          <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-6 tracking-tight" data-i18n="scanTitle">
+            Scan BBQr Code
+          </h2>
+          
+          <!-- Camera Controls -->
+          <div class="text-center mb-6">
+            <button 
+              id="scan-btn"
+              class="gradient-button-primary text-white px-8 py-4 
+                     rounded-xl text-base font-semibold cursor-pointer 
+                     transition-all duration-300 shadow-lg 
+                     hover:-translate-y-0.5 hover:shadow-xl 
+                     active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed 
+                     disabled:transform-none disabled:shadow-lg"
+              data-i18n="scanBtn">
+              📷 Start Camera Scan
+            </button>
+          </div>
+        </div>
+        
+        <!-- Full Screen Camera Container -->
+        <div id="camera-container" class="relative hidden" style="height: 70vh; min-height: 400px;">
+          <video 
+            id="camera-video" 
+            autoplay 
+            playsinline 
+            webkit-playsinline 
+            muted
+            class="w-full h-full object-cover bg-black">
+          </video>
+          
+          <!-- Viewfinder Overlay -->
+          <div class="absolute inset-0 pointer-events-none">
+            <!-- Central viewfinder frame -->
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                        w-64 h-64 md:w-80 md:h-80">
+              <!-- Main frame -->
+              <div class="w-full h-full border-4 border-white border-opacity-90 rounded-3xl shadow-lg"></div>
+              
+              <!-- Corner guides -->
+              <div class="absolute -top-2 -left-2 w-10 h-10 border-l-4 border-t-4 border-yellow-400 rounded-tl-lg shadow-lg"></div>
+              <div class="absolute -top-2 -right-2 w-10 h-10 border-r-4 border-t-4 border-yellow-400 rounded-tr-lg shadow-lg"></div>
+              <div class="absolute -bottom-2 -left-2 w-10 h-10 border-l-4 border-b-4 border-yellow-400 rounded-bl-lg shadow-lg"></div>
+              <div class="absolute -bottom-2 -right-2 w-10 h-10 border-r-4 border-b-4 border-yellow-400 rounded-br-lg shadow-lg"></div>
+              
+              <!-- Center crosshair -->
+              <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div class="w-8 h-1 bg-red-400 shadow-lg absolute -left-4 top-0 rounded-full"></div>
+                <div class="w-1 h-8 bg-red-400 shadow-lg absolute left-0 -top-4 rounded-full"></div>
+              </div>
+              
+              <!-- Scanning animation -->
+              <div class="absolute inset-0 rounded-3xl overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent 
+                           animate-pulse opacity-70"></div>
+              </div>
+            </div>
+            
+            <!-- Stop button overlay - top right -->
+            <button 
+              id="stop-scan-btn"
+              class="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white 
+                     px-4 py-2 rounded-full text-sm font-semibold cursor-pointer 
+                     transition-all duration-300 shadow-lg 
+                     active:scale-95 backdrop-blur-sm hidden z-20"
+              data-i18n="stopScanBtn">
+              ⏹️ 停止
+            </button>
+            
+            <!-- Status overlay - top center, below stop button -->
+            <div id="scan-status" class="absolute top-16 left-1/2 transform -translate-x-1/2 
+                                      bg-black bg-opacity-90 text-white px-6 py-4 rounded-2xl 
+                                      text-center font-medium backdrop-blur-sm shadow-lg
+                                      max-w-sm text-sm leading-relaxed z-10">
+              准备开始扫描...
+            </div>
+          </div>
+        </div>
+        
+        <!-- Canvas for Camera -->
+        <canvas id="camera-canvas" class="hidden"></canvas>
+      </div>
+
+
+
+      <!-- Results Section -->
+      <div class="bg-white rounded-2xl md:rounded-3xl p-6 md:p-8 
+                  border border-gray-100 shadow-sm hover:shadow-md 
+                  transition-all duration-300">
+        <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-6 tracking-tight" data-i18n="resultsTitle">
+          Decode Results
+        </h2>
+        
+        <!-- Result Display Area -->
+        <div 
+          id="decode-output"
+          class="result-container p-6 rounded-xl 
+                 whitespace-pre-wrap break-all font-mono text-sm leading-relaxed 
+                 min-h-32 hidden">
+        </div>
+        
+        <!-- No Results Message -->
+        <div id="no-results" class="text-center text-gray-500 py-8">
+          <div class="text-4xl mb-4">📱</div>
+          <p data-i18n="noResults">No results yet. Start scanning or upload images to decode BBQr codes.</p>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-col md:flex-row gap-3 md:gap-4 mt-6 hidden" id="result-actions">
+          <button 
+            id="copy-btn"
+            class="gradient-button-success text-white px-6 py-3 md:px-8 md:py-4 
+                   rounded-xl text-base font-semibold cursor-pointer 
+                   transition-all duration-300 shadow-lg 
+                   hover:-translate-y-0.5 hover:shadow-xl 
+                   active:translate-y-0 flex-1"
+            data-i18n="copyBtn">
+            📋 Copy Result
+          </button>
+          
+          <button 
+            id="clear-btn"
+            class="bg-gray-100 hover:bg-gray-200 text-gray-900 px-6 py-3 md:px-8 md:py-4 
+                   rounded-xl text-base font-semibold cursor-pointer 
+                   transition-all duration-300 shadow-lg 
+                   hover:-translate-y-0.5 hover:shadow-xl 
+                   active:translate-y-0 flex-1"
+            data-i18n="clearBtn">
+            🗑️ Clear Results
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
+  <script src="./dist/bbqr-reader.bundle.js"></script>
+  
+  <script>
+    // Language support
+    const translations = {
+      en: {
+        title: 'BBQr Scanner',
+        subtitle: 'Bitcoin QR Code Scanning and Decoding',
+        back: '←',
+        scanTitle: 'Scan BBQr Code',
+        scanBtn: '📷 Start Camera Scan',
+        stopScanBtn: '⏹️ Stop Scanning',
+        resultsTitle: 'Decode Results',
+        noResults: 'No results yet. Start scanning to decode BBQr codes.',
+        copyBtn: '📋 Copy Result',
+        clearBtn: '🗑️ Clear Results'
+      },
+      zh: {
+        title: 'BBQr 扫描器',
+        subtitle: '比特币 QR 码扫描和解码',
+        back: '←',
+        scanTitle: '扫描 BBQr 码',
+        scanBtn: '📷 开始相机扫描',
+        stopScanBtn: '⏹️ 停止扫描',
+        resultsTitle: '解码结果',
+        noResults: '暂无结果。开始扫描来解码 BBQr 码。',
+        copyBtn: '📋 复制结果',
+        clearBtn: '🗑️清除结果'
+      }
+    };
+
+    let currentLanguage = localStorage.getItem('language') || 'en';
+
+    function updateTexts() {
+      const texts = translations[currentLanguage];
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (texts[key]) {
+          element.textContent = texts[key];
+        }
+      });
+
+      const toggleBtn = document.querySelector('.language-toggle');
+      if (toggleBtn) {
+        toggleBtn.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
+      }
+
+      document.documentElement.lang = currentLanguage;
+    }
+
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
+      localStorage.setItem('language', currentLanguage);
+      updateTexts();
+    }
+
+    // Initialize language on page load
+    updateTexts();
+
+    // Initialize BBQr Reader functionality when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      // The actual BBQr scanning logic will be loaded from bbqr.bundle.js
+      // We'll create a separate reader-specific initialization
+      if (window.initBBQrReader) {
+        window.initBBQrReader();
+      }
+    });
+  </script>
+</body>
+</html>

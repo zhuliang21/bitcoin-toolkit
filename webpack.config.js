@@ -5,11 +5,10 @@ module.exports = {
   mode: 'development',
   entry: {
     'brain-wallet': './src/brain-wallet.js',
-    'bbqr': './src/bbqr.js',
+    'bbqr-reader': './src/bbqr-reader.js',
     'qr': './src/qr.js',
     'psbt': './src/psbt.js',
-    'psbt-signer': './src/psbt-signer.js',
-    'bbqr-reader': './src/bbqr-reader.js'
+    'psbt-signer': './src/psbt-signer.js'
   },
   output: {
     filename: '[name].bundle.js',
