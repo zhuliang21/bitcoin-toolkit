@@ -10,148 +10,15 @@
   <link rel="shortcut icon" href="icon/favicon.ico">
   
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            'mono': ['Courier New', 'Monaco', 'Consolas', 'Lucida Console', 'monospace'],
-          },
-          animation: {
-            'smoothFall': 'smoothFall 8s linear forwards',
-            'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
-            'matrix-glow': 'matrix-glow 1.5s ease-in-out infinite alternate',
-          },
-          keyframes: {
-            smoothFall: {
-              '0%': {
-                transform: 'translateX(-50%) translateY(-100px)',
-                opacity: '1'
-              },
-              '100%': {
-                transform: 'translateX(-50%) translateY(100vh)',
-                opacity: '0'
-              }
-            },
-            'pulse-glow': {
-              '0%, 100%': {
-                textShadow: '0 0 8px #00ff41, 0 0 16px #00ff41'
-              },
-              '50%': {
-                textShadow: '0 0 12px #00ff41, 0 0 24px #00ff41, 0 0 32px #00ff41'
-              }
-            },
-            'matrix-glow': {
-              '0%': {
-                textShadow: '0 0 8px #00ff41, 0 0 16px #00ff41',
-                filter: 'brightness(1)'
-              },
-              '100%': {
-                textShadow: '0 0 12px #00ff41, 0 0 24px #00ff41, 0 0 32px #00ff41',
-                filter: 'brightness(1.2)'
-              }
-            }
-          },
-          colors: {
-            'matrix-green': '#00ff41',
-            'matrix-dark': '#001100',
-          }
-        }
-      }
-    }
-  </script>
+  <link href="./css/tailwind.css" rel="stylesheet">
   
-  <style>
-    /* Custom styles for matrix effect */
-    .falling-price {
-      position: absolute;
-      font-family: 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', monospace;
-      font-weight: bold;
-      color: #00ff41;
-      text-shadow: 0 0 8px #00ff41, 0 0 16px #00ff41;
-      animation: smoothFall 8s linear forwards;
-      pointer-events: none;
-      font-size: 4rem;
-      letter-spacing: 0.15em;
-      text-align: center;
-      white-space: nowrap;
-      left: 50%;
-    }
-    
-    /* Responsive font sizes */
-    @media (max-width: 768px) {
-      .falling-price {
-        font-size: 3rem;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .falling-price {
-        font-size: 2.5rem;
-      }
-    }
-    
-    @media (max-width: 360px) {
-      .falling-price {
-        font-size: 2rem;
-      }
-    }
-    
-    @keyframes smoothFall {
-      0% {
-        transform: translateX(-50%) translateY(-100px);
-        opacity: 1;
-      }
-      100% {
-        transform: translateX(-50%) translateY(100vh);
-        opacity: 0;
-      }
-    }
 
-    /* Matrix background effect */
-    .matrix-bg {
-      background: radial-gradient(ellipse at center, #001100 0%, #000000 70%);
-    }
-
-    /* Glow effect for status messages */
-    .status-glow {
-      text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
-    }
-
-    /* Auto-hide animations */
-    .auto-hide {
-      transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
-    }
-
-    .hidden-state {
-      opacity: 0;
-      transform: translateY(-30px) scale(0.95);
-      pointer-events: none;
-    }
-
-    .visible-state {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
-    }
-    
-    /* Falling price blur effects when interface is visible */
-    .falling-price {
-      transition: filter 1.5s ease-in-out, text-shadow 1.5s ease-in-out;
-    }
-    
-    .falling-price.blurred {
-      filter: blur(25px) saturate(300%) brightness(180%) contrast(60%);
-      text-shadow: 0 0 30px currentColor, 0 0 60px currentColor, 0 0 90px currentColor;
-    }
-  </style>
 </head>
 <body class="matrix-bg min-h-screen font-mono text-matrix-green flex items-center justify-center overflow-hidden">
   
   <!-- Back Button -->
   <a href="index.html" 
-     class="fixed top-4 left-4 md:top-6 md:left-6 z-50
+     class="fixed top-4 left-4 md:top-8 md:left-8 z-50
             bg-black/20 hover:bg-black/40 border border-matrix-green/30 hover:border-matrix-green/60
             rounded-full w-10 h-10 md:w-12 md:h-12
             flex items-center justify-center
@@ -167,7 +34,7 @@
   </a>
 
   <!-- Language Toggle -->
-  <button class="language-toggle fixed top-4 right-4 md:top-6 md:right-6 z-50
+  <button class="language-toggle fixed top-4 right-4 md:top-8 md:right-8 z-50
                  bg-black/20 hover:bg-black/40 border border-matrix-green/30 hover:border-matrix-green/60
                  rounded-full px-3 py-1.5 md:px-4 md:py-2 h-10 md:h-12
                  flex items-center justify-center
@@ -182,7 +49,7 @@
 
   <!-- Main Container -->
   <div id="mainPanel" 
-       class="relative z-30 max-w-4xl mx-auto px-4 text-center auto-hide visible-state">
+       class="relative z-30 max-w-2xl mx-auto px-6 py-4 text-center auto-hide visible-state">
     
     <!-- Title -->
     <div class="mb-8 md:mb-12">
@@ -195,14 +62,14 @@
 
     <!-- Status Display -->
     <div class="mb-8">
-      <div id="statusDisplay" class="text-xs md:text-sm text-matrix-green/60 animate-pulse font-mono tracking-wide"
+      <div id="statusDisplay" class="text-xs md:text-sm text-matrix-green/60 animate-pulse font-mono tracking-wide min-w-96 text-center"
            data-i18n="initializing">
-        Initializing exchange rate feed...
+        Initializing...
       </div>
     </div>
 
     <!-- API Status Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-8 max-w-2xl mx-auto">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6 max-w-lg mx-auto">
       <div id="apiStatus" class="contents">
         <!-- API status indicators will be populated by JavaScript -->
       </div>
@@ -328,7 +195,7 @@
     function updateStatusDisplay(message) {
       const statusElement = document.getElementById('statusDisplay');
       statusElement.textContent = message;
-      statusElement.className = 'text-xs md:text-sm text-matrix-green/80 animate-matrix-glow';
+      statusElement.className = 'text-xs md:text-sm text-matrix-green/80 animate-matrix-glow font-mono tracking-wide min-w-96 text-center';
     }
 
     async function fetchPrice() {
@@ -343,7 +210,7 @@
         
         try {
           console.log(`Trying API ${apiIndex + 1}: ${api.name} - ${api.url}`);
-          updateStatusDisplay(`Fetching from ${api.name} (${api.region})...`);
+          updateStatusDisplay(`Getting ${api.name}...`);
           
           const response = await fetch(api.url);
           
@@ -357,7 +224,7 @@
           if (price && !isNaN(price)) {
             updatePriceDisplay(price);
             updateApiStatus(apiIndex, 'success');
-            updateStatusDisplay(`✅ Live: $${price.toLocaleString()} from ${api.name}`);
+            updateStatusDisplay(`✅ $${price.toLocaleString()} • ${api.name}`);
             hideError();
             
             // Update current API index on success
@@ -378,8 +245,8 @@
       
       // All APIs failed
       console.error('All APIs failed, last error:', lastError);
-      updateStatusDisplay('❌ All API sources failed');
-      showError('Failed to fetch exchange rate data from all sources. Please check your internet connection.');
+      updateStatusDisplay('❌ Connection failed');
+      showError('All price sources failed. Check connection.');
     }
 
     function updatePriceDisplay(price) {
@@ -663,11 +530,11 @@
     const translations = {
       en: {
         title: 'USD Rate',
-        initializing: 'Initializing exchange rate feed...'
+        initializing: 'Initializing...'
       },
       zh: {
         title: 'USD汇率',
-        initializing: '正在初始化汇率数据...'
+        initializing: '初始化中...'
       }
     };
 

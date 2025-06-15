@@ -10,44 +10,7 @@
   <link rel="shortcut icon" href="icon/favicon.ico">
   
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            'mono': ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', 'monospace'],
-          },
-          animation: {
-            'pulse-subtle': 'pulse 1.5s ease-in-out infinite',
-          }
-        }
-      }
-    }
-  </script>
-  
-  <style>
-    /* Custom styles for elements that need specific behavior */
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .gradient-button-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .gradient-button-success {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    }
-    
-    .gradient-button-purple {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    }
-    
-    .backdrop-blur-glass {
-      backdrop-filter: blur(10px);
-    }
-  </style>
+  <link href="./css/tailwind.css" rel="stylesheet">
 </head>
 <body class="bg-white min-h-screen font-sans text-gray-900 transition-opacity duration-100">
   <!-- Main Container -->

@@ -12,66 +12,9 @@
   <link rel="shortcut icon" href="icon/favicon.ico">
   
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            'mono': ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', 'monospace'],
-          },
-          animation: {
-            'pulse-subtle': 'pulse 1.5s ease-in-out infinite',
-          }
-        }
-      }
-    }
-  </script>
+  <link href="./css/tailwind.css" rel="stylesheet">
   
-  <style>
-    /* Custom styles for elements that need specific behavior */
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .gradient-button-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .gradient-button-success {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    }
-    
-    .gradient-button-danger {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    }
-    
-    .backdrop-blur-glass {
-      backdrop-filter: blur(10px);
-    }
 
-    .file-type-badge {
-      display: inline-block;
-      padding: 6px 12px;
-      background: #667eea;
-      color: white;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 12px;
-    }
-
-    .result-container {
-      background: rgba(249, 250, 251, 0.8);
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(107, 114, 128, 0.1);
-    }
-
-    .camera-container {
-      position: relative;
-      overflow: hidden;
-    }
-  </style>
 </head>
 <body class="bg-gray-50 min-h-screen font-sans text-gray-900">
   <!-- Main Container -->

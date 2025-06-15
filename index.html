@@ -10,70 +10,9 @@
   <link rel="shortcut icon" href="icon/favicon.ico">
   
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            'mono': ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Consolas', 'Courier New', 'monospace'],
-          },
-          animation: {
-            'fadeInUp': 'fadeInUp 0.5s ease-out forwards',
-            'float': 'float 3s ease-in-out infinite',
-            'gradient-shift': 'gradient-shift 15s ease infinite',
-          },
-          keyframes: {
-            fadeInUp: {
-              '0%': { opacity: '0', transform: 'translateY(30px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' }
-            },
-            float: {
-              '0%, 100%': { transform: 'translateY(0px)' },
-              '50%': { transform: 'translateY(-8px)' }
-            },
-            'gradient-shift': {
-              '0%, 100%': { backgroundPosition: '0% 50%' },
-              '50%': { backgroundPosition: '100% 50%' }
-            }
-          },
-          backdropBlur: {
-            '20': '20px',
-          }
-        }
-      }
-    }
-  </script>
+  <link href="./css/tailwind.css" rel="stylesheet">
   
-  <style>
-    /* Minimal custom styles */
-    body.loading { visibility: hidden; }
-    
-    .gradient-bg {
-      background: linear-gradient(-45deg, 
-        #f8f7ff 0%, 
-        #f0edff 15%, 
-        #e8e3ff 30%, 
-        #ebe8ff 45%, 
-        #f3f0ff 60%, 
-        #f8f5ff 75%, 
-        #faf8ff 90%, 
-        #f8f7ff 100%);
-      background-size: 400% 400%;
-      animation: gradient-shift 20s ease infinite;
-    }
-    
-    .glass-card {
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(20px) saturate(150%);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-    
-    .glass-card:hover {
-      background: rgba(255, 255, 255, 0.35);
-      border-color: rgba(255, 255, 255, 0.5);
-    }
-  </style>
+
 </head>
 
 <body class="gradient-bg min-h-screen font-sans text-slate-700 relative overflow-x-hidden" style="visibility: hidden;">
