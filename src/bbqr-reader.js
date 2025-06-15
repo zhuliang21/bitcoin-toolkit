@@ -2,6 +2,7 @@
 // Simplified version with only scanning/decoding functionality
 
 import { joinQRs, detectFileType } from 'bbqr';
+import { decodePSBT, formatBitcoinAmount } from './psbt-decoder.js';
 
 // Global state
 const state = {
