@@ -93,8 +93,8 @@ body.loading {
   text-align: center;
   white-space: nowrap;
   left: 50%;
-  width: 16rem;
   transform: translateX(-50%);
+  transition: filter 1.5s ease-in-out, text-shadow 1.5s ease-in-out;
 }
 
 /* Fixed width container for status display to prevent layout shifts */
@@ -154,9 +154,6 @@ body.loading {
 }
 
 /* Falling price blur effects when interface is visible */
-.falling-price {
-  transition: filter 1.5s ease-in-out, text-shadow 1.5s ease-in-out;
-}
 
 .falling-price.blurred {
   filter: blur(8px) saturate(150%) brightness(120%);
@@ -246,9 +243,6 @@ body.loading {
 @keyframes smoothFall {
   0% {
     transform: translateX(-50%) translateY(-100px);
-    opacity: 1;
-  }
-  90% {
     opacity: 1;
   }
   100% {

@@ -29,6 +29,7 @@
     "bitcoinjs-lib": "^6.1.7",
     "bs58check": "^4.0.0",
     "html5-qrcode": "^2.3.8",
+    "jsqr": "^1.4.0",
     "qrcode": "^1.5.4",
     "qrious": "^4.0.2",
     "tiny-secp256k1": "^1.1.0",

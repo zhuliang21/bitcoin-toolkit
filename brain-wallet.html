@@ -18,15 +18,57 @@
   <!-- Tailwind CSS -->
   <link href="./css/tailwind.css" rel="stylesheet">
   
-
-  
+  <style>
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.3s ease-in-out;
+    }
+    
+    .modal-overlay.hidden {
+      display: none;
+    }
+    
+    .modal-content {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      padding: 2rem;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+  </style>
 
 </head>
 
 <body class="gradient-bg min-h-screen font-sans text-slate-700 relative overflow-x-hidden">
   
   <!-- Disclaimer Modal -->
-  <div id="disclaimerModal" class="modal-overlay">
+  <div id="disclaimerModal" class="modal-overlay hidden">
     <div class="modal-content">
       <div class="text-center mb-6">
         <h2 class="text-2xl md:text-3xl font-bold text-slate-700 mb-2">
@@ -83,11 +125,11 @@
       
       <div class="text-center">
         <button id="acceptDisclaimer" 
-                class="px-8 py-3 bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700
-                       text-white font-semibold rounded-2xl
+                class="px-8 py-3 md:px-10 md:py-4 bg-gradient-to-r from-purple-300 to-violet-400 hover:from-purple-400 hover:to-violet-500
+                       text-white font-semibold rounded-2xl md:rounded-3xl z-50
                        transition-all duration-300 transform hover:scale-105 hover:-translate-y-1
-                       shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40
-                       text-sm md:text-base">
+                       shadow-lg shadow-purple-300/25 hover:shadow-xl hover:shadow-purple-400/40
+                       text-sm md:text-base relative">
           I Understand & Accept / 我已理解并接受
         </button>
       </div>
@@ -114,23 +156,23 @@
       <div class="absolute top-3 left-1/2 transform -translate-x-1/2 
                   w-9 h-1.5 bg-slate-400/40 rounded-full md:hidden"></div>
       
-      <!-- Back Button -->
-      <a href="index.html" 
-         class="absolute top-5 left-6 md:left-12 lg:left-16
-                glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2
-                text-slate-500 hover:text-slate-700 text-sm font-medium 
-                transition-all duration-300 hover:scale-105 transform
-                flex items-center justify-center gap-1
-                shadow-lg shadow-slate-500/10 hover:shadow-xl hover:shadow-slate-500/20
-                bg-white/25 backdrop-blur-xl border border-white/30 hover:border-white/50
-                ring-1 ring-white/30 hover:ring-white/40 ring-inset
-                no-underline min-w-12 h-8 md:min-w-14 md:h-10"
-         data-i18n="back">
-        <span class="text-lg">←</span>
-      </a>
+                  <!-- Back Button -->
+            <a href="index.html" 
+               class="absolute top-5 left-6 md:left-12 lg:left-16 z-20
+                      glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2
+                      text-slate-500 hover:text-slate-700 text-sm font-medium 
+                      transition-all duration-300 hover:scale-105 transform
+                      flex items-center justify-center gap-1
+                      shadow-lg shadow-slate-500/10 hover:shadow-xl hover:shadow-slate-500/20
+                      bg-white/25 backdrop-blur-xl border border-white/30 hover:border-white/50
+                      ring-1 ring-white/30 hover:ring-white/40 ring-inset
+                      no-underline min-w-12 h-8 md:min-w-14 md:h-10"
+               data-i18n="back">
+                <span class="text-lg">←</span>
+            </a>
       
       <!-- Language Toggle -->
-      <button class="language-toggle absolute top-5 right-6 md:right-12 lg:right-16 
+      <button class="language-toggle absolute top-5 right-6 md:right-12 lg:right-16 z-20
                      glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2 
                      text-slate-500 hover:text-slate-700 text-sm font-medium 
                      cursor-pointer transition-all duration-300 hover:scale-105 transform
@@ -177,10 +219,10 @@
           <button id="genMnemonic" 
                   data-i18n="generateBtn"
                   class="w-full lg:w-auto px-6 py-3 md:px-8 md:py-4
-                         bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700
-                         text-white font-semibold rounded-xl md:rounded-2xl
+                         bg-gradient-to-r from-purple-300 to-violet-400 hover:from-purple-400 hover:to-violet-500
+                         text-white font-semibold rounded-2xl md:rounded-3xl
                          transition-all duration-300 transform hover:scale-105 hover:-translate-y-1
-                         shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40
+                         shadow-lg shadow-purple-300/25 hover:shadow-xl hover:shadow-purple-400/40
                          text-sm md:text-base">
             Generate Wallet
           </button>
@@ -239,11 +281,11 @@
           <div class="text-center">
             <button id="copyMnemonic" 
                     data-i18n="copyBtn"
-                    class="px-6 py-3 md:px-8 md:py-4
-                           bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700
-                           text-white font-semibold rounded-xl md:rounded-2xl
+                    class="inline-block px-6 py-3 md:px-8 md:py-4
+                           bg-gradient-to-r from-purple-300 to-violet-400 hover:from-purple-400 hover:to-violet-500
+                           text-white font-semibold rounded-2xl md:rounded-3xl
                            transition-all duration-300 transform hover:scale-105 hover:-translate-y-1
-                           shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/40
+                           shadow-lg shadow-purple-300/25 hover:shadow-xl hover:shadow-purple-400/40
                            text-sm md:text-base inline-flex items-center gap-2">
               📋 <span>Copy Mnemonic</span>
             </button>
@@ -406,11 +448,11 @@
           <div class="text-center">
             <button id="fetchUsage" 
                     data-i18n="checkUsageBtn"
-                    class="px-6 py-3 md:px-8 md:py-4
-                           bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700
-                           text-white font-semibold rounded-xl md:rounded-2xl
+                    class="inline-block px-6 py-3 md:px-8 md:py-4
+                           bg-gradient-to-r from-emerald-300 to-teal-400 hover:from-emerald-400 hover:to-teal-500
+                           text-white font-semibold rounded-2xl md:rounded-3xl
                            transition-all duration-300 transform hover:scale-105 hover:-translate-y-1
-                           shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40
+                           shadow-lg shadow-emerald-300/25 hover:shadow-xl hover:shadow-emerald-400/40
                            text-sm md:text-base">
               Check Wallet Usage
             </button>
@@ -428,12 +470,12 @@
     // Disclaimer modal logic
     function showDisclaimer() {
       const modal = document.getElementById('disclaimerModal');
-      modal.classList.remove('modal-hidden');
+      modal.classList.remove('hidden');
     }
 
     function hideDisclaimer() {
       const modal = document.getElementById('disclaimerModal');
-      modal.classList.add('modal-hidden');
+      modal.classList.add('hidden');
       localStorage.setItem('brainWalletDisclaimerAccepted', 'true');
     }
 

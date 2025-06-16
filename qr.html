@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <style>html,body{opacity:0!important;transition:opacity .3s ease-in-out}html.loaded,body.loaded{opacity:1!important}</style>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Code Generator</title>
@@ -45,7 +44,7 @@
       
       <!-- Back Button -->
       <a href="index.html" 
-         class="absolute top-5 left-6 md:left-12 lg:left-16
+         class="absolute top-5 left-6 md:left-12 lg:left-16 z-20
                 glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2
                 text-slate-500 hover:text-slate-700 text-sm font-medium 
                 transition-all duration-300 hover:scale-105 transform
@@ -59,7 +58,7 @@
       </a>
       
       <!-- Language Toggle -->
-      <button class="language-toggle absolute top-5 right-6 md:right-12 lg:right-16 
+      <button class="language-toggle absolute top-5 right-6 md:right-12 lg:right-16 z-20
                      glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2 
                      text-slate-500 hover:text-slate-700 text-sm font-medium 
                      cursor-pointer transition-all duration-300 hover:scale-105 transform
@@ -135,15 +134,10 @@
               </div>
               
               <!-- Generate Button -->
-              <div class="pt-4 lg:pt-6">
+              <div class="pt-4 lg:pt-6 text-center">
                 <button id="generate" 
                         data-i18n="generateBtn"
-                        class="w-full px-6 py-4 md:px-8 md:py-5 lg:px-10 lg:py-6
-                               bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700
-                               text-white font-semibold rounded-xl md:rounded-2xl lg:rounded-3xl
-                               transition-all duration-300 transform hover:scale-105 hover:-translate-y-1
-                               shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40
-                               text-base md:text-lg lg:text-xl">
+                        class="gradient-button-primary">
                   Generate QR Code
                 </button>
               </div>
@@ -176,13 +170,7 @@
                   <button id="download" 
                           disabled
                           data-i18n="downloadBtn"
-                          class="px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5
-                                 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700
-                                 text-white font-semibold rounded-xl md:rounded-2xl lg:rounded-3xl
-                                 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1
-                                 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40
-                                 text-sm md:text-base lg:text-lg disabled:opacity-60 disabled:cursor-not-allowed 
-                                 disabled:transform-none disabled:shadow-lg">
+                          class="gradient-button-success disabled:opacity-60 disabled:cursor-not-allowed">
                     📥 Download PNG
                   </button>
                 </div>
@@ -213,8 +201,8 @@
 
   <!-- Full Screen Modal -->
   <div id="modal-overlay" 
-       class="modal-overlay fixed inset-0 bg-black/90 z-50 
-              justify-center items-center cursor-pointer 
+       class="modal-overlay fixed inset-0 bg-black/90 z-[9999] 
+              flex justify-center items-center cursor-pointer 
               animate-fadeIn hidden"
        onclick="closeModal()">
     <img id="modal-image" 
@@ -225,38 +213,27 @@
   <script src="dist/qr.bundle.js"></script>
   
   <script>
-    // Initialize page
-    function initializePage() {
-      // Show content with smooth fade-in after ensuring Tailwind is loaded
-      setTimeout(() => {
-        document.documentElement.classList.add('loaded');
-        document.body.classList.add('loaded');
-        
-        // Signal that page is ready for bundle.js initialization
-        window.pageReady = true;
-        
-        // Trigger bundle.js initialization if it's already loaded but waiting
-        if (window.initializeBundleApp && typeof window.initializeBundleApp === 'function') {
-          window.initializeBundleApp();
-        }
-      }, 50);
-    }
-
-    // Initialize as soon as DOM is ready and bundle is loaded
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initializePage);
-    } else {
-      // DOM is already ready
-      initializePage();
-    }
-    
-    // Fallback: ensure page is visible after maximum wait time
-    setTimeout(() => {
-      if (!document.documentElement.classList.contains('loaded')) {
-        document.documentElement.classList.add('loaded');
-        document.body.classList.add('loaded');
+    // Show page and initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      // Show page
+      document.body.style.visibility = 'visible';
+      
+      // Show desktop placeholder on xl screens
+      if (window.innerWidth >= 1280) {
+        document.getElementById('placeholderSection').classList.remove('hidden');
       }
-    }, 500);
+
+      // Signal that page is fully ready so the bundle can safely initialize
+      window.pageReady = true;
+      if (window.initializeBundleApp && typeof window.initializeBundleApp === 'function') {
+        window.initializeBundleApp();
+      }
+    });
+    
+    // Fallback to ensure page is visible
+    setTimeout(() => {
+      document.body.style.visibility = 'visible';
+    }, 100);
   </script>
 </body>
 </html>

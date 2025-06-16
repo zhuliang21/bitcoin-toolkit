@@ -150,8 +150,8 @@
           </div>
         </a>
 
-        <!-- BBQR Tool -->
-        <a href="bbqr.html" 
+        <!-- BBQr Helper Tool -->
+        <a href="bbqr-helper.html" 
            class="group glass-card hover:glass-card
                   rounded-2xl md:rounded-3xl 
                   p-6 md:p-8 transition-all duration-500 ease-out
@@ -171,56 +171,22 @@
           
           <div class="relative z-10">
             <div class="flex items-center gap-3 mb-4 md:mb-6">
-              <span class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform duration-300">🔥</span>
+              <span class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform duration-300">🔐</span>
               <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
                          tracking-tight group-hover:text-slate-600 transition-colors duration-300" 
-                  data-i18n="bbqrTitle">
-                BBQR Generator
+                  data-i18n="bbqrHelperTitle">
+                BBQr Helper
               </h2>
             </div>
             <p class="text-sm md:text-base text-slate-500 leading-relaxed 
                group-hover:text-slate-600 transition-colors duration-300" 
-               data-i18n="bbqrDesc">
-              Split large data into animated QR sequences for Bitcoin transactions.
+               data-i18n="bbqrHelperDesc">
+              Complete PSBT to ColdCard to Broadcast workflow with BBQr codes.
             </p>
           </div>
         </a>
 
-        <!-- PSBT Tool -->
-        <a href="psbt.html" 
-           class="group glass-card hover:glass-card
-                  rounded-2xl md:rounded-3xl 
-                  p-6 md:p-8 transition-all duration-500 ease-out
-                  hover:-translate-y-2 hover:scale-[1.02] transform
-                  cursor-pointer animate-fadeInUp
-                  relative overflow-hidden
-                  shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
-                  bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
-                  ring-1 ring-white/20 hover:ring-white/35 ring-inset
-                  before:absolute before:top-0 before:left-0 before:right-0 before:h-px
-                  before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent"
-           style="animation-delay: 0.3s;">
-          
-          <!-- Hover glow effect -->
-          <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 
-                      opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl md:rounded-3xl"></div>
-          
-          <div class="relative z-10">
-            <div class="flex items-center gap-3 mb-4 md:mb-6">
-              <span class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform duration-300">🔓</span>
-              <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
-                         tracking-tight group-hover:text-slate-600 transition-colors duration-300" 
-                  data-i18n="psbtTitle">
-                PSBT Decoder
-              </h2>
-            </div>
-            <p class="text-sm md:text-base text-slate-500 leading-relaxed 
-               group-hover:text-slate-600 transition-colors duration-300" 
-               data-i18n="psbtDesc">
-              Decode PSBT Base64 to readable transaction info.
-            </p>
-          </div>
-        </a>
+
 
         <!-- Price Tracker Tool -->
         <a href="price.html" 
@@ -235,7 +201,7 @@
                   ring-1 ring-white/20 hover:ring-white/35 ring-inset
                   before:absolute before:top-0 before:left-0 before:right-0 before:h-px
                   before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent"
-           style="animation-delay: 0.4s;">
+           style="animation-delay: 0.3s;">
           
           <!-- Hover glow effect -->
           <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 
@@ -271,10 +237,8 @@
         brainWalletDesc: 'Generate Bitcoin wallets from memorable text using deterministic algorithms.',
         qrTitle: 'QR Code',
         qrDesc: 'Create QR codes for text and URLs with instant download.',
-        bbqrTitle: 'BBQR',
-        bbqrDesc: 'Split large data into animated QR sequences for Bitcoin transactions.',
-        psbtTitle: 'PSBT Decoder',
-        psbtDesc: 'Decode PSBT Base64 to readable transaction info.',
+        bbqrHelperTitle: 'BBQr Helper',
+        bbqrHelperDesc: 'Complete PSBT to ColdCard to Broadcast workflow with BBQr codes.',
         priceTitle: 'USD Rate',
         priceDesc: 'Matrix-style falling digital rain with real-time USD exchange rates.'
       },
@@ -284,10 +248,8 @@
         brainWalletDesc: '使用确定性算法从易记文本生成比特币钱包。',
         qrTitle: '二维码',
         qrDesc: '为文本和网址创建二维码，支持即时下载。',
-        bbqrTitle: 'BBQR',
-        bbqrDesc: '将大数据分割为动画二维码序列，用于比特币交易。',
-        psbtTitle: 'PSBT解码器',
-        psbtDesc: '将PSBT Base64解码为可读的交易信息。',
+        bbqrHelperTitle: 'BBQr助手',
+        bbqrHelperDesc: '完整的PSBT到ColdCard到广播工作流程，支持BBQr码。',
         priceTitle: 'USD汇率',
         priceDesc: '矩阵风格的绿色数字雨，实时显示USD汇率。'
       }
