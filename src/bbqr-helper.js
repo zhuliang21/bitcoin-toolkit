@@ -26,13 +26,16 @@ const translations = {
   en: {
     title: 'BBQr Helper',
     subtitle: 'Complete PSBT to ColdCard to Broadcast Workflow',
+    progressTitle: 'Workflow Progress',
+    progressStatus: 'Step 1 of 5',
     step1: 'Import PSBT',
     step2: 'Generate BBQr',
-    step3: 'Scan Signed',
-    step4: 'Broadcast',
+    step3: 'Import Signed',
+    step4: 'Finalize',
+    step5: 'Broadcast',
     importTitle: 'Import PSBT',
-    fileLabel: 'Upload PSBT File',
-    uploadText: 'Click to upload PSBT',
+    fileLabel: 'Import Local PSBT File',
+    uploadText: 'Click to import PSBT',
     supportedFormats: 'PSBT, TXT files supported',
     manualLabel: 'Or Paste PSBT (Base64)',
     psbtPlaceholder: 'Enter PSBT in Base64 format...',
@@ -42,7 +45,9 @@ const translations = {
     proceedBtn: '➡️ Generate BBQr Codes',
     errorTitle: 'PSBT Parse Error',
     bbqrTitle: 'Generate BBQr for ColdCard',
-    bbqrDesc: 'Scan these QR codes with your ColdCard to sign the transaction',
+    bbqrDesc: 'ColdCard Q compatible BBQr codes. Scan to sign on your device.',
+    psbtSummaryTitle: 'PSBT Summary',
+    bbqrCodesTitle: 'BBQr Codes',
     backBtn: '← Back',
     proceedScanBtn: '➡️ Scan Signed PSBT',
     scanTitle: 'Scan Signed PSBT',
@@ -68,18 +73,25 @@ const translations = {
     downloadBtn: '📥 Download PNG',
     quickActionsTitle: 'Quick Actions',
     quickActionsDesc: 'Skip BBQr generation if you already have a signed PSBT',
-    quickSkipBtn: '📷 Skip to Scan Signed'
+    quickSkipBtn: '📷 Skip to Scan Signed',
+    broadcastTitle: 'Broadcast Transaction',
+    proceedBroadcastBtn: '➡️ Proceed to Broadcast',
+    scanInstruction: 'Align QR code within the frame',
+    scanTip: 'Supports multi-part BBQr auto-assembly'
   },
   zh: {
     title: 'BBQr 助手',
     subtitle: '完整的 PSBT 到 ColdCard 到广播工作流程',
+    progressTitle: '工作流程进度',
+    progressStatus: '第 1 步，共 5 步',
     step1: '导入 PSBT',
     step2: '生成 BBQr',
-    step3: '扫描已签名',
-    step4: '广播',
+    step3: '导入签名',
+    step4: '完成交易',
+    step5: '广播',
     importTitle: '导入 PSBT',
-    fileLabel: '上传 PSBT 文件',
-    uploadText: '点击上传 PSBT',
+    fileLabel: '导入本地 PSBT 文件',
+    uploadText: '点击导入 PSBT',
     supportedFormats: '支持 PSBT, TXT 文件',
     manualLabel: '或粘贴 PSBT (Base64)',
     psbtPlaceholder: '输入 Base64 格式的 PSBT...',
@@ -89,7 +101,9 @@ const translations = {
     proceedBtn: '➡️ 生成 BBQr 码',
     errorTitle: 'PSBT 解析错误',
     bbqrTitle: '为 ColdCard 生成 BBQr',
-    bbqrDesc: '用你的 ColdCard 扫描这些 QR 码来签名交易',
+    bbqrDesc: 'ColdCard Q 兼容的 BBQr 码。扫描后在设备上签名。',
+    psbtSummaryTitle: 'PSBT 摘要',
+    bbqrCodesTitle: 'BBQr 码',
     backBtn: '← 返回',
     proceedScanBtn: '➡️ 扫描已签名 PSBT',
     scanTitle: '扫描已签名 PSBT',
@@ -115,15 +129,36 @@ const translations = {
     downloadBtn: '📥 下载PNG',
     quickActionsTitle: '快速操作',
     quickActionsDesc: '如果你已有已签名的 PSBT，可跳过 BBQr 生成',
-    quickSkipBtn: '📷 跳过，直接扫描签名'
+    quickSkipBtn: '📷 跳过，直接扫描签名',
+    broadcastTitle: '广播交易',
+    proceedBroadcastBtn: '➡️ 进入广播',
+    scanInstruction: '将QR码对准扫描框',
+    scanTip: '支持多部分BBQr码自动拼接'
   }
 };
 
 let currentLanguage = localStorage.getItem('language') || 'en';
 
+// Utility functions
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+function setViewportHeight() {
+  // Set CSS custom property for viewport height (mobile Safari fix)
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
 // Initialize BBQr Helper
 function initBBQrHelper() {
   console.log('BBQr Helper initializing...');
+  
+  // Set viewport height for mobile
+  setViewportHeight();
+  
+  // Update viewport height on resize
+  window.addEventListener('resize', setViewportHeight);
   
   // Initialize language
   updateTexts();
@@ -162,6 +197,17 @@ function updateTexts() {
     toggleBtn.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
   }
 
+  // Update progress status text based on current step
+  const progressStatus = document.querySelector('[data-i18n="progressStatus"]');
+  if (progressStatus) {
+    const currentStep = state.currentStep || 1;
+    if (currentLanguage === 'zh') {
+      progressStatus.textContent = `第 ${currentStep} 步，共 5 步`;
+    } else {
+      progressStatus.textContent = `Step ${currentStep} of 5`;
+    }
+  }
+
   document.documentElement.lang = currentLanguage;
 }
 
@@ -175,23 +221,51 @@ function setupLanguageToggle() {
 
 // Step management
 function updateStepIndicator(step) {
-  for (let i = 1; i <= 4; i++) {
-    const indicator = document.getElementById(`step${i}-indicator`);
-    if (indicator) {
-      indicator.className = 'step-indicator';
+  // Update progress bar
+  const progressBar = document.getElementById('progress-bar');
+  const progressStatus = document.querySelector('[data-i18n="progressStatus"]');
+  
+  if (progressBar) {
+    const percentage = (step / 5) * 100;
+    progressBar.style.width = `${percentage}%`;
+    
+    // Update progress bar class based on completion
+    if (step === 5) {
+      progressBar.className = 'progress-bar'; // Completed - green
+    } else {
+      progressBar.className = 'progress-bar active'; // Active - purple
+    }
+  }
+  
+  // Update status text
+  if (progressStatus) {
+    const texts = translations[currentLanguage];
+    if (currentLanguage === 'zh') {
+      progressStatus.textContent = `第 ${step} 步，共 5 步`;
+    } else {
+      progressStatus.textContent = `Step ${step} of 5`;
+    }
+  }
+  
+  // Update step dots
+  for (let i = 1; i <= 5; i++) {
+    const dot = document.getElementById(`step${i}-dot`);
+    if (dot) {
+      dot.className = 'step-dot';
       if (i < step) {
-        indicator.className += ' step-completed';
+        dot.className += ' completed';
       } else if (i === step) {
-        indicator.className += ' step-active';
-      } else {
-        indicator.className += ' step-inactive';
+        dot.className += ' active';
       }
     }
   }
+  
+  // Update document language for CSS selector
+  document.documentElement.lang = currentLanguage;
 }
 
 function goToStep(step) {
-  if (step < 1 || step > 4) return;
+  if (step < 1 || step > 5) return;
   
   state.currentStep = step;
   updateStepIndicator(step);
@@ -217,7 +291,11 @@ function renderStep(step) {
     case 4:
       container.innerHTML = renderStep4();
       setupStep4Events();
-      // Show transaction summary when entering step 4
+      break;
+    case 5:
+      container.innerHTML = renderStep5();
+      setupStep5Events();
+      // Show transaction summary when entering step 5
       setTimeout(() => {
         showTransactionSummary();
       }, 100);
@@ -230,68 +308,89 @@ function renderStep(step) {
 // Step 1: Import PSBT
 function renderStep1() {
   return `
+    <!-- Quick Actions -->
+    <div class="glass-card">
+      <h3 style="color: white; margin-bottom: 20px;" data-i18n="quickActionsTitle">Quick Actions</h3>
+      <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px;" data-i18n="quickActionsDesc">Skip BBQr generation if you already have a signed PSBT</p>
+      <button id="quick-skip-to-scan-btn" class="gradient-button-primary" data-i18n="quickSkipBtn">📷 Skip to Scan Signed</button>
+    </div>
+
     <!-- Import PSBT Card -->
-    <div class="glass-card rounded-2xl md:rounded-3xl 
-                p-6 md:p-8 lg:p-10 transition-all duration-300 ease-out
-                shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
-                bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
-                ring-1 ring-white/20 hover:ring-white/35 ring-inset
-                animate-fadeInUp"
-         style="animation-delay: 0.3s;">
-      
-      <h2 class="text-2xl md:text-3xl font-bold text-slate-700 tracking-tight mb-6 md:mb-8" data-i18n="importTitle">
+    <div class="glass-card">
+      <h2 style="color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 30px;" data-i18n="importTitle">
         📥 Import PSBT
       </h2>
       
-      <!-- File Upload -->
-      <div class="mb-6 md:mb-8">
-        <label for="psbt-file" class="block text-sm md:text-base font-semibold text-slate-600 mb-3 md:mb-4 tracking-tight" data-i18n="fileLabel">
-          📁 Upload PSBT File
-        </label>
-        <div class="flex items-center justify-center w-full">
-          <label for="psbt-file" class="flex flex-col items-center justify-center w-full h-32 md:h-40 
-                                         border-2 border-dashed border-white/40 rounded-xl md:rounded-2xl cursor-pointer 
-                                         bg-white/30 hover:bg-white/40 backdrop-blur-xl
-                                         transition-all duration-300 hover:border-white/60 hover:scale-[1.02]
-                                         ring-1 ring-white/20 hover:ring-white/30 ring-inset">
-            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-              <svg class="w-8 h-8 md:w-10 md:h-10 mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-              </svg>
-              <p class="mb-2 text-sm md:text-base text-slate-600">
-                <span class="font-semibold" data-i18n="uploadText">Click to upload PSBT</span>
-              </p>
-              <p class="text-xs md:text-sm text-slate-500" data-i18n="supportedFormats">PSBT, TXT files supported</p>
+      <!-- File Upload and Manual Input Side by Side -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+        
+        <!-- File Import Section -->
+        <div>
+          <div class="form-group">
+            <label for="psbt-file" data-i18n="fileLabel">📁 Import Local PSBT File</label>
+            <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
+              <label id="file-upload-area" for="psbt-file" style="display: flex; flex-direction: column; align-items: center; justify-content: center; 
+                                            width: 140px; height: 140px; border: 2px dashed rgba(255, 255, 255, 0.4); 
+                                            border-radius: 15px; cursor: pointer; background: rgba(255, 255, 255, 0.3); 
+                                            transition: all 0.3s ease; backdrop-filter: blur(10px);"
+                     onmouseover="this.style.background='rgba(255, 255, 255, 0.4)'; this.style.borderColor='rgba(255, 255, 255, 0.6)'"
+                     onmouseout="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.borderColor='rgba(255, 255, 255, 0.4)'">
+                <div id="upload-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; text-align: center;">
+                  <svg id="upload-icon" style="width: 32px; height: 32px; margin-bottom: 10px; color: rgba(255, 255, 255, 0.7);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                  <p style="margin-bottom: 5px; font-size: 12px; color: white; line-height: 1.2;">
+                    <span style="font-weight: 600;" data-i18n="uploadText">Click to import PSBT</span>
+                  </p>
+                  <p style="font-size: 10px; color: rgba(255, 255, 255, 0.7); line-height: 1.1;" data-i18n="supportedFormats">PSBT, TXT files supported</p>
+                </div>
+                <input id="psbt-file" type="file" style="display: none;" accept=".psbt,.txt,.dat" />
+              </label>
             </div>
-            <input id="psbt-file" type="file" class="hidden" accept=".psbt,.txt,.dat" />
-          </label>
+          </div>
+        </div>
+
+        <!-- Manual Input Section -->
+        <div>
+          <div class="form-group">
+            <label for="psbt-input" data-i18n="manualLabel">📝 Or Paste PSBT (Base64)</label>
+            <textarea 
+              id="psbt-input"
+              rows="6"
+              style="width: 100%; padding: 15px 20px; background: rgba(255, 255, 255, 0.5); 
+                     border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 15px; 
+                     color: #334155; font-size: 14px; outline: none; box-sizing: border-box; 
+                     transition: all 0.3s ease; resize: vertical; min-height: 160px;
+                     font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+                     line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;"
+              placeholder="Enter PSBT in Base64 format..."
+              data-i18n-placeholder="psbtPlaceholder"
+              spellcheck="false"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"></textarea>
+          </div>
         </div>
       </div>
 
-      <!-- Manual Input -->
-      <div class="mb-6 md:mb-8">
-        <label for="psbt-input" class="block text-sm md:text-base font-semibold text-slate-600 mb-3 md:mb-4 tracking-tight" data-i18n="manualLabel">
-          📝 Or Paste PSBT (Base64)
-        </label>
-        <textarea 
-          id="psbt-input"
-          rows="6"
-          class="w-full px-4 py-3 md:px-6 md:py-4 lg:px-6 lg:py-5
-                 bg-white/50 backdrop-blur-xl border border-white/40
-                 rounded-xl md:rounded-2xl text-slate-700 placeholder-slate-400
-                 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-300
-                 transition-all duration-300 hover:bg-white/60
-                 text-sm md:text-base font-mono resize-y"
-          placeholder="Enter PSBT in Base64 format..."
-          data-i18n-placeholder="psbtPlaceholder">
-        </textarea>
-      </div>
+      <!-- Mobile Layout: Stack vertically on small screens -->
+      <style>
+        @media (max-width: 768px) {
+          .glass-card div[style*="grid-template-columns"] {
+            display: block !important;
+          }
+          .glass-card div[style*="grid-template-columns"] > div {
+            margin-bottom: 25px;
+          }
+        }
+      </style>
 
       <!-- Action Buttons -->
-      <div class="flex flex-col sm:flex-row gap-4 md:gap-6 pt-4 md:pt-6">
+      <div style="display: flex; flex-wrap: wrap; gap: 15px; padding-top: 20px;">
         <button 
           id="parse-psbt-btn"
-          class="gradient-button-primary flex-1"
+          class="gradient-button-primary"
+          style="flex: 1; min-width: 150px;"
           data-i18n="parseBtn">
           🔍 Parse PSBT
         </button>
@@ -304,16 +403,16 @@ function renderStep1() {
       </div>
 
       <!-- PSBT Analysis -->
-      <div id="psbt-analysis" class="hidden mt-6 md:mt-8 p-4 md:p-6 glass-card rounded-xl md:rounded-2xl
-                                     bg-gradient-to-r from-emerald-50/50 to-teal-50/50 backdrop-blur-xl 
-                                     border border-emerald-200/40 ring-1 ring-emerald-100/30 ring-inset">
-        <h3 class="text-lg md:text-xl font-semibold text-emerald-900 mb-4 md:mb-6" data-i18n="analysisTitle">
+      <div id="psbt-analysis" style="display: none; margin-top: 30px; padding: 25px; background: rgba(16, 185, 129, 0.1); 
+                                     border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 15px;
+                                     backdrop-filter: blur(10px);">
+        <h3 style="font-size: 1.2rem; font-weight: 600; color: #059669; margin-bottom: 20px;" data-i18n="analysisTitle">
           ✅ PSBT Analysis
         </h3>
-        <div id="psbt-details" class="space-y-3 text-sm md:text-base text-emerald-800">
+        <div id="psbt-details" style="color: #065f46; font-size: 14px; line-height: 1.6;">
           <!-- PSBT details will be inserted here -->
         </div>
-        <div class="mt-6 md:mt-8">
+        <div style="margin-top: 25px;">
           <button 
             id="proceed-to-bbqr-btn"
             class="gradient-button-success"
@@ -324,14 +423,14 @@ function renderStep1() {
       </div>
 
       <!-- Error Display -->
-      <div id="psbt-error" class="hidden mt-6 md:mt-8 p-4 md:p-6 glass-card rounded-xl md:rounded-2xl
-                                  bg-gradient-to-r from-red-50/50 to-rose-50/50 backdrop-blur-xl 
-                                  border border-red-200/40 ring-1 ring-red-100/30 ring-inset">
-        <div class="flex items-center">
-          <div class="text-red-400 mr-3 text-xl">⚠️</div>
-          <div class="text-red-800 font-semibold text-base md:text-lg" data-i18n="errorTitle">PSBT Parse Error</div>
+      <div id="psbt-error" style="display: none; margin-top: 30px; padding: 25px; background: rgba(239, 68, 68, 0.1); 
+                                 border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 15px;
+                                 backdrop-filter: blur(10px);">
+        <div style="display: flex; align-items: center;">
+          <div style="color: #ef4444; margin-right: 12px; font-size: 1.2rem;">⚠️</div>
+          <div style="color: #dc2626; font-weight: 600; font-size: 1rem;" data-i18n="errorTitle">PSBT Parse Error</div>
         </div>
-        <div id="psbt-error-message" class="text-red-700 text-sm md:text-base mt-2 md:mt-3"></div>
+        <div id="psbt-error-message" style="color: #b91c1c; font-size: 14px; margin-top: 12px;"></div>
       </div>
     </div>
   `;
@@ -343,18 +442,97 @@ function setupStep1Events() {
   const parsePsbtBtn = document.getElementById('parse-psbt-btn');
   const clearPsbtBtn = document.getElementById('clear-psbt-btn');
   const proceedToBbqrBtn = document.getElementById('proceed-to-bbqr-btn');
+  const quickSkipBtn = document.getElementById('quick-skip-to-scan-btn');
 
-  // File upload
+  // Quick skip to scan button
+  quickSkipBtn?.addEventListener('click', () => {
+    console.log('🖱️ Quick Skip to Scan button clicked');
+    goToStep(3);
+  });
+
+  // Enhanced textarea handling
+  if (psbtInput) {
+    // Prevent multiple cursor positions on focus
+    psbtInput.addEventListener('focus', () => {
+      // Clear any existing selection and set cursor to end
+      setTimeout(() => {
+        psbtInput.setSelectionRange(psbtInput.value.length, psbtInput.value.length);
+      }, 0);
+    });
+
+    // Handle paste events to ensure proper cursor position
+    psbtInput.addEventListener('paste', (e) => {
+      setTimeout(() => {
+        // After paste, move cursor to end
+        psbtInput.setSelectionRange(psbtInput.value.length, psbtInput.value.length);
+      }, 0);
+    });
+
+    // Prevent browser autocomplete/suggestions
+    psbtInput.addEventListener('input', () => {
+      // Clear any previous errors when user starts typing
+      const psbtError = document.getElementById('psbt-error');
+      if (psbtError) psbtError.style.display = 'none';
+    });
+  }
+
+  // File import
   psbtFile?.addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      psbtInput.value = e.target.result.trim();
+      if (psbtInput) {
+        psbtInput.value = e.target.result.trim();
+        // Clear any previous errors/analysis when new file is loaded
+        const psbtAnalysis = document.getElementById('psbt-analysis');
+        const psbtError = document.getElementById('psbt-error');
+        if (psbtAnalysis) psbtAnalysis.style.display = 'none';
+        if (psbtError) psbtError.style.display = 'none';
+        // Focus the textarea after loading content
+        psbtInput.focus();
+        psbtInput.setSelectionRange(psbtInput.value.length, psbtInput.value.length);
+        
+        // Update upload area to show success
+        updateUploadAreaSuccess(file.name);
+      }
     };
     reader.readAsText(file);
   });
+  
+  // Function to update upload area with success state
+  function updateUploadAreaSuccess(fileName) {
+    const uploadIcon = document.getElementById('upload-icon');
+    const uploadContent = document.getElementById('upload-content');
+    const fileUploadArea = document.getElementById('file-upload-area');
+    
+    if (uploadIcon && uploadContent && fileUploadArea) {
+      // Change to success styling
+      fileUploadArea.style.borderColor = 'rgba(16, 185, 129, 0.6)';
+      fileUploadArea.style.background = 'rgba(16, 185, 129, 0.2)';
+      
+      // Update icon to success checkmark
+      uploadIcon.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      `;
+      uploadIcon.style.color = 'rgba(16, 185, 129, 0.8)';
+      
+      // Update text
+      const uploadText = uploadContent.querySelector('[data-i18n="uploadText"]');
+      const supportedFormats = uploadContent.querySelector('[data-i18n="supportedFormats"]');
+      
+      if (uploadText) {
+        uploadText.textContent = '✅ File imported';
+        uploadText.style.color = 'rgba(16, 185, 129, 0.9)';
+      }
+      
+      if (supportedFormats) {
+        supportedFormats.textContent = fileName;
+        supportedFormats.style.color = 'rgba(255, 255, 255, 0.8)';
+      }
+    }
+  }
 
   // Parse PSBT
   parsePsbtBtn?.addEventListener('click', () => {
@@ -375,12 +553,55 @@ function setupStep1Events() {
 
   // Clear
   clearPsbtBtn?.addEventListener('click', () => {
-    psbtInput.value = '';
-    psbtFile.value = '';
-    document.getElementById('psbt-analysis')?.classList.add('hidden');
-    document.getElementById('psbt-error')?.classList.add('hidden');
+    if (psbtInput) {
+      psbtInput.value = '';
+      psbtInput.focus();
+    }
+    if (psbtFile) {
+      psbtFile.value = '';
+    }
+    const psbtAnalysis = document.getElementById('psbt-analysis');
+    const psbtError = document.getElementById('psbt-error');
+    if (psbtAnalysis) psbtAnalysis.style.display = 'none';
+    if (psbtError) psbtError.style.display = 'none';
     state.psbtData = null;
+    
+    // Reset upload area to initial state
+    resetUploadArea();
   });
+  
+  // Function to reset upload area to initial state
+  function resetUploadArea() {
+    const uploadIcon = document.getElementById('upload-icon');
+    const uploadContent = document.getElementById('upload-content');
+    const fileUploadArea = document.getElementById('file-upload-area');
+    
+    if (uploadIcon && uploadContent && fileUploadArea) {
+      // Reset to initial styling
+      fileUploadArea.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+      fileUploadArea.style.background = 'rgba(255, 255, 255, 0.3)';
+      
+      // Reset icon to document icon
+      uploadIcon.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      `;
+      uploadIcon.style.color = 'rgba(255, 255, 255, 0.7)';
+      
+      // Reset text
+      const uploadText = uploadContent.querySelector('[data-i18n="uploadText"]');
+      const supportedFormats = uploadContent.querySelector('[data-i18n="supportedFormats"]');
+      
+      if (uploadText) {
+        uploadText.textContent = currentLanguage === 'zh' ? '点击导入 PSBT' : 'Click to import PSBT';
+        uploadText.style.color = 'white';
+      }
+      
+      if (supportedFormats) {
+        supportedFormats.textContent = currentLanguage === 'zh' ? '支持 PSBT, TXT 文件' : 'PSBT, TXT files supported';
+        supportedFormats.style.color = 'rgba(255, 255, 255, 0.7)';
+      }
+    }
+  }
 
   // Proceed to BBQr
   proceedToBbqrBtn?.addEventListener('click', () => {
@@ -397,26 +618,42 @@ function setupStep1Events() {
 // Step 2: Generate BBQr
 function renderStep2() {
   return `
-    <div class="glass-card rounded-2xl md:rounded-3xl 
-                p-6 md:p-8 lg:p-10 transition-all duration-300 ease-out
-                shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
-                bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
-                ring-1 ring-white/20 hover:ring-white/35 ring-inset
-                animate-fadeInUp"
-         style="animation-delay: 0.3s;">
-      
-      <h2 class="text-2xl md:text-3xl font-bold text-slate-700 tracking-tight mb-4 md:mb-6" data-i18n="bbqrTitle">
+    <div class="glass-card">
+      <h2 style="color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 30px; text-align: center;" data-i18n="bbqrTitle">
         🔥 Generate BBQr for ColdCard
       </h2>
-      <p class="text-slate-500 text-sm md:text-base leading-relaxed mb-6 md:mb-8" data-i18n="bbqrDesc">
-        Scan these QR codes with your ColdCard to sign the transaction
-      </p>
       
-      <div id="bbqr-output" class="text-center mb-8 md:mb-12">
-        <!-- BBQr codes will be generated here -->
+      <!-- Two Square Layout: PSBT Summary + BBQr Codes -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 30px;">
+        
+        <!-- PSBT Summary Square -->
+        <div style="aspect-ratio: 1; display: flex; flex-direction: column;">
+          <h3 style="color: white; font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; text-align: center;" data-i18n="psbtSummaryTitle">
+            📊 PSBT Summary
+          </h3>
+          <div id="psbt-summary-step2" style="background: rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.2); flex: 1; overflow-y: auto;">
+            <!-- PSBT summary will be inserted here -->
+          </div>
+        </div>
+
+        <!-- BBQr Codes Square -->
+        <div style="aspect-ratio: 1; display: flex; flex-direction: column;">
+          <h3 style="color: white; font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; text-align: center;" data-i18n="bbqrCodesTitle">
+            📱 BBQr Codes
+          </h3>
+          <div style="background: rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 15px; border: 1px solid rgba(255, 255, 255, 0.2); flex: 1; display: flex; flex-direction: column;">
+            <p style="color: rgba(255,255,255,0.8); margin-bottom: 15px; font-size: 14px; text-align: center;" data-i18n="bbqrDesc">
+              ColdCard Q compatible BBQr codes. Scan to sign on your device.
+            </p>
+            <div id="bbqr-output" style="flex: 1; text-align: center; display: flex; align-items: center; justify-content: center;">
+              <!-- BBQr codes will be generated here -->
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-4 md:gap-6">
+      <!-- Navigation -->
+      <div style="display: flex; flex-wrap: wrap; gap: 15px; padding-top: 20px;">
         <button 
           id="back-to-step1-btn"
           class="gradient-button-secondary"
@@ -425,9 +662,10 @@ function renderStep2() {
         </button>
         <button 
           id="proceed-to-scan-btn"
-          class="gradient-button-primary flex-1"
+          class="gradient-button-primary"
+          style="flex: 1; min-width: 200px;"
           data-i18n="proceedScanBtn">
-          ➡️ Scan Signed PSBT
+          ➡️ Import Signed PSBT
         </button>
       </div>
     </div>
@@ -453,7 +691,68 @@ function setupStep2Events() {
     goToStep(3);
   });
   
+  // Display PSBT summary in step 2
+  displayPSBTSummaryInStep2();
+  
+  // Auto-generate BBQr codes when entering step 2
+  setTimeout(() => {
+    generateBBQrCodes();
+  }, 100);
+  
   console.log('✅ Step 2 events setup completed');
+}
+
+// Function to display PSBT summary in step 2
+function displayPSBTSummaryInStep2() {
+  if (!state.psbtData) {
+    console.log('❌ No PSBT data available for summary');
+    return;
+  }
+
+  try {
+    const analysis = decodePSBT(state.psbtData);
+    const summaryContainer = document.getElementById('psbt-summary-step2');
+    
+    if (summaryContainer) {
+      // Find the largest output (likely the main transfer, not change)
+      const sortedOutputs = [...analysis.outputs].sort((a, b) => b.amount - a.amount);
+      const mainOutput = sortedOutputs[0]; // Largest output is likely the main transfer
+      
+      summaryContainer.innerHTML = `
+        <div style="color: white; font-size: 16px; line-height: 1.8; text-align: center;">
+          <!-- Signature Status -->
+          <div style="margin-bottom: 25px;">
+            <div style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 8px;">签名状态 / Signature Status</div>
+            <div style="font-weight: 700; font-size: 18px; color: ${analysis.signatureStatus === 'Fully Signed' ? '#10b981' : '#f59e0b'};">
+              ${analysis.signatureStatus === 'Fully Signed' ? '✅ 已签名 / Signed' : '⏳ 未签名 / Unsigned'}
+            </div>
+          </div>
+          
+          <!-- Main Transfer -->
+          <div style="margin-bottom: 25px;">
+            <div style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 12px;">转账金额 / Transfer Amount</div>
+            <div style="color: #10b981; font-weight: 700; font-size: 24px; margin-bottom: 12px;">
+              ${(mainOutput.amount / 100000000).toFixed(8)} BTC
+            </div>
+            <div style="color: rgba(255,255,255,0.8); font-size: 12px; margin-bottom: 8px;">目标地址 / Target Address</div>
+            <div style="background: rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; word-break: break-all; line-height: 1.4;">
+              ${mainOutput.address}
+            </div>
+          </div>
+          
+          <!-- Transaction Fee -->
+          <div>
+            <div style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 8px;">交易费用 / Transaction Fee</div>
+            <div style="color: #f59e0b; font-weight: 700; font-size: 18px;">
+              ${formatBitcoinAmount(analysis.fee)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  } catch (error) {
+    console.error('Error displaying PSBT summary in step 2:', error);
+  }
 }
 
 // Generate BBQr codes
@@ -513,39 +812,27 @@ function generateBBQrCodes() {
 
     console.log('🎨 Creating HTML structure...');
     output.innerHTML = `
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-2">BBQr Codes (${parts.length} parts)</h3>
-        <p class="text-sm text-slate-600 mb-4">Auto-playing at 1 second intervals - scan with your ColdCard</p>
-      </div>
-      
       <!-- QR Code Display Area -->
-      <div class="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
-        <div class="text-center mb-4">
-          <div id="qr-counter" class="text-lg font-semibold text-slate-700">
-            Part <span id="current-part">1</span> of ${parts.length}
+      <div style="background: white; padding: 20px; border-radius: 15px; max-width: 280px; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
+        <div style="text-align: center; margin-bottom: 15px; width: 100%;">
+          <div id="qr-counter" style="font-size: 14px; font-weight: 600; color: #374151;">
+            <span id="current-part">1</span> / ${parts.length}
           </div>
         </div>
         
         <!-- Single QR Code Container -->
-        <div class="flex justify-center mb-4">
-          <canvas id="current-qr" class="border border-gray-200 rounded"></canvas>
+        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 15px; width: 100%;">
+          <canvas id="current-qr" style="border: 1px solid #e5e7eb; border-radius: 8px; display: block;"></canvas>
         </div>
         
         <!-- Progress Indicator -->
-        <div class="flex justify-center space-x-2">
+        <div style="display: flex; justify-content: center; gap: 8px; width: 100%;">
           ${parts.map((_, index) => `
             <div 
               id="dot-${index}" 
-              class="w-3 h-3 rounded-full transition-all duration-200 ${index === 0 ? 'bg-purple-600' : 'bg-slate-300'}">
+              style="width: 8px; height: 8px; border-radius: 50%; transition: all 0.2s; background-color: ${index === 0 ? '#9333ea' : '#d1d5db'};">
             </div>
           `).join('')}
-        </div>
-      </div>
-      
-      <!-- Auto-play Status -->
-      <div class="text-center mt-4">
-        <div class="text-sm text-slate-600">
-          🔄 Auto-playing every 1 second
         </div>
       </div>
     `;
@@ -643,9 +930,11 @@ function showQRPart(index) {
   for (let i = 0; i < state.bbqrCodes.length; i++) {
     const dot = document.getElementById(`dot-${i}`);
     if (dot) {
-      dot.className = `w-3 h-3 rounded-full transition-all duration-200 ${
-        i === index ? 'bg-purple-600' : 'bg-slate-300'
-      }`;
+      dot.style.cssText = `
+        width: 12px; height: 12px; border-radius: 50%; 
+        transition: all 0.2s ease;
+        background: ${i === index ? '#9333ea' : '#cbd5e1'};
+      `;
     }
   }
   
@@ -708,27 +997,31 @@ function displayPSBTAnalysis(analysis) {
 
   if (!analysisDiv || !detailsDiv) return;
 
-  errorDiv?.classList.add('hidden');
-  analysisDiv.classList.remove('hidden');
+  if (errorDiv) errorDiv.style.display = 'none';
+  analysisDiv.style.display = 'block';
 
+  const statusColor = analysis.signatureStatus === 'Fully Signed' ? 
+    'background: #d1fae5; color: #065f46;' :
+    analysis.signatureStatus === 'Partially Signed' ? 
+    'background: #fed7aa; color: #9a3412;' :
+    'background: #fef3c7; color: #92400e;';
+    
   detailsDiv.innerHTML = `
-    <div>
+    <div style="margin-bottom: 15px;">
       <strong>Signature Status:</strong> 
-      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-        analysis.signatureStatus === 'Fully Signed' ? 'bg-emerald-100 text-emerald-800' :
-        analysis.signatureStatus === 'Partially Signed' ? 'bg-orange-100 text-orange-800' :
-        'bg-yellow-100 text-yellow-800'
-      }">
+      <span style="display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 12px; 
+                   font-size: 12px; font-weight: 500; ${statusColor}">
         ${analysis.signatureStatus}
       </span>
     </div>
-    <div><strong>Transaction Fee:</strong> ${formatBitcoinAmount(analysis.fee)}</div>
-    <div><strong>Outputs:</strong> ${analysis.outputs.length}</div>
+    <div style="margin-bottom: 10px;"><strong>Transaction Fee:</strong> ${formatBitcoinAmount(analysis.fee)}</div>
+    <div style="margin-bottom: 15px;"><strong>Outputs:</strong> ${analysis.outputs.length}</div>
     ${analysis.outputs.map((output, index) => `
-      <div class="ml-4 p-2 bg-white rounded border">
-                    <div class="text-xs text-slate-600">Output ${index + 1}:</div>
-        <div class="font-mono text-xs">${output.address}</div>
-        <div class="text-sm font-medium">${formatBitcoinAmount(output.amount)}</div>
+      <div style="margin-left: 16px; padding: 8px; background: white; border-radius: 8px; 
+                  border: 1px solid #e5e7eb; margin-bottom: 8px;">
+        <div style="font-size: 12px; color: #64748b;">Output ${index + 1}:</div>
+        <div style="font-family: monospace; font-size: 12px; word-break: break-all;">${output.address}</div>
+        <div style="font-size: 14px; font-weight: 500;">${formatBitcoinAmount(output.amount)}</div>
       </div>
     `).join('')}
   `;
@@ -740,109 +1033,115 @@ function showError(message) {
   const analysisDiv = document.getElementById('psbt-analysis');
 
   if (errorDiv && errorMessage) {
-    analysisDiv?.classList.add('hidden');
-    errorDiv.classList.remove('hidden');
+    if (analysisDiv) analysisDiv.style.display = 'none';
+    errorDiv.style.display = 'block';
     errorMessage.textContent = message;
   }
 }
 
-// Step 3: Scan Signed PSBT
+// Step 3: Import Signed PSBT
 function renderStep3() {
   return `
-    <div class="glass-card rounded-2xl md:rounded-3xl 
-                p-6 md:p-8 lg:p-10 transition-all duration-300 ease-out
-                shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
-                bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
-                ring-1 ring-white/20 hover:ring-white/35 ring-inset
-                animate-fadeInUp"
-         style="animation-delay: 0.3s;">
+    <div style="background: transparent; border: none; padding: 0; margin: 0;">
       
-      <h2 class="text-2xl md:text-3xl font-bold text-slate-700 tracking-tight mb-4 md:mb-6" data-i18n="scanTitle">
-        📷 Scan Signed PSBT
-      </h2>
-      <p class="text-slate-500 text-sm md:text-base leading-relaxed mb-6 md:mb-8" data-i18n="scanDesc">
+      <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px; text-align: center; font-size: 16px;" data-i18n="scanDesc">
         After signing with ColdCard, scan the signed PSBT BBQr codes
       </p>
 
       <!-- Camera Controls -->
-      <div class="text-center mb-6 md:mb-8">
+      <div style="text-align: center; margin-bottom: 30px;">
         <button 
           id="start-scan-btn"
-          class="gradient-button-primary"
+          style="padding: 15px 30px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; 
+                 border: none; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; 
+                 transition: all 0.3s ease; margin: 8px;"
           data-i18n="startScanBtn">
           📷 Start Camera Scan
         </button>
       </div>
 
       <!-- Camera Container -->
-      <div id="camera-container" class="relative hidden rounded-xl md:rounded-2xl overflow-hidden glass-card
-                                         bg-black/20 backdrop-blur-xl border border-white/30
-                                         ring-1 ring-white/20 ring-inset shadow-xl shadow-slate-300/25" 
-           style="height: 60vh; min-height: 400px;">
+      <div id="camera-container" 
+           style="position: relative; width: 70vw; max-width: 300px; height: 70vw; max-height: 300px; 
+                  margin: 20px auto; border-radius: 15px; overflow: hidden; 
+                  background: #000; border: 2px solid #333; display: none;">
         <video 
           id="camera-video" 
           autoplay 
           playsinline 
           webkit-playsinline 
           muted
-          class="w-full h-full object-cover bg-black rounded-xl md:rounded-2xl">
+          style="width: 100%; height: 100%; object-fit: cover; background: black; border-radius: 15px;">
         </video>
         
-        <!-- Camera Overlay -->
-        <div class="absolute inset-0 pointer-events-none">
-          <!-- Viewfinder -->
-          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-80 md:h-80">
-            <div class="w-full h-full border-4 border-white/90 rounded-3xl shadow-2xl backdrop-blur-sm"></div>
-            <div class="absolute -top-2 -left-2 w-10 h-10 border-l-4 border-t-4 border-purple-400 rounded-tl-lg shadow-lg"></div>
-            <div class="absolute -top-2 -right-2 w-10 h-10 border-r-4 border-t-4 border-purple-400 rounded-tr-lg shadow-lg"></div>
-            <div class="absolute -bottom-2 -left-2 w-10 h-10 border-l-4 border-b-4 border-purple-400 rounded-bl-lg shadow-lg"></div>
-            <div class="absolute -bottom-2 -right-2 w-10 h-10 border-r-4 border-b-4 border-purple-400 rounded-br-lg shadow-lg"></div>
-          </div>
+                        <!-- Simple Camera Overlay -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;">
           
-          <!-- Stop Button -->
-          <button 
-            id="stop-scan-btn"
-            class="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 
-                   text-white w-10 h-10 md:w-12 md:h-12 rounded-full text-lg font-bold 
-                   transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95 hidden z-20 
-                   flex items-center justify-center backdrop-blur-xl border border-white/20"
-            title="Stop Scanning">
-            ✕
-          </button>
+                                <!-- Top Controls -->
+            <div style="position: absolute; top: 8px; left: 8px; right: 8px; display: flex; 
+                        justify-content: space-between; align-items: center; pointer-events: auto; z-index: 30;">
+             <!-- Stop Button -->
+             <button 
+               id="stop-scan-btn"
+               style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; 
+                      width: 32px; height: 32px; border-radius: 50%; font-size: 14px; font-weight: bold; 
+                      border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer; display: none;
+                      align-items: center; justify-content: center; backdrop-filter: blur(10px);
+                      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"
+               title="Stop Scanning">
+               ✕
+             </button>
+             
+             <!-- Expand button for better view -->
+             <button 
+               id="expand-camera-btn"
+               style="background: rgba(0, 0, 0, 0.6); color: white; 
+                      width: 32px; height: 32px; border-radius: 50%; font-size: 14px; font-weight: bold; 
+                      border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer; display: none;
+                      align-items: center; justify-content: center; backdrop-filter: blur(10px);
+                      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"
+               title="Expand View">
+               ⛶
+             </button>
+           </div>
           
-          <!-- Status -->
-          <div id="scan-status" class="absolute top-6 left-1/2 transform -translate-x-1/2 
-                                      glass-card bg-black/80 text-white px-4 py-2 md:px-6 md:py-3 
-                                      rounded-xl md:rounded-2xl text-center font-medium backdrop-blur-xl 
-                                      shadow-xl border border-white/20 max-w-xs text-xs md:text-sm z-10">
-            Ready to scan...
-          </div>
+                                <!-- Bottom Status -->
+            <div style="position: absolute; bottom: 8px; left: 8px; right: 8px; pointer-events: none; z-index: 30;">
+              <div id="scan-status" style="margin: 0 auto; max-width: 200px; background: rgba(0, 0, 0, 0.8); 
+                                           color: white; padding: 6px 12px; border-radius: 8px; text-align: center; 
+                                           font-weight: 500; font-size: 11px; backdrop-filter: blur(10px);
+                                           border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+                Ready to scan...
+              </div>
+            </div>
         </div>
       </div>
 
       <!-- Canvas for scanning -->
-      <canvas id="camera-canvas" class="hidden"></canvas>
+      <canvas id="camera-canvas" style="display: none;"></canvas>
 
       <!-- Scan Results -->
-      <div id="scan-results" class="hidden mt-6 md:mt-8 p-4 md:p-6 glass-card rounded-xl md:rounded-2xl
-                                   bg-gradient-to-r from-emerald-50/50 to-teal-50/50 backdrop-blur-xl 
-                                   border border-emerald-200/40 ring-1 ring-emerald-100/30 ring-inset">
-        <h3 class="text-lg md:text-xl font-semibold text-emerald-900 mb-4 md:mb-6" data-i18n="scanResultTitle">
+      <div id="scan-results" style="display: none; margin-top: 30px; padding: 20px; border-radius: 15px;
+                                   background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);
+                                   backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
+        <h3 style="font-size: 18px; font-weight: 600; color: #065f46; margin-bottom: 20px;" data-i18n="scanResultTitle">
           ✅ Signed PSBT Received!
         </h3>
-        <div class="text-sm md:text-base text-emerald-800 mb-4 md:mb-6" data-i18n="scanResultDesc">
+        <div style="font-size: 14px; color: #047857; margin-bottom: 20px;" data-i18n="scanResultDesc">
           Successfully scanned signed PSBT. Ready to finalize and broadcast.
         </div>
         <textarea id="signed-psbt-data" readonly 
-                  class="w-full h-32 md:h-40 px-4 py-3 md:px-6 md:py-4 
-                         bg-white/50 backdrop-blur-xl border border-emerald-200/40
-                         rounded-xl md:rounded-2xl font-mono text-xs md:text-sm 
-                         resize-none mb-4 md:mb-6 text-slate-700"></textarea>
+                  style="width: 100%; height: 120px; padding: 12px; background: rgba(255, 255, 255, 0.5); 
+                         border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; 
+                         font-family: monospace; font-size: 12px; resize: none; margin-bottom: 20px; 
+                         color: #374151; box-sizing: border-box;"></textarea>
         
-        <div class="flex flex-col sm:flex-row gap-4 md:gap-6">
+        <div style="display: flex; flex-direction: column; gap: 16px;">
           <button 
             id="proceed-to-finalize-btn"
-            class="gradient-button-success flex-1"
+            style="padding: 15px 30px; background: linear-gradient(135deg, #10b981, #059669); color: white; 
+                   border: none; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; 
+                   transition: all 0.3s ease; margin: 8px; flex: 1;"
             data-i18n="proceedFinalizeBtn">
             ➡️ Finalize & Broadcast
           </button>
@@ -850,10 +1149,12 @@ function renderStep3() {
       </div>
 
       <!-- Navigation -->
-      <div class="flex flex-col sm:flex-row gap-4 md:gap-6 mt-6 md:mt-8">
+      <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 30px;">
         <button 
           id="back-to-step2-btn"
-          class="gradient-button-secondary"
+          style="padding: 15px 30px; background: linear-gradient(135deg, #6b7280, #4b5563); color: white; 
+                 border: none; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; 
+                 transition: all 0.3s ease; margin: 8px;"
           data-i18n="backBtn">
           ← Back
         </button>
@@ -865,44 +1166,40 @@ function renderStep3() {
 function setupStep3Events() {
   const startScanBtn = document.getElementById('start-scan-btn');
   const stopScanBtn = document.getElementById('stop-scan-btn');
+  const expandCameraBtn = document.getElementById('expand-camera-btn');
   const backToStep2Btn = document.getElementById('back-to-step2-btn');
   const proceedToFinalizeBtn = document.getElementById('proceed-to-finalize-btn');
 
   startScanBtn?.addEventListener('click', startCameraScan);
   stopScanBtn?.addEventListener('click', stopCameraScan);
+  expandCameraBtn?.addEventListener('click', expandCameraView);
   backToStep2Btn?.addEventListener('click', () => goToStep(2));
   proceedToFinalizeBtn?.addEventListener('click', () => goToStep(4));
 }
 
-// Step 4: Finalize & Broadcast
+// Step 4: Finalize Transaction
 function renderStep4() {
   return `
-    <div class="glass-card rounded-2xl md:rounded-3xl 
-                p-6 md:p-8 lg:p-10 transition-all duration-300 ease-out
-                shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
-                bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
-                ring-1 ring-white/20 hover:ring-white/35 ring-inset
-                animate-fadeInUp"
-         style="animation-delay: 0.3s;">
+    <div class="glass-card">
       
-      <h2 class="text-2xl md:text-3xl font-bold text-slate-700 tracking-tight mb-6 md:mb-8" data-i18n="finalizeTitle">
-        📡 Finalize & Broadcast Transaction
+      <h2 style="color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 30px;" data-i18n="finalizeTitle">
+        🔨 Finalize Transaction
       </h2>
       
       <!-- Transaction Summary -->
-      <div id="tx-summary" class="mb-6 md:mb-8 p-4 md:p-6 glass-card rounded-xl md:rounded-2xl
-                                  bg-gradient-to-r from-blue-50/50 to-indigo-50/50 backdrop-blur-xl 
-                                  border border-blue-200/40 ring-1 ring-blue-100/30 ring-inset">
-        <h3 class="text-lg md:text-xl font-semibold text-blue-900 mb-4 md:mb-6" data-i18n="txSummaryTitle">
+      <div id="tx-summary" style="margin-bottom: 30px; padding: 20px; background: rgba(59, 130, 246, 0.1); 
+                                  border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 15px; 
+                                  backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
+        <h3 style="font-size: 18px; font-weight: 600; color: #1e40af; margin-bottom: 20px;" data-i18n="txSummaryTitle">
           📊 Transaction Summary
         </h3>
-        <div id="tx-summary-details" class="space-y-3 md:space-y-4 text-sm md:text-base text-blue-800">
+        <div id="tx-summary-details" style="color: #1e40af; font-size: 14px; line-height: 1.6;">
           <!-- Transaction summary will be inserted here -->
         </div>
       </div>
 
       <!-- Finalize Button -->
-      <div class="mb-6 md:mb-8">
+      <div style="margin-bottom: 30px;">
         <button 
           id="finalize-tx-btn"
           class="gradient-button-primary"
@@ -912,38 +1209,39 @@ function renderStep4() {
       </div>
 
       <!-- Finalized Transaction -->
-      <div id="finalized-tx" class="hidden">
-        <div class="mb-6 md:mb-8 p-4 md:p-6 glass-card rounded-xl md:rounded-2xl
-                    bg-gradient-to-r from-emerald-50/50 to-teal-50/50 backdrop-blur-xl 
-                    border border-emerald-200/40 ring-1 ring-emerald-100/30 ring-inset">
-          <h3 class="text-lg md:text-xl font-semibold text-emerald-900 mb-4 md:mb-6" data-i18n="finalizedTitle">
+      <div id="finalized-tx" style="display: none;">
+        <div style="margin-bottom: 30px; padding: 20px; background: rgba(16, 185, 129, 0.1); 
+                    border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 15px; 
+                    backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
+          <h3 style="font-size: 18px; font-weight: 600; color: #065f46; margin-bottom: 20px;" data-i18n="finalizedTitle">
             ✅ Transaction Ready
           </h3>
           
           <!-- TXID -->
-          <div class="mb-4 md:mb-6">
-            <label class="block text-sm md:text-base font-semibold text-emerald-800 mb-2 md:mb-3" data-i18n="txidLabel">
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 14px; font-weight: 600; color: #047857; margin-bottom: 10px;" data-i18n="txidLabel">
               Transaction ID
             </label>
-            <div class="bg-white/50 backdrop-blur-xl border border-emerald-200/40 rounded-xl md:rounded-2xl p-3 md:p-4">
-              <div id="final-txid" class="font-mono text-sm md:text-base text-slate-700 break-all"></div>
+            <div style="background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(16, 185, 129, 0.4); 
+                        border-radius: 12px; padding: 12px; backdrop-filter: blur(10px);">
+              <div id="final-txid" style="font-family: monospace; font-size: 14px; color: #334155; word-break: break-all;"></div>
             </div>
           </div>
           
           <!-- Raw Hex -->
-          <div class="mb-6 md:mb-8">
-            <label class="block text-sm md:text-base font-semibold text-emerald-800 mb-2 md:mb-3" data-i18n="rawHexLabel">
+          <div style="margin-bottom: 30px;">
+            <label style="display: block; font-size: 14px; font-weight: 600; color: #047857; margin-bottom: 10px;" data-i18n="rawHexLabel">
               Raw Transaction
             </label>
             <textarea id="final-hex" readonly 
-                      class="w-full h-32 md:h-40 px-4 py-3 md:px-6 md:py-4 
-                             bg-white/50 backdrop-blur-xl border border-emerald-200/40
-                             rounded-xl md:rounded-2xl font-mono text-xs md:text-sm 
-                             resize-none text-slate-700"></textarea>
+                      style="width: 100%; height: 120px; padding: 12px; background: rgba(255, 255, 255, 0.5); 
+                             border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; 
+                             font-family: monospace; font-size: 12px; resize: none; color: #334155; 
+                             backdrop-filter: blur(10px); box-sizing: border-box;"></textarea>
           </div>
           
           <!-- Action Buttons -->
-          <div class="flex flex-col sm:flex-row gap-4 md:gap-6">
+          <div style="display: flex; flex-wrap: wrap; gap: 15px;">
             <button 
               id="copy-txid-btn"
               class="gradient-button-primary"
@@ -957,22 +1255,23 @@ function renderStep4() {
               📋 Copy Hex
             </button>
             <button 
-              id="broadcast-tx-btn"
-              class="gradient-button-success flex-1"
-              data-i18n="broadcastBtn">
-              📡 Broadcast Transaction
+              id="proceed-to-broadcast-btn"
+              class="gradient-button-success"
+              style="flex: 1; min-width: 200px;"
+              data-i18n="proceedBroadcastBtn">
+              ➡️ Proceed to Broadcast
             </button>
           </div>
         </div>
 
         <!-- Broadcast Status -->
-        <div id="broadcast-status" class="hidden mt-6 md:mt-8">
+        <div id="broadcast-status" style="display: none; margin-top: 30px;">
           <!-- Broadcast status will appear here -->
         </div>
       </div>
 
       <!-- Navigation -->
-      <div class="flex flex-col sm:flex-row gap-4 md:gap-6 mt-6 md:mt-8">
+      <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 30px;">
         <button 
           id="back-to-step3-btn"
           class="gradient-button-secondary"
@@ -994,14 +1293,14 @@ function setupStep4Events() {
   const finalizeTxBtn = document.getElementById('finalize-tx-btn');
   const copyTxidBtn = document.getElementById('copy-txid-btn');
   const copyHexBtn = document.getElementById('copy-hex-btn');
-  const broadcastTxBtn = document.getElementById('broadcast-tx-btn');
+  const proceedToBroadcastBtn = document.getElementById('proceed-to-broadcast-btn');
   const backToStep3Btn = document.getElementById('back-to-step3-btn');
   const restartWorkflowBtn = document.getElementById('restart-workflow-btn');
 
   finalizeTxBtn?.addEventListener('click', finalizeTransaction);
   copyTxidBtn?.addEventListener('click', () => copyToClipboard(document.getElementById('final-txid').textContent));
   copyHexBtn?.addEventListener('click', () => copyToClipboard(document.getElementById('final-hex').value));
-  broadcastTxBtn?.addEventListener('click', broadcastTransaction);
+  proceedToBroadcastBtn?.addEventListener('click', () => goToStep(5));
   backToStep3Btn?.addEventListener('click', () => goToStep(3));
   restartWorkflowBtn?.addEventListener('click', () => {
     // Reset state
@@ -1011,6 +1310,88 @@ function setupStep4Events() {
     state.bbqrCodes = [];
     goToStep(1);
   });
+
+  // Show transaction summary when step 4 loads
+  setTimeout(() => {
+    showTransactionSummary();
+  }, 100);
+}
+
+// Step 5: Broadcast Transaction
+function renderStep5() {
+  return `
+    <div class="glass-card">
+      
+      <h2 style="color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 30px;" data-i18n="broadcastTitle">
+        📡 Broadcast Transaction
+      </h2>
+      
+      <!-- Transaction Summary -->
+      <div id="tx-summary-broadcast" style="margin-bottom: 30px; padding: 20px; background: rgba(59, 130, 246, 0.1); 
+                                           border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 15px; 
+                                           backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
+        <h3 style="font-size: 18px; font-weight: 600; color: #1e40af; margin-bottom: 20px;" data-i18n="txSummaryTitle">
+          📊 Transaction Summary
+        </h3>
+        <div id="tx-summary-broadcast-details" style="color: #1e40af; font-size: 14px; line-height: 1.6;">
+          <!-- Transaction summary will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Broadcast Button -->
+      <div style="margin-bottom: 30px;">
+        <button 
+          id="broadcast-tx-btn"
+          class="gradient-button-success"
+          data-i18n="broadcastBtn">
+          📡 Broadcast Transaction
+        </button>
+      </div>
+
+      <!-- Broadcast Status -->
+      <div id="broadcast-status" style="display: none; margin-top: 30px;">
+        <!-- Broadcast status will appear here -->
+      </div>
+
+      <!-- Navigation -->
+      <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 30px;">
+        <button 
+          id="back-to-step4-btn"
+          class="gradient-button-secondary"
+          data-i18n="backBtn">
+          ← Back
+        </button>
+        <button 
+          id="restart-workflow-btn-step5"
+          class="gradient-button-secondary"
+          data-i18n="restartBtn">
+          🔄 Start New Transaction
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function setupStep5Events() {
+  const broadcastTxBtn = document.getElementById('broadcast-tx-btn');
+  const backToStep4Btn = document.getElementById('back-to-step4-btn');
+  const restartWorkflowBtn = document.getElementById('restart-workflow-btn-step5');
+
+  broadcastTxBtn?.addEventListener('click', broadcastTransaction);
+  backToStep4Btn?.addEventListener('click', () => goToStep(4));
+  restartWorkflowBtn?.addEventListener('click', () => {
+    // Reset state
+    state.psbtData = null;
+    state.signedPsbtData = null;
+    state.finalizedTx = null;
+    state.bbqrCodes = [];
+    goToStep(1);
+  });
+
+  // Show transaction summary when step 5 loads
+  setTimeout(() => {
+    showTransactionSummary();
+  }, 100);
 }
 
 // Camera scanning functions
@@ -1020,11 +1401,16 @@ async function startCameraScan() {
   const cameraContainer = document.getElementById('camera-container');
   const startBtn = document.getElementById('start-scan-btn');
   const stopBtn = document.getElementById('stop-scan-btn');
+  const expandBtn = document.getElementById('expand-camera-btn');
   const scanStatus = document.getElementById('scan-status');
 
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: 'environment' } 
+      video: { 
+        facingMode: 'environment',
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      } 
     });
     
     state.camera.stream = stream;
@@ -1032,17 +1418,45 @@ async function startCameraScan() {
     state.camera.parts = [];
     
     video.srcObject = stream;
-    cameraContainer.classList.remove('hidden');
-    startBtn.classList.add('hidden');
-    stopBtn.classList.remove('hidden');
+    
+    // Show camera interface
+    cameraContainer.style.display = 'block';
+    startBtn.style.display = 'none';
+    stopBtn.style.display = 'flex';
+    expandBtn.style.display = 'flex';
+    
+    // Initialize scan status
+    if (scanStatus) {
+      const readyText = currentLanguage === 'zh' ? '准备扫描...' : 'Ready to scan...';
+      scanStatus.textContent = readyText;
+    }
     
     canvas.width = 640;
     canvas.height = 480;
     
-    scanLoop();
+    // Update text translations
+    updateTexts();
+    
+    // Scroll to camera view
+    cameraContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Wait for video to be ready
+    video.addEventListener('loadedmetadata', () => {
+      console.log('📹 Video loaded, starting scan loop');
+      scanLoop();
+    });
+    
+    // Start scan loop immediately if video is already ready
+    if (video.readyState >= 2) {
+      scanLoop();
+    }
+    
   } catch (error) {
     console.error('Camera error:', error);
-    alert('Camera access failed: ' + error.message);
+    const errorText = currentLanguage === 'zh' ? 
+      '相机访问失败: ' + error.message :
+      'Camera access failed: ' + error.message;
+    alert(errorText);
   }
 }
 
@@ -1050,6 +1464,7 @@ function stopCameraScan() {
   const cameraContainer = document.getElementById('camera-container');
   const startBtn = document.getElementById('start-scan-btn');
   const stopBtn = document.getElementById('stop-scan-btn');
+  const expandBtn = document.getElementById('expand-camera-btn');
 
   if (state.camera.stream) {
     state.camera.stream.getTracks().forEach(track => track.stop());
@@ -1057,9 +1472,44 @@ function stopCameraScan() {
   }
   
   state.camera.isScanning = false;
-  cameraContainer.classList.add('hidden');
-  startBtn.classList.remove('hidden');
-  stopBtn.classList.add('hidden');
+  
+  // Hide camera container
+  if (cameraContainer) {
+    cameraContainer.style.display = 'none';
+  }
+  
+      // Show start button, hide other buttons
+    if (startBtn) startBtn.style.display = 'inline-block';
+    if (stopBtn) stopBtn.style.display = 'none';
+    if (expandBtn) expandBtn.style.display = 'none';
+  
+  console.log('📹 Camera scan stopped');
+}
+
+function expandCameraView() {
+  const cameraContainer = document.getElementById('camera-container');
+  
+  if (cameraContainer) {
+    // Toggle between normal and expanded view
+    if (cameraContainer.style.width === '85vw') {
+      // Return to normal size
+      cameraContainer.style.width = '70vw';
+      cameraContainer.style.height = '70vw';
+      cameraContainer.style.maxWidth = '300px';
+      cameraContainer.style.maxHeight = '300px';
+    } else {
+      // Expand to larger size
+      cameraContainer.style.width = '85vw';
+      cameraContainer.style.height = '85vw';
+      cameraContainer.style.maxWidth = '400px';
+      cameraContainer.style.maxHeight = '400px';
+      
+      // Scroll to center the expanded view
+      setTimeout(() => {
+        cameraContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+  }
 }
 
 function scanLoop() {
@@ -1132,7 +1582,11 @@ function scanLoop() {
         totalParts = `${state.camera.parts.length}+`;
       }
       
-      scanStatus.textContent = `${state.camera.parts.length}/${totalParts} 已扫描`;
+      // Update scan status with bilingual support
+      const statusText = currentLanguage === 'zh' ? 
+        `${state.camera.parts.length}/${totalParts} 已扫描` :
+        `${state.camera.parts.length}/${totalParts} scanned`;
+      scanStatus.textContent = statusText;
 
       // Try to join the parts
       try {
@@ -1143,8 +1597,11 @@ function scanLoop() {
           const base64 = btoa(String.fromCharCode.apply(null, new Uint8Array(raw)));
           state.signedPsbtData = base64;
           
-          // Update final status
-          scanStatus.textContent = `${state.camera.parts.length}/${state.camera.parts.length} 扫描完成`;
+          // Update final status with bilingual support
+          const completeText = currentLanguage === 'zh' ? 
+            `${state.camera.parts.length}/${state.camera.parts.length} 扫描完成` :
+            `${state.camera.parts.length}/${state.camera.parts.length} scan complete`;
+          scanStatus.textContent = completeText;
           
           stopCameraScan();
           showScanResults(base64);
@@ -1165,8 +1622,16 @@ function showScanResults(signedPsbt) {
   const signedPsbtData = document.getElementById('signed-psbt-data');
 
   if (scanResults && signedPsbtData) {
+    // Display the full PSBT data
     signedPsbtData.value = signedPsbt;
-    scanResults.classList.remove('hidden');
+    scanResults.style.display = 'block';
+    
+    // Scroll to results
+    scanResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    console.log('✅ Scan results displayed, PSBT length:', signedPsbt.length);
+  } else {
+    console.error('❌ Could not find scan results elements');
   }
 }
 
@@ -1185,7 +1650,8 @@ function finalizeTransaction() {
       
       document.getElementById('final-txid').textContent = result.txid;
       document.getElementById('final-hex').value = result.hex;
-      document.getElementById('finalized-tx').classList.remove('hidden');
+      const finalizedTx = document.getElementById('finalized-tx');
+      if (finalizedTx) finalizedTx.style.display = 'block';
       
       // Show transaction summary
       showTransactionSummary();
@@ -1206,9 +1672,9 @@ function showTransactionSummary() {
     const summaryDetails = document.getElementById('tx-summary-details');
     if (summaryDetails) {
       summaryDetails.innerHTML = `
-        <div class="text-orange-600">
+        <div style="color: #ea580c;">
           <strong>⚠️ No signed PSBT data available</strong>
-          <div class="text-sm mt-2">Please scan a signed PSBT first.</div>
+          <div style="font-size: 14px; margin-top: 8px;">Please scan a signed PSBT first.</div>
         </div>
       `;
     }
@@ -1220,7 +1686,11 @@ function showTransactionSummary() {
     const analysis = decodePSBT(state.signedPsbtData);
     console.log('✅ PSBT analysis:', analysis);
     
-    const summaryDetails = document.getElementById('tx-summary-details');
+    // Try to find summary details in current step (step 4 or step 5)
+    let summaryDetails = document.getElementById('tx-summary-details');
+    if (!summaryDetails) {
+      summaryDetails = document.getElementById('tx-summary-broadcast-details');
+    }
     console.log('🖼️ Summary details element:', summaryDetails ? 'found' : 'NOT FOUND');
     
     if (summaryDetails) {
@@ -1230,67 +1700,78 @@ function showTransactionSummary() {
       const canFinalize = isFullySigned;
       
       // Get status color and message
-      let statusColor = 'text-red-600';
+      let statusColor = '#dc2626';
       let statusMessage = 'Not signed - cannot finalize';
       if (isFullySigned) {
-        statusColor = 'text-emerald-600';
+        statusColor = '#059669';
         statusMessage = 'Fully signed - ready to finalize';
       } else if (isPartiallySigned) {
-        statusColor = 'text-orange-600';
+        statusColor = '#ea580c';
         statusMessage = 'Partially signed - needs more signatures';
       }
       
+      const bgColor = canFinalize ? '#ecfdf5' : '#fff7ed';
+      const borderColor = canFinalize ? '#a7f3d0' : '#fed7aa';
+      
       summaryDetails.innerHTML = `
-        <div class="mb-4 p-3 rounded-lg ${canFinalize ? 'bg-emerald-50 border border-emerald-200' : 'bg-orange-50 border border-orange-200'}">
+        <div style="margin-bottom: 16px; padding: 12px; border-radius: 8px; background: ${bgColor}; border: 1px solid ${borderColor};">
           <div><strong>Signature Status:</strong> 
-            <span class="${statusColor} font-medium">${analysis.signatureStatus}</span>
+            <span style="color: ${statusColor}; font-weight: 500;">${analysis.signatureStatus}</span>
           </div>
-          <div class="text-sm mt-1 ${statusColor}">${statusMessage}</div>
+          <div style="font-size: 14px; margin-top: 4px; color: ${statusColor};">${statusMessage}</div>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
           <div><strong>Transaction Fee:</strong> ${formatBitcoinAmount(analysis.fee)}</div>
           <div><strong>Total Outputs:</strong> ${analysis.outputs.length}</div>
           <div><strong>Input Count:</strong> ${analysis.inputs ? analysis.inputs.length : 'N/A'}</div>
           <div><strong>Can Finalize:</strong> 
-            <span class="${canFinalize ? 'text-emerald-600' : 'text-red-600'} font-medium">
+            <span style="color: ${canFinalize ? '#059669' : '#dc2626'}; font-weight: 500;">
               ${canFinalize ? 'Yes' : 'No'}
             </span>
           </div>
         </div>
         
-        <div class="mb-3">
+        <div style="margin-bottom: 12px;">
           <strong>Transaction Outputs:</strong>
         </div>
         ${analysis.outputs.map((output, index) => {
           // Determine payment type
           let paymentType = 'Unknown';
-          let typeColor = 'text-slate-600';
+          let typeColor = '#64748b';
           
           if (output.address) {
             if (output.address.startsWith('bc1q')) {
               paymentType = 'P2WPKH (Native SegWit)';
-              typeColor = 'text-blue-600';
+              typeColor = '#2563eb';
             } else if (output.address.startsWith('bc1p')) {
               paymentType = 'P2TR (Taproot)';
-              typeColor = 'text-purple-600';
+              typeColor = '#9333ea';
             } else if (output.address.startsWith('3')) {
               paymentType = 'P2SH (Script Hash)';
-              typeColor = 'text-green-600';
+              typeColor = '#059669';
             } else if (output.address.startsWith('1')) {
               paymentType = 'P2PKH (Legacy)';
-              typeColor = 'text-orange-600';
+              typeColor = '#ea580c';
             }
           }
           
           return `
-            <div class="ml-4 p-3 bg-white rounded border mt-2">
-              <div class="flex justify-between items-start mb-2">
-                <div class="text-xs text-slate-600">Output ${index + 1}</div>
-                <div class="text-xs ${typeColor} font-medium">${paymentType}</div>
+            <div style="margin-left: 16px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #e5e7eb; margin-top: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                <div style="font-size: 12px; color: #64748b;">Output ${index + 1}</div>
+                <div style="font-size: 12px; color: ${typeColor}; font-weight: 500;">${paymentType}</div>
               </div>
-              <div class="font-mono text-xs break-all mb-2">${output.address}</div>
-              <div class="text-sm font-medium text-slate-900">${formatBitcoinAmount(output.amount)}</div>
+              <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">
+                ${output.address.match(/.{1,4}/g).map(chunk => `
+                  <span style="background: #fbbf24; color: #000; padding: 4px 6px; border-radius: 4px; font-family: monospace; font-size: 14px; font-weight: 600; letter-spacing: 0.5px;">
+                    ${chunk}
+                  </span>
+                `).join('')}
+              </div>
+              <div style="color: #10b981; font-weight: 700; font-size: 16px;">
+                ${(output.amount / 100000000).toFixed(8)} BTC
+              </div>
             </div>
           `;
         }).join('')}
@@ -1302,10 +1783,10 @@ function showTransactionSummary() {
         finalizeBtn.disabled = !canFinalize;
         if (!canFinalize) {
           finalizeBtn.textContent = '🔒 Cannot Finalize (Needs Signatures)';
-          finalizeBtn.className = 'gradient-button-secondary cursor-not-allowed opacity-60';
+          finalizeBtn.style.cssText = 'background: linear-gradient(135deg, #6b7280, #4b5563); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: not-allowed; transition: all 0.3s ease; margin: 8px; opacity: 0.6;';
         } else {
           finalizeBtn.textContent = '🔨 Finalize Transaction';
-          finalizeBtn.className = 'gradient-button-primary';
+          finalizeBtn.style.cssText = 'background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin: 8px;';
         }
       }
       
@@ -1316,9 +1797,9 @@ function showTransactionSummary() {
     const summaryDetails = document.getElementById('tx-summary-details');
     if (summaryDetails) {
       summaryDetails.innerHTML = `
-        <div class="text-red-600">
+        <div style="color: #dc2626;">
           <strong>❌ Error analyzing transaction</strong>
-          <div class="text-sm mt-2">${error.message}</div>
+          <div style="font-size: 14px; margin-top: 8px;">${error.message}</div>
         </div>
       `;
     }
@@ -1370,11 +1851,13 @@ function showBroadcastStatus(message, isSuccess) {
   const statusDiv = document.getElementById('broadcast-status');
   if (!statusDiv) return;
   
-  statusDiv.classList.remove('hidden');
-  const statusClass = isSuccess ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800';
+  statusDiv.style.display = 'block';
+  const statusStyle = isSuccess ? 
+    'background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46;' : 
+    'background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;';
   statusDiv.innerHTML = `
-    <div class="p-4 rounded-xl border ${statusClass}">
-      <div class="font-medium whitespace-pre-line">${message}</div>
+    <div style="padding: 16px; border-radius: 12px; ${statusStyle}">
+      <div style="font-weight: 500; white-space: pre-line;">${message}</div>
     </div>
   `;
 }
@@ -1654,14 +2137,9 @@ function finalizePSBT(psbtBase64) {
   }
 }
 
-// Setup independent Quick Actions
+// Setup independent Quick Actions - now handled in step 1 events
 function setupQuickActions() {
-  const quickSkipToScanBtn = document.getElementById('quick-skip-to-scan-btn');
-  
-  quickSkipToScanBtn?.addEventListener('click', () => {
-    console.log('🖱️ Quick Skip to Scan button clicked');
-    goToStep(3);
-  });
+  // Quick actions are now handled in setupStep1Events()
 }
 
 // Export for initialization

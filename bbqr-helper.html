@@ -1,194 +1,474 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <style>html,body{opacity:0!important;transition:opacity .3s ease-in-out}html.loaded,body.loaded{opacity:1!important}</style>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BBQr Helper - Complete ColdCard Workflow</title>
-    
-    <!-- Preload critical resources -->
-    <link rel="preload" href="dist/bbqr-helper.bundle.js" as="script">
-    
-    <link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
-    <link rel="shortcut icon" href="icon/favicon.ico">
-    
-    <!-- Tailwind CSS -->
-    <link href="./css/tailwind.css" rel="stylesheet">
-    
+    <link rel="icon" href="icon/favicon.ico">
     <style>
-        .step-indicator {
-            @apply w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #334155;
         }
-        .step-active {
-            @apply bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg shadow-purple-500/25;
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
-        .step-completed {
-            @apply bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25;
+        
+        .header {
+            text-align: center;
+            padding: 20px 20px 10px 20px;
+            margin-bottom: 10px;
         }
-        .step-inactive {
-            @apply bg-white/30 text-slate-500 border border-white/40;
+        
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
-        .step-content {
-            @apply hidden;
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            padding: 0;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.3s ease;
+            font-size: 18px;
+            font-weight: 500;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
         }
-        .step-content.active {
-            @apply block;
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
         }
+        
+        .language-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            min-width: 80px;
+            text-align: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 40px;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+        
+        .language-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+        }
+        
+        .title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin: 0;
+        }
+        
+        .subtitle {
+            display: none;
+        }
+        
+        .step-progress {
+            background: transparent;
+            border: none;
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        
+        .progress-header {
+            display: none;
+        }
+        
+        .progress-title {
+            display: none;
+        }
+        
+        .progress-status {
+            display: none;
+        }
+        
+        .progress-bar-container {
+            position: relative;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            border-radius: 25px;
+            transition: width 0.6s ease;
+            position: relative;
+        }
+        
+        .progress-bar.active {
+            background: linear-gradient(90deg, #9333ea, #7c3aed);
+        }
+        
+
+        
+        .step-indicators {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 10;
+            height: 100%;
+        }
+        
+        .step-dot {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #000;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0 4px;
+            text-align: center;
+            line-height: 1;
+        }
+        
+        .step-dot.completed {
+            color: white;
+        }
+        
+        .step-dot.active {
+            color: white;
+        }
+        
+        .step-dot::before {
+            content: attr(data-step-en);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        
+        [lang="zh"] .step-dot::before {
+            content: attr(data-step-zh);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Button styles */
+        .btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 8px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+        
         .gradient-button-primary {
-            @apply px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-purple-300 to-violet-400 hover:from-purple-400 hover:to-violet-500 text-white font-semibold rounded-2xl md:rounded-3xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 shadow-lg shadow-purple-300/25 hover:shadow-xl hover:shadow-purple-400/40 text-sm md:text-base text-center;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 8px;
         }
-        .gradient-button-success {
-            @apply px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-emerald-300 to-teal-400 hover:from-emerald-400 hover:to-teal-500 text-white font-semibold rounded-2xl md:rounded-3xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 shadow-lg shadow-emerald-300/25 hover:shadow-xl hover:shadow-emerald-400/40 text-sm md:text-base text-center;
+        
+        .gradient-button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
         }
+        
         .gradient-button-secondary {
-            @apply px-6 py-3 md:px-8 md:py-4 bg-gradient-to-r from-slate-300 to-slate-400 hover:from-slate-400 hover:to-slate-500 text-white font-semibold rounded-2xl md:rounded-3xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 shadow-lg shadow-slate-300/25 hover:shadow-xl hover:shadow-slate-400/40 text-sm md:text-base text-center;
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 8px;
+        }
+        
+        .gradient-button-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 8px;
+        }
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 15px;
+            color: #334155;
+            font-size: 16px;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: rgba(147, 51, 234, 0.5);
+            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+            background: rgba(255, 255, 255, 0.6);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+        }
+        
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Camera and QR specific styles */
+        #camera-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        #camera-video {
+            width: 100%;
+            height: auto;
+        }
+        
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .qr-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .qr-item canvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        
+        /* Scanning animation */
+        @keyframes scanLine {
+            0% {
+                top: 0;
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                top: calc(100% - 4px);
+                opacity: 0;
+            }
+        }
+        
+        /* Fullscreen camera styles */
+        .camera-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 9999 !important;
+            background: #000 !important;
+            overflow: hidden !important;
+        }
+        
+        .camera-video {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            background: #000 !important;
+        }
+        
+        /* Ensure fullscreen works on mobile Safari */
+        .camera-fullscreen.active {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+        }
+        
+        /* Hide address bar on mobile */
+        @media screen and (max-width: 768px) {
+            .camera-fullscreen {
+                height: 100vh !important;
+                height: calc(var(--vh, 1vh) * 100) !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 1.5rem;
+            }
+            .step-progress {
+                padding: 10px 0;
+                margin-bottom: 15px;
+            }
+            .progress-bar-container {
+                height: 40px;
+            }
+            .step-dot {
+                font-size: 9px;
+                padding: 0 2px;
+            }
+            .glass-card {
+                margin: 0 10px 30px;
+                padding: 20px;
+            }
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen font-sans text-slate-700 relative overflow-x-hidden">
-    
-    <!-- Subtle background texture -->
-    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div class="absolute inset-0 bg-gradient-to-br from-purple-100/30 via-transparent to-violet-100/20"></div>
-        <div class="absolute inset-0 bg-gradient-to-tl from-indigo-100/20 via-transparent to-purple-100/25"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.05)_0%,transparent_50%)] animate-pulse" style="animation-duration: 8s;"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04)_0%,transparent_50%)] animate-pulse" style="animation-duration: 12s; animation-delay: 2s;"></div>
-    </div>
-
-    <!-- Main Container -->
-    <div class="relative z-10 max-w-sm md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto 
-                md:rounded-3xl md:my-6 lg:my-8 
-                overflow-hidden min-h-screen md:min-h-0">
-        
-        <!-- Header -->
-        <div class="relative px-6 py-8 md:px-12 md:py-10 lg:px-16 lg:py-12 text-center">
-            
-            <!-- Mobile handle -->
-            <div class="absolute top-3 left-1/2 transform -translate-x-1/2 
-                        w-9 h-1.5 bg-slate-400/40 rounded-full md:hidden"></div>
-            
-            <!-- Back Button -->
-            <a href="index.html" 
-               class="absolute top-5 left-6 md:left-12 lg:left-16 z-20
-                      glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2
-                      text-slate-500 hover:text-slate-700 text-sm font-medium 
-                      transition-all duration-300 hover:scale-105 transform
-                      flex items-center justify-center gap-1
-                      shadow-lg shadow-slate-500/10 hover:shadow-xl hover:shadow-slate-500/20
-                      bg-white/25 backdrop-blur-xl border border-white/30 hover:border-white/50
-                      ring-1 ring-white/30 hover:ring-white/40 ring-inset
-                      no-underline min-w-12 h-8 md:min-w-14 md:h-10"
-               data-i18n="back">
-                <span class="text-lg">←</span>
-            </a>
-            
-            <!-- Language Toggle -->
-            <button class="language-toggle absolute top-5 right-6 md:right-12 lg:right-16 z-20
-                           glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2 
-                           text-slate-500 hover:text-slate-700 text-sm font-medium 
-                           cursor-pointer transition-all duration-300 hover:scale-105 transform
-                           min-w-11 h-8 md:min-w-12 md:h-10 
-                           flex items-center justify-center
-                           shadow-lg shadow-slate-500/10 hover:shadow-xl hover:shadow-slate-500/20
-                           bg-white/25 backdrop-blur-xl border border-white/30 hover:border-white/50
-                           ring-1 ring-white/30 hover:ring-white/40 ring-inset" 
-                    onclick="toggleLanguage()">
-                ENG
-            </button>
-            
-            <!-- Title -->
-            <div class="relative z-10">
-                <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-700 
-                           tracking-tight mb-3 animate-fadeInUp" data-i18n="title">
-                    🔐 BBQr Helper
-                </h1>
-                <p class="text-sm md:text-base text-slate-500 leading-relaxed animate-fadeInUp" 
-                   style="animation-delay: 0.1s;" data-i18n="subtitle">
-                    Complete PSBT to ColdCard to Broadcast Workflow
-                </p>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-controls">
+                <a href="index.html" class="back-btn" title="Back">←</a>
+                <button class="language-toggle" onclick="toggleLanguage()">ENG</button>
             </div>
+            <h1 class="title" data-i18n="title">🔐 BBQr Helper</h1>
+            <p class="subtitle" data-i18n="subtitle">Complete PSBT to ColdCard to Broadcast Workflow</p>
         </div>
 
         <!-- Progress Steps -->
-        <div class="px-6 md:px-12 lg:px-16 pb-6 md:pb-8">
-            <div class="glass-card rounded-2xl md:rounded-3xl 
-                        p-4 md:p-6 lg:p-8 transition-all duration-300 ease-out
-                        shadow-xl shadow-slate-300/25
-                        bg-white/20 backdrop-blur-xl border border-white/30
-                        ring-1 ring-white/20 ring-inset
-                        animate-fadeInUp"
-                 style="animation-delay: 0.2s;">
-                
-                <div class="flex justify-between items-center max-w-4xl mx-auto">
-                    <div class="flex items-center">
-                        <div id="step1-indicator" class="step-indicator step-active">1</div>
-                        <span class="ml-2 text-xs md:text-sm font-medium text-slate-600" data-i18n="step1">Import PSBT</span>
-                    </div>
-                    <div class="flex-1 h-px bg-gradient-to-r from-white/40 via-slate-300/60 to-white/40 mx-2 md:mx-4"></div>
-                    <div class="flex items-center">
-                        <div id="step2-indicator" class="step-indicator step-inactive">2</div>
-                        <span class="ml-2 text-xs md:text-sm font-medium text-slate-600" data-i18n="step2">Generate BBQr</span>
-                    </div>
-                    <div class="flex-1 h-px bg-gradient-to-r from-white/40 via-slate-300/60 to-white/40 mx-2 md:mx-4"></div>
-                    <div class="flex items-center">
-                        <div id="step3-indicator" class="step-indicator step-inactive">3</div>
-                        <span class="ml-2 text-xs md:text-sm font-medium text-slate-600" data-i18n="step3">Scan Signed</span>
-                    </div>
-                    <div class="flex-1 h-px bg-gradient-to-r from-white/40 via-slate-300/60 to-white/40 mx-2 md:mx-4"></div>
-                    <div class="flex items-center">
-                        <div id="step4-indicator" class="step-indicator step-inactive">4</div>
-                        <span class="ml-2 text-xs md:text-sm font-medium text-slate-600" data-i18n="step4">Broadcast</span>
-                    </div>
+        <div class="step-progress">
+            <div class="progress-header">
+                <h3 class="progress-title" data-i18n="progressTitle">Workflow Progress</h3>
+                <p class="progress-status" data-i18n="progressStatus">Step 1 of 5</p>
+            </div>
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar active" style="width: 20%;"></div>
+                <div class="step-indicators">
+                    <div id="step1-dot" class="step-dot active" data-step-en="Import PSBT" data-step-zh="导入PSBT"></div>
+                    <div id="step2-dot" class="step-dot" data-step-en="Generate BBQr" data-step-zh="生成BBQr"></div>
+                    <div id="step3-dot" class="step-dot" data-step-en="Import Signed" data-step-zh="导入签名"></div>
+                    <div id="step4-dot" class="step-dot" data-step-en="Finalize" data-step-zh="完成交易"></div>
+                    <div id="step5-dot" class="step-dot" data-step-en="Broadcast" data-step-zh="广播"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Step Content Container -->
-        <div id="steps-container" class="px-6 md:px-12 lg:px-16 pb-6 md:pb-12 lg:pb-16">
-            
-            <!-- Quick Actions Section - Independent -->
-            <div class="mb-6 md:mb-8">
-                <div class="glass-card rounded-2xl md:rounded-3xl 
-                            p-4 md:p-6 lg:p-8 transition-all duration-300 ease-out
-                            shadow-xl shadow-purple-300/25 hover:shadow-2xl hover:shadow-purple-400/40
-                            bg-gradient-to-r from-purple-50/30 to-violet-50/20 backdrop-blur-xl 
-                            border border-purple-200/40 hover:border-purple-300/60
-                            ring-1 ring-purple-100/30 hover:ring-purple-200/50 ring-inset
-                            animate-fadeInUp"
-                     style="animation-delay: 0.1s;">
-                    
-                    <div class="text-center">
-                        <h3 class="text-lg md:text-xl font-bold text-purple-900 mb-2 md:mb-3 tracking-tight" data-i18n="quickActionsTitle">
-                            ⚡ Quick Actions
-                        </h3>
-                        <p class="text-sm md:text-base text-purple-700 mb-4 md:mb-6 leading-relaxed" data-i18n="quickActionsDesc">
-                            Skip BBQr generation if you already have a signed PSBT
-                        </p>
-                        <button id="quick-skip-to-scan-btn" 
-                                class="gradient-button-primary px-8 py-4 md:px-10 md:py-5 text-base md:text-lg"
-                                data-i18n="quickSkipBtn">
-                            📷 Skip to Scan Signed PSBT
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Steps will be managed by JavaScript -->
+        <!-- Steps Container - This is where the dynamic content will be rendered -->
+        <div id="steps-container">
+            <!-- Dynamic step content will be rendered here by JavaScript -->
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="dist/bbqr-helper.bundle.js"></script>
-    <script>
-        // Prevent flash of unstyled content
-        document.addEventListener('DOMContentLoaded', function() {
-            document.documentElement.classList.add('loaded');
-            document.body.classList.add('loaded');
-        });
-    </script>
 </body>
 </html> 

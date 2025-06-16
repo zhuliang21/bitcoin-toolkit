@@ -11,7 +11,8 @@ const translations = {
     tagLabel: 'Tag (Optional)',
     tagPlaceholder: 'Enter tag for organizing',
     generateBtn: 'Generate QR Code',
-    downloadBtn: '📥 Download PNG'
+    downloadBtn: '📥 Download PNG',
+    newQrBtn: '🔄 New QR Code'
   },
   zh: {
     title: '📱 二维码',
@@ -21,7 +22,8 @@ const translations = {
     tagLabel: '标签（可选）',
     tagPlaceholder: '输入用于组织的标签',
     generateBtn: '生成二维码',
-    downloadBtn: '📥 下载PNG'
+    downloadBtn: '📥 下载PNG',
+    newQrBtn: '🔄 生成新二维码'
   }
 };
 
@@ -68,34 +70,28 @@ function updateLanguage() {
 // Make toggleLanguage available globally
 window.toggleLanguage = toggleLanguage;
 
-// Enhanced functions for Tailwind integration
+// Show/hide sections
 function showQRResult() {
-  const mainSection = document.getElementById('mainSection');
-  const placeholderSection = document.getElementById('placeholderSection');
+  const formSection = document.getElementById('formSection');
+  const qrResult = document.getElementById('qrResult');
   
-  if (mainSection) {
-    mainSection.style.display = 'block';
-    mainSection.classList.add('animate-fadeInUp');
+  if (formSection) {
+    formSection.style.display = 'none';
   }
-  
-  // Hide placeholder on desktop
-  if (placeholderSection) {
-    placeholderSection.style.display = 'none';
+  if (qrResult) {
+    qrResult.style.display = 'block';
   }
 }
 
-function hideQRResult() {
-  const mainSection = document.getElementById('mainSection');
-  const placeholderSection = document.getElementById('placeholderSection');
+function showFormSection() {
+  const formSection = document.getElementById('formSection');
+  const qrResult = document.getElementById('qrResult');
   
-  if (mainSection) {
-    mainSection.style.display = 'none';
-    mainSection.classList.remove('animate-fadeInUp');
+  if (formSection) {
+    formSection.style.display = 'block';
   }
-  
-  // Show placeholder on desktop
-  if (placeholderSection) {
-    placeholderSection.style.display = 'block';
+  if (qrResult) {
+    qrResult.style.display = 'none';
   }
 }
 
@@ -106,16 +102,14 @@ function openModal() {
   
   if (modal && modalImage && qrImage) {
     modalImage.src = qrImage.src;
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
+    modal.style.display = 'block';
   }
 }
 
 function closeModal() {
   const modal = document.getElementById('modal-overlay');
   if (modal) {
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
+    modal.style.display = 'none';
   }
 }
 
@@ -132,6 +126,7 @@ function initializeApp() {
   const tagInput = document.getElementById('tag');
   const generateBtn = document.getElementById('generate');
   const downloadBtn = document.getElementById('download');
+  const newQrBtn = document.getElementById('newQr');
   const canvas = document.getElementById('qr-canvas');
   const qrImage = document.getElementById('qr-image');
 
@@ -147,13 +142,16 @@ function initializeApp() {
     const tag = tagInput.value.trim();
     if (!text) return;
     
-    // Show the result section
+    // Show the result section and hide form
     showQRResult();
     
-    // Modern QR styling
-    const qrSize = 400;
+    // Calculate QR size based on screen size
+    const screenWidth = window.innerWidth;
+    const maxQRSize = Math.min(400, screenWidth * 0.8);
+    const qrSize = Math.max(200, Math.min(maxQRSize, 400));
+    
     const margin = 0;
-    const fontSize = 22;
+    const fontSize = Math.max(16, Math.min(22, qrSize / 18));
     const options = { 
       errorCorrectionLevel: 'H', 
       width: qrSize, 
@@ -169,9 +167,9 @@ function initializeApp() {
       const img = new Image();
       img.onload = () => {
         const dpr = window.devicePixelRatio || 1;
-        const padding = 32;
+        const padding = Math.max(16, qrSize / 25);
         const tagHeight = tag ? fontSize + 30 : 0;
-        const borderRadius = 24;
+        const borderRadius = Math.max(12, qrSize / 25);
         const totalW = qrSize + padding * 2;
         const totalH = qrSize + tagHeight + padding * 2;
         
@@ -179,10 +177,11 @@ function initializeApp() {
         canvas.width = totalW * dpr;
         canvas.height = totalH * dpr;
         
-        // 确保canvas保持原始比例，不设置固定的style尺寸
+        // 确保canvas保持原始比例，适配屏幕大小
         canvas.style.width = '';
         canvas.style.height = '';
-        canvas.style.maxWidth = '100%';
+        canvas.style.maxWidth = 'min(400px, 90vw)';
+        canvas.style.width = '100%';
         canvas.style.height = 'auto';
         
         const ctx = canvas.getContext('2d');
@@ -211,7 +210,7 @@ function initializeApp() {
         
         // QR code with rounded corners
         ctx.save();
-        const qrRadius = 16;
+        const qrRadius = Math.max(8, borderRadius / 2);
         const qrX = padding;
         const qrY = padding;
         
@@ -261,6 +260,15 @@ function initializeApp() {
   // Setup event listeners
   generateBtn.addEventListener('click', renderQR);
 
+  // New QR Code button - show form again and clear inputs
+  newQrBtn?.addEventListener('click', () => {
+    showFormSection();
+    textInput.value = '';
+    tagInput.value = '';
+    downloadBtn.disabled = true;
+    textInput.focus();
+  });
+
   downloadBtn.addEventListener('click', () => {
     const link = document.createElement('a');
     link.download = 'qrcode.png';
@@ -278,6 +286,14 @@ function initializeApp() {
   tagInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
       renderQR();
+    }
+  });
+
+  // Handle window resize to update QR size
+  window.addEventListener('resize', () => {
+    // If QR is currently displayed, regenerate with new size
+    if (document.getElementById('qrResult').style.display === 'block' && textInput.value.trim()) {
+      setTimeout(renderQR, 100); // Small delay to ensure resize is complete
     }
   });
 }

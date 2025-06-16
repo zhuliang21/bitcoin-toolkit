@@ -1,178 +1,219 @@
-# Bitcoin Toolkit
+# 🔧 Bitcoin Toolkit
 
-A modern, secure, and mobile-optimized collection of Bitcoin wallet utilities built with vanilla JavaScript. Features beautiful UI design with minimalist aesthetics and comprehensive Bitcoin wallet functionality.
+> A comprehensive web-based collection of Bitcoin utilities for development, testing, and educational purposes.
 
-## 🚀 Features
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow.svg)]()
+[![Bitcoin](https://img.shields.io/badge/Bitcoin-Compatible-orange.svg)]()
+
+## 🌟 Features
+
+### 🔥 BBQr Helper
+Complete PSBT to ColdCard to broadcast workflow with BBQr QR code support
+- **5-Step Workflow**: Import PSBT → Generate BBQr → Scan Signed → Finalize → Broadcast
+- **Smart PSBT Analysis**: Automatic change detection and transaction summary
+- **Camera Integration**: Real-time QR code scanning with mobile optimization
+- **Multi-API Broadcasting**: BlockCypher and Blockstream API support
 
 ### 🧠 Brain Wallet Generator
+Generate deterministic Bitcoin wallets from any text input
+- **Multiple Address Types**: Legacy (P2PKH), SegWit (P2SH-P2WPKH), Native SegWit (P2WPKH), Taproot (P2TR)
+- **BIP39 Mnemonic**: Standard 12-word mnemonic phrase generation
+- **Usage Verification**: Check address history via blockchain APIs
+- **Security Warnings**: Educational disclaimers and safety notices
 
-- **Deterministic Wallet Generation**: Create Bitcoin wallets from any memorable text input
-- **Multiple Address Types**: Support for Legacy (P2PKH), Nested SegWit (P2SH-P2WPKH), Native SegWit (P2WPKH), and Taproot (P2TR)
-- **Beautiful Mnemonic Display**: 4×3 grid layout with sequence numbers and one-click copy functionality
-- **QR Code Generation**: Generate QR codes for easy backup and sharing
-- **Wallet Usage Verification**: Check if generated addresses have been used on the blockchain
-- **Mobile-First Design**: Responsive interface optimized for mobile devices
-- **Modern UI**: Minimalist design with gradients, rounded corners, and smooth animations
+### 📱 QR Code Generator
+Universal QR code generation with responsive design
+- **Auto-sizing**: Responsive QR codes (200-400px)
+- **Real-time Preview**: Instant generation on input
+- **Download Support**: PNG export with timestamps
+- **Mobile Optimized**: Touch-friendly interface
 
-### 🎨 Design Features
+### 💰 Bitcoin Price Monitor
+Real-time Bitcoin price tracking with alerts
+- **Multi-source Data**: CoinGecko and Binance APIs
+- **Price Alerts**: Browser notifications for threshold breaches
+- **Historical Charts**: Canvas-based price visualization
+- **Dual Currency**: USD and CNY support
 
-- **Minimalist Aesthetics**: Clean, 素雅 (elegant) color scheme with subtle gradients
-- **Mobile Optimization**: Touch-friendly interface with proper spacing and font scaling
-- **Responsive Layout**: Adapts seamlessly to different screen sizes (desktop, tablet, mobile)
-- **Modern Animations**: Smooth transitions, hover effects, and micro-interactions
-- **Card-Based Layout**: Organized sections with proper visual hierarchy
-
-## 📱 Live Demo
-
-Open `index.html` in your browser to access the tools:
-
-- **Index Page**: Overview of all available tools
-- **Brain Wallet Generator**: Full-featured wallet generation tool
-
-## 🛠️ Installation
+## 🚀 Quick Start
 
 ### Prerequisites
+- Node.js 14+ 
+- Modern browser (Chrome 80+, Firefox 75+, Safari 13+)
 
-- Node.js (v14.x or later recommended)
-- npm (v6.x or later recommended)
-
-### Setup
-
+### Installation
 ```bash
-git clone https://github.com/zhuliang21/bitcoin-toolkit.git
+# Clone the repository
+git clone https://github.com/your-username/bitcoin-toolkit.git
 cd bitcoin-toolkit
+
+# Install dependencies
 npm install
-```
 
-### Build
-
-```bash
+# Build the project
 npm run build
+
+# Start local HTTPS server (required for camera features)
+node simple-https-server.js
 ```
 
-This will generate the bundled JavaScript file in the `dist/` directory.
+### Access the Tools
+- **Local**: https://localhost:9443/
+- **Mobile Testing**: https://[your-ip]:9443/ (same WiFi network)
 
-## 📂 Project Structure
+## 🏗️ Technology Stack
 
-```text
+### Frontend
+- **Framework**: Pure HTML5 + CSS3 + JavaScript (ES6+)
+- **Build Tool**: Webpack 5 with multi-entry bundling
+- **UI Design**: Responsive design with glass morphism effects
+- **Mobile Support**: Touch-optimized interface
+
+### Bitcoin Libraries
+- **bitcoinjs-lib**: Bitcoin protocol implementation
+- **bip39**: Mnemonic generation and validation
+- **qrious**: QR code generation
+- **jsqr**: QR code scanning
+
+### APIs & Services
+- **Camera**: MediaDevices API for QR scanning
+- **Storage**: localStorage for settings persistence
+- **Notifications**: Browser Notification API
+- **Blockchain**: Multiple API providers for broadcasting
+
+## 📁 Project Structure
+
+```
 bitcoin-toolkit/
-├── index.html              # Main landing page with tool overview
-├── brain-wallet.html        # Brain wallet generator interface
-├── price.html              # Bitcoin price tracker with Matrix animation
-├── bbqr.html               # BBQr generator for animated QR sequences
-├── psbt.html               # PSBT decoder tool
-├── qr.html                 # QR code generator
-├── src/
-│   ├── brain-wallet.js     # Core wallet generation logic
-│   ├── bbqr.js            # BBQr encoding/decoding logic
-│   ├── psbt.js            # PSBT decoding functionality
-│   └── qr.js              # QR code generation logic
-├── dist/
-│   └── *.bundle.js        # Bundled JavaScript output files
-├── package.json           # Node.js dependencies and scripts
-└── README.md             # This file
+├── 📄 index.html              # Homepage with tool navigation
+├── 🔥 bbqr-helper.html        # BBQr workflow interface
+├── 🧠 brain-wallet.html       # Brain wallet generator
+├── 📱 qr.html                 # QR code generator
+├── 💰 price.html              # Bitcoin price monitor
+├── 📂 src/                    # Source code
+│   ├── index.js               # Homepage logic
+│   ├── bbqr-helper.js         # BBQr workflow implementation
+│   ├── brain-wallet.js        # Wallet generation logic
+│   └── qr.js                  # QR generation logic
+├── 📦 dist/                   # Build output
+├── 📚 docs/                   # Documentation
+│   └── TECHNICAL_DOCUMENTATION.md
+├── 🎨 icon/                   # App icons and favicons
+└── ⚙️ webpack.config.js       # Build configuration
 ```
 
-## 🔧 Technical Implementation
+## 🔒 Security Features
 
-### Core Technologies
+### Pure Frontend Architecture
+- ✅ **No Server Communication**: All operations happen locally
+- ✅ **Offline Capable**: Works without internet (except price monitoring)
+- ✅ **No Data Collection**: Zero user data transmission
+- ✅ **Open Source**: Fully auditable codebase
 
-- **Vanilla JavaScript**: No framework dependencies for better performance
-- **Browserify**: Module bundling for browser compatibility
-- **Bitcoin Libraries**:
-  - `bitcoinjs-lib`: Bitcoin transaction and address handling
-  - `bip32`: Hierarchical deterministic wallet support
-  - `bip39`: Mnemonic phrase generation and validation
-  - `bs58check`: Base58 encoding/decoding
-- **QR Code Generation**: `qrcode` library for visual backup codes
+### Best Practices
+- 🔐 **Educational Purpose**: Clearly marked for learning and testing
+- 🛡️ **Security Warnings**: Mandatory disclaimers for sensitive operations
+- 📱 **HTTPS Required**: Camera features require secure context
+- 🔍 **Code Transparency**: All cryptographic operations visible
 
-### Security Features
+## 📱 Mobile Support
 
-- **Client-Side Only**: All wallet generation happens locally in the browser
-- **No Data Transmission**: Private keys and seeds never leave your device
-- **Usage Verification**: Check address usage via public blockchain APIs
-- **Entropy Generation**: Secure random number generation for wallet creation
+### iOS Safari
+- ✅ HTTPS environment required
+- ✅ Camera permissions needed
+- ✅ Responsive touch interface
 
-### Mobile Optimization
+### Android Chrome
+- ✅ Local HTTP testing supported
+- ✅ Full feature compatibility
+- ✅ Optimized performance
 
-- **Responsive Breakpoints**: 768px and 375px for tablet and mobile
-- **Touch-Friendly**: Larger touch targets and appropriate spacing
-- **Performance**: Optimized for mobile browsers and slower connections
+## 🛠️ Development
 
-## 🎯 Usage Guide
+### Build Commands
+```bash
+npm run build          # Production build
+npm run dev            # Development build
+npm run serve          # Start HTTPS server
+```
 
-### Brain Wallet Generator
+### Adding New Features
+1. Create new HTML page in root directory
+2. Add corresponding JS file in `src/` directory
+3. Update `webpack.config.js` entry points
+4. Follow existing modular structure
 
-1. **Enter Text**: Input any memorable text or passphrase
-2. **Generate Wallet**: Click "Generate Wallet" to create your wallet
-3. **View Mnemonic**: See your 12-word mnemonic phrase in an organized 4×3 grid
-4. **Copy Backup**: Use the copy button to save your mnemonic phrase
-5. **Check QR Code**: Scan the QR code for easy backup
-6. **Get Addresses**: View addresses for different Bitcoin formats
-7. **Verify Usage**: Check if the wallet has been used before
+### Testing
+```bash
+# Local testing
+open https://localhost:9443/
 
-### Safety Recommendations
-
-- ⚠️ **Never use this for real funds without thorough testing**
-- 🔒 **Always verify wallet usage before depositing funds**
-- 💾 **Backup your mnemonic phrase securely**
-- 🔐 **Use strong, unique passphrases for brain wallets**
-
-## 🔮 Roadmap
-
-### Coming Soon
-
-- **HD Wallet Generator**: Standard BIP39 mnemonic generation
-- **Address Analyzer**: Detailed Bitcoin address analysis
-- **Transaction Builder**: Custom Bitcoin transaction creation
-- **Multi-Currency Support**: Ethereum, Litecoin, and other cryptocurrencies
-
-## 🛡️ Security Notice
-
-This tool is designed for educational and development purposes. While it implements industry-standard cryptographic libraries, users should:
-
-- Test thoroughly before using with real funds
-- Verify all generated addresses independently
-- Use hardware wallets for significant amounts
-- Keep backups secure and offline
-
-## 📖 API Reference
-
-### Core Functions
-
-```javascript
-// Generate wallet from entropy
-generateKeysAndAddresses(seedBuffer)
-
-// Create mnemonic from text
-const mnemonic = bip39.entropyToMnemonic(entropyHex)
-
-// Generate addresses for different types
-const p2pkh = payments.p2pkh({ pubkey: node.publicKey }).address
-const p2sh = payments.p2sh({ redeem: payments.p2wpkh({ pubkey: node.publicKey }) }).address
-const p2wpkh = payments.p2wpkh({ pubkey: node.publicKey }).address
-const p2tr = payments.p2tr({ internalPubkey: node.publicKey.slice(1) }).address
+# Mobile testing (replace with your IP)
+open https://192.168.x.x:9443/
 ```
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit pull requests or open issues for:
+We welcome contributions! Please see our contributing guidelines:
 
-- Bug fixes
-- New features
-- UI/UX improvements
-- Documentation updates
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Development Guidelines
+- Follow existing code style and structure
+- Add appropriate documentation
+- Test on multiple browsers and devices
+- Ensure mobile compatibility
+
+## 📖 Documentation
+
+- 📋 [Technical Documentation](docs/TECHNICAL_DOCUMENTATION.md) - Comprehensive technical details
+- 🔧 [API Reference](docs/TECHNICAL_DOCUMENTATION.md#core-functions) - Function documentation
+- 🚀 [Deployment Guide](docs/TECHNICAL_DOCUMENTATION.md#deployment-instructions) - Setup instructions
+
+## ❓ FAQ
+
+**Q: Why pure frontend architecture?**
+A: To ensure user fund security and avoid transmitting sensitive information like private keys to servers.
+
+**Q: Can it be used offline?**
+A: Yes, except for price query functionality, all other features support complete offline usage.
+
+**Q: Is it safe for real Bitcoin?**
+A: This is designed for educational and testing purposes. Always verify with small amounts first.
+
+**Q: Mobile camera not working?**
+A: Ensure you're using HTTPS and have granted camera permissions to your browser.
 
 ## 📄 License
 
-ISC License - see LICENSE file for details
+This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
 
-## 🔗 Links
+## ⚠️ Disclaimer
+
+This software is provided for educational and testing purposes only. While it implements industry-standard cryptographic libraries, users should:
+
+- Test thoroughly before using with real funds
+- Verify all generated addresses independently  
+- Use hardware wallets for significant amounts
+- Keep backups secure and offline
+
+**Use at your own risk. The developers assume no responsibility for any loss of funds.**
+
+## 🔗 Useful Links
 
 - [Bitcoin Developer Documentation](https://developer.bitcoin.org/)
 - [BIP39 Specification](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)
-- [BIP32 Specification](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
+- [BBQr Specification](https://github.com/coinkite/BBQr)
+- [PSBT Documentation](https://github.com/bitcoin/bips/blob/master/bip-0174.mediawiki)
 
 ---
 
-**Disclaimer**: This software is provided "as is" without warranty. Use at your own risk.
+<div align="center">
+  <strong>Built with ❤️ for the Bitcoin community</strong>
+</div>

@@ -4,309 +4,256 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bitcoin Toolkit</title>
-  <link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
-  <link rel="shortcut icon" href="icon/favicon.ico">
-  
-  <!-- Tailwind CSS -->
-  <link href="./css/tailwind.css" rel="stylesheet">
-  
-
+  <link rel="icon" href="icon/favicon.ico">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #334155;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      padding: 40px 20px;
+      margin-bottom: 30px;
+    }
+    
+    .header-controls {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .language-toggle {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      padding: 10px 20px;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      font-weight: 500;
+      min-width: 80px;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+    
+    .language-toggle:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.8);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+    }
+    
+    .title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      margin: 0 0 10px 0;
+    }
+    
+    .subtitle {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0;
+    }
+    
+    .security-notice {
+      background: rgba(255, 243, 205, 0.9);
+      border: 1px solid rgba(255, 234, 167, 0.8);
+      color: #856404;
+      padding: 15px 20px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      text-align: center;
+      position: relative;
+    }
+    
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: #856404;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    
+    .close-btn:hover {
+      background: rgba(133, 100, 4, 0.1);
+    }
+    
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .tool-card {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 30px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .tool-card:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .tool-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .tool-icon {
+      font-size: 28px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+    
+    .tool-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin: 0;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    
+    .tool-desc {
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 30px 20px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+      .title {
+        font-size: 2rem;
+      }
+      .subtitle {
+        font-size: 1rem;
+      }
+      .tools-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
-<body class="gradient-bg min-h-screen font-sans text-slate-700 relative overflow-x-hidden" style="visibility: hidden;">
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-controls">
+        <button class="language-toggle" onclick="toggleLanguage()">ENG</button>
+      </div>
+      
+      <div id="securityNotice" class="security-notice">
+        <button class="close-btn" onclick="closeSecurityNotice()">×</button>
+        <strong>⚠️</strong> <span data-i18n="securityNotice">For educational and testing purposes only. Use at your own risk.</span>
+      </div>
+
+      <h1 class="title" data-i18n="mainTitle">🔧 Bitcoin Toolkit</h1>
+      <p class="subtitle" data-i18n="mainSubtitle">Essential tools for Bitcoin development and testing</p>
+    </div>
+    
+    <div class="tools-grid">
+      <a href="brain-wallet.html" class="tool-card">
+        <div class="tool-header">
+          <span class="tool-icon">🧠</span>
+          <h2 class="tool-title" data-i18n="brainWalletTitle">Brain Wallet Generator</h2>
+        </div>
+        <p class="tool-desc" data-i18n="brainWalletDesc">Generate Bitcoin wallets from memorable text using deterministic algorithms.</p>
+      </a>
+
+      <a href="qr.html" class="tool-card">
+        <div class="tool-header">
+          <span class="tool-icon">📱</span>
+          <h2 class="tool-title" data-i18n="qrTitle">QR Code Generator</h2>
+        </div>
+        <p class="tool-desc" data-i18n="qrDesc">Create QR codes for text and URLs with instant download.</p>
+      </a>
+
+      <a href="bbqr-helper.html" class="tool-card">
+        <div class="tool-header">
+          <span class="tool-icon">🔐</span>
+          <h2 class="tool-title" data-i18n="bbqrHelperTitle">BBQr Helper</h2>
+        </div>
+        <p class="tool-desc" data-i18n="bbqrHelperDesc">Complete PSBT to ColdCard to Broadcast workflow with BBQr codes.</p>
+      </a>
+
+      <a href="price.html" class="tool-card">
+        <div class="tool-header">
+          <span class="tool-icon">💰</span>
+          <h2 class="tool-title" data-i18n="priceTitle">Price Tracker</h2>
+        </div>
+        <p class="tool-desc" data-i18n="priceDesc">Track Bitcoin prices with real-time updates and alerts.</p>
+      </a>
+    </div>
+
+    <div class="footer">
+      <p data-i18n="footerText">© 2024 Bitcoin Toolkit. All rights reserved.</p>
+    </div>
+  </div>
+
+  <script src="dist/index.bundle.js"></script>
   
-  <!-- Subtle background texture -->
-  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
-    <div class="absolute inset-0 bg-gradient-to-br from-purple-100/30 via-transparent to-violet-100/20"></div>
-    <div class="absolute inset-0 bg-gradient-to-tl from-indigo-100/20 via-transparent to-purple-100/25"></div>
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.05)_0%,transparent_50%)] animate-pulse" style="animation-duration: 8s;"></div>
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04)_0%,transparent_50%)] animate-pulse" style="animation-duration: 12s; animation-delay: 2s;"></div>
-  </div>
-
-  <!-- Main Container -->
-  <div class="relative z-10 max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto 
-              md:rounded-3xl md:my-6 lg:my-8 
-              overflow-hidden min-h-screen md:min-h-0">
-    
-    <!-- Security Notice -->
-    <div id="securityNotice" class="glass-card border-b border-white/20 px-6 py-3 md:px-12 md:py-4 text-center 
-                                     relative overflow-hidden shadow-lg shadow-slate-500/10 
-                                     bg-white/30 backdrop-blur-xl ring-1 ring-white/25 ring-inset">
-      <!-- Top highlight line -->
-      <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent"></div>
-      
-      <div class="flex items-center justify-center gap-2 relative z-10">
-        <span class="text-base md:text-lg">⚠️</span>
-        <span class="text-xs md:text-sm font-medium text-slate-600" data-i18n="securityNotice">
-          For educational and testing purposes only. Use at your own risk.
-        </span>
-        <button onclick="closeSecurityNotice()" 
-                class="ml-2 text-slate-400 hover:text-slate-600 transition-colors duration-200 
-                       text-lg leading-none hover:scale-110 transform">
-          ×
-        </button>
-      </div>
-    </div>
-
-    <!-- Header -->
-    <div class="text-slate-700 relative px-6 py-4 md:px-12 md:py-6 lg:px-16 lg:py-8 text-center">
-      
-      <!-- Mobile handle -->
-      <div class="absolute top-3 left-1/2 transform -translate-x-1/2 
-                  w-9 h-1.5 bg-slate-400/40 rounded-full md:hidden"></div>
-      
-      <!-- Language Toggle -->
-      <button class="language-toggle absolute top-5 right-6 md:right-12 lg:right-16 
-                     glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2 
-                     text-slate-500 hover:text-slate-700 text-sm font-medium 
-                     cursor-pointer transition-all duration-300 hover:scale-105 transform
-                     min-w-11 h-8 md:min-w-12 md:h-10 
-                     flex items-center justify-center
-                     shadow-lg shadow-slate-500/10 hover:shadow-xl hover:shadow-slate-500/20
-                     bg-white/25 backdrop-blur-xl border border-white/30 hover:border-white/50
-                     ring-1 ring-white/30 hover:ring-white/40 ring-inset" 
-              onclick="toggleLanguage()">
-        ENG
-      </button>
-    </div>
-    
-    <!-- Content -->
-    <div class="p-6 md:p-12 lg:p-16">
-      
-      <!-- Tools Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 
-                  gap-6 md:gap-8 lg:gap-10 mb-8 md:mb-12">
-        
-        <!-- Brain Wallet Tool -->
-        <a href="brain-wallet.html" 
-           class="group glass-card hover:glass-card
-                  rounded-2xl md:rounded-3xl 
-                  p-6 md:p-8 transition-all duration-500 ease-out
-                  hover:-translate-y-2 hover:scale-[1.02] transform
-                  cursor-pointer animate-fadeInUp
-                  relative overflow-hidden
-                  shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
-                  bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
-                  ring-1 ring-white/20 hover:ring-white/35 ring-inset
-                  before:absolute before:top-0 before:left-0 before:right-0 before:h-px
-                  before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent">
-          
-          <!-- Hover glow effect -->
-          <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 
-                      opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl md:rounded-3xl"></div>
-          
-          <div class="relative z-10">
-            <div class="flex items-center gap-3 mb-4 md:mb-6">
-              <span class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform duration-300">🧠</span>
-              <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
-                         tracking-tight group-hover:text-slate-600 transition-colors duration-300" 
-                  data-i18n="brainWalletTitle">
-                Brain Wallet Generator
-              </h2>
-            </div>
-            <p class="text-sm md:text-base text-slate-500 leading-relaxed 
-               group-hover:text-slate-600 transition-colors duration-300" 
-               data-i18n="brainWalletDesc">
-              Generate Bitcoin wallets from memorable text using deterministic algorithms.
-            </p>
-          </div>
-        </a>
-
-        <!-- QR Code Tool -->
-        <a href="qr.html" 
-           class="group glass-card hover:glass-card
-                  rounded-2xl md:rounded-3xl 
-                  p-6 md:p-8 transition-all duration-500 ease-out
-                  hover:-translate-y-2 hover:scale-[1.02] transform
-                  cursor-pointer animate-fadeInUp
-                  relative overflow-hidden
-                  shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
-                  bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
-                  ring-1 ring-white/20 hover:ring-white/35 ring-inset
-                  before:absolute before:top-0 before:left-0 before:right-0 before:h-px
-                  before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent"
-           style="animation-delay: 0.1s;">
-          
-          <!-- Hover glow effect -->
-          <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 
-                      opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl md:rounded-3xl"></div>
-          
-          <div class="relative z-10">
-            <div class="flex items-center gap-3 mb-4 md:mb-6">
-              <span class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform duration-300">📱</span>
-              <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
-                         tracking-tight group-hover:text-slate-600 transition-colors duration-300" 
-                  data-i18n="qrTitle">
-                QR Code Generator
-              </h2>
-            </div>
-            <p class="text-sm md:text-base text-slate-500 leading-relaxed 
-               group-hover:text-slate-600 transition-colors duration-300" 
-               data-i18n="qrDesc">
-              Create QR codes for text and URLs with instant download.
-            </p>
-          </div>
-        </a>
-
-        <!-- BBQr Helper Tool -->
-        <a href="bbqr-helper.html" 
-           class="group glass-card hover:glass-card
-                  rounded-2xl md:rounded-3xl 
-                  p-6 md:p-8 transition-all duration-500 ease-out
-                  hover:-translate-y-2 hover:scale-[1.02] transform
-                  cursor-pointer animate-fadeInUp
-                  relative overflow-hidden
-                  shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
-                  bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
-                  ring-1 ring-white/20 hover:ring-white/35 ring-inset
-                  before:absolute before:top-0 before:left-0 before:right-0 before:h-px
-                  before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent"
-           style="animation-delay: 0.2s;">
-          
-          <!-- Hover glow effect -->
-          <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 
-                      opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl md:rounded-3xl"></div>
-          
-          <div class="relative z-10">
-            <div class="flex items-center gap-3 mb-4 md:mb-6">
-              <span class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform duration-300">🔐</span>
-              <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
-                         tracking-tight group-hover:text-slate-600 transition-colors duration-300" 
-                  data-i18n="bbqrHelperTitle">
-                BBQr Helper
-              </h2>
-            </div>
-            <p class="text-sm md:text-base text-slate-500 leading-relaxed 
-               group-hover:text-slate-600 transition-colors duration-300" 
-               data-i18n="bbqrHelperDesc">
-              Complete PSBT to ColdCard to Broadcast workflow with BBQr codes.
-            </p>
-          </div>
-        </a>
-
-
-
-        <!-- Price Tracker Tool -->
-        <a href="price.html" 
-           class="group glass-card hover:glass-card
-                  rounded-2xl md:rounded-3xl 
-                  p-6 md:p-8 transition-all duration-500 ease-out
-                  hover:-translate-y-2 hover:scale-[1.02] transform
-                  cursor-pointer animate-fadeInUp
-                  relative overflow-hidden
-                  shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
-                  bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
-                  ring-1 ring-white/20 hover:ring-white/35 ring-inset
-                  before:absolute before:top-0 before:left-0 before:right-0 before:h-px
-                  before:bg-gradient-to-r before:from-transparent before:via-white/70 before:to-transparent"
-           style="animation-delay: 0.3s;">
-          
-          <!-- Hover glow effect -->
-          <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10 
-                      opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl md:rounded-3xl"></div>
-          
-          <div class="relative z-10">
-            <div class="flex items-center gap-3 mb-4 md:mb-6">
-              <span class="text-2xl md:text-3xl transform group-hover:scale-110 transition-transform duration-300">💰</span>
-              <h2 class="text-lg md:text-xl lg:text-2xl font-bold text-slate-700 
-                         tracking-tight group-hover:text-slate-600 transition-colors duration-300" 
-                  data-i18n="priceTitle">
-                USD Exchange Rate
-              </h2>
-            </div>
-            <p class="text-sm md:text-base text-slate-500 leading-relaxed 
-               group-hover:text-slate-600 transition-colors duration-300" 
-               data-i18n="priceDesc">
-              Matrix-style falling digital rain with real-time USD exchange rates.
-            </p>
-          </div>
-        </a>
-      </div>
-    </div>
-
-  </div>
-
   <script>
-    // Language support for index page
-    const indexTranslations = {
-      en: {
-        securityNotice: 'For educational and testing purposes only. Use at your own risk.',
-        brainWalletTitle: 'Brain Wallet',
-        brainWalletDesc: 'Generate Bitcoin wallets from memorable text using deterministic algorithms.',
-        qrTitle: 'QR Code',
-        qrDesc: 'Create QR codes for text and URLs with instant download.',
-        bbqrHelperTitle: 'BBQr Helper',
-        bbqrHelperDesc: 'Complete PSBT to ColdCard to Broadcast workflow with BBQr codes.',
-        priceTitle: 'USD Rate',
-        priceDesc: 'Matrix-style falling digital rain with real-time USD exchange rates.'
-      },
-      zh: {
-        securityNotice: '仅供教育和测试目的使用，使用风险自负。',
-        brainWalletTitle: '脑钱包',
-        brainWalletDesc: '使用确定性算法从易记文本生成比特币钱包。',
-        qrTitle: '二维码',
-        qrDesc: '为文本和网址创建二维码，支持即时下载。',
-        bbqrHelperTitle: 'BBQr助手',
-        bbqrHelperDesc: '完整的PSBT到ColdCard到广播工作流程，支持BBQr码。',
-        priceTitle: 'USD汇率',
-        priceDesc: '矩阵风格的绿色数字雨，实时显示USD汇率。'
-      }
-    };
-
-    let currentLanguage = localStorage.getItem('language') || 'en';
-
     function closeSecurityNotice() {
-      const notice = document.getElementById('securityNotice');
-      if (notice) {
-        notice.style.display = 'none';
-        localStorage.setItem('securityNoticeClosed', 'true');
-      }
+      document.getElementById('securityNotice').style.display = 'none';
     }
-
-    function updateTexts() {
-      const texts = indexTranslations[currentLanguage];
-      document.querySelectorAll('[data-i18n]').forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        if (texts[key]) {
-          element.textContent = texts[key];
-        }
-      });
-
-      // Update language toggle button
-      const toggleBtn = document.querySelector('.language-toggle');
-      if (toggleBtn) {
-        toggleBtn.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
-      }
-
-      // Update document language
-      document.documentElement.lang = currentLanguage;
-    }
-
-    function toggleLanguage() {
-      currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
-      localStorage.setItem('language', currentLanguage);
-      updateTexts();
-    }
-
-    // Initialize language on page load
+    
+    // Initialize page when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
-      // Check if security notice was previously closed
-      if (localStorage.getItem('securityNoticeClosed') === 'true') {
-        const notice = document.getElementById('securityNotice');
-        if (notice) {
-          notice.style.display = 'none';
-        }
+      // Signal that page is ready for bundle initialization
+      if (window.pageReady !== undefined) {
+        window.pageReady = true;
       }
       
-      // Initialize language
-      updateTexts();
-      
-      // Show content after language is set
-      setTimeout(() => {
-        document.body.style.visibility = 'visible';
-      }, 50);
+      // Initialize bundle app if available
+      if (window.initializeBundleApp && typeof window.initializeBundleApp === 'function') {
+        window.initializeBundleApp();
+      }
     });
   </script>
 </body>

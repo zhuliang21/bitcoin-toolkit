@@ -447,12 +447,12 @@ function initializeApp() {
         
         usageDiv.style.display = 'block';
         usageDiv.innerHTML = `
-          <div class="flex justify-center">
-            <div class="inline-flex items-center gap-3 px-6 py-4 
-                        bg-white/80 backdrop-blur-xl border border-white/40 
-                        rounded-2xl shadow-lg shadow-slate-300/25
-                        text-indigo-600 font-medium">
-              <span class="text-lg">🔍</span>
+          <div style="display: flex; justify-content: center;">
+            <div style="display: inline-flex; align-items: center; gap: 12px; padding: 16px 24px; 
+                        background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.4); 
+                        border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                        color: #4f46e5; font-weight: 500;">
+              <span style="font-size: 18px;">🔍</span>
               <span>${translations[currentLanguage].checking}</span>
             </div>
           </div>
@@ -493,9 +493,9 @@ function initializeApp() {
             }
           });
           
-          // Display results with Tailwind classes
+          // Display results with inline styles
           const resultDiv = document.createElement('div');
-          resultDiv.className = 'flex justify-center';
+          resultDiv.style.cssText = 'display: flex; justify-content: center;';
           
           if (hasUsage) {
             const formattedDate = earliestUsageDate.toLocaleDateString(currentLanguage === 'zh' ? 'zh-CN' : 'en-US', {
@@ -507,24 +507,24 @@ function initializeApp() {
             });
             
             resultDiv.innerHTML = `
-              <div class="inline-flex items-center gap-3 px-6 py-4 max-w-md
-                          bg-red-50/90 backdrop-blur-xl border border-red-200/50 
-                          rounded-2xl shadow-lg shadow-red-300/25
-                          text-red-600">
-                <span class="text-xl flex-shrink-0">⚠️</span>
-                <div class="font-semibold">
+              <div style="display: inline-flex; align-items: center; gap: 12px; padding: 16px 24px; max-width: 400px;
+                          background: rgba(254, 242, 242, 0.9); border: 1px solid rgba(252, 165, 165, 0.5); 
+                          border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                          color: #dc2626;">
+                <span style="font-size: 20px; flex-shrink: 0;">⚠️</span>
+                <div style="font-weight: 600;">
                   ${translations[currentLanguage].walletUsedSimple}
                 </div>
               </div>
             `;
           } else {
             resultDiv.innerHTML = `
-              <div class="inline-flex items-center gap-3 px-6 py-4 max-w-md
-                          bg-green-50/90 backdrop-blur-xl border border-green-200/50 
-                          rounded-2xl shadow-lg shadow-green-300/25
-                          text-green-600">
-                <span class="text-xl flex-shrink-0">✅</span>
-                <div class="font-semibold">
+              <div style="display: inline-flex; align-items: center; gap: 12px; padding: 16px 24px; max-width: 400px;
+                          background: rgba(240, 253, 244, 0.9); border: 1px solid rgba(134, 239, 172, 0.5); 
+                          border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                          color: #16a34a;">
+                <span style="font-size: 20px; flex-shrink: 0;">✅</span>
+                <div style="font-weight: 600;">
                   ${translations[currentLanguage].walletUnusedSimple}
                 </div>
               </div>
@@ -537,17 +537,17 @@ function initializeApp() {
         } catch (error) {
           console.error('Error during address checking:', error);
           usageDiv.innerHTML = `
-            <div class="flex justify-center">
-              <div class="inline-flex items-start gap-3 px-6 py-4 max-w-md
-                          bg-red-50/90 backdrop-blur-xl border border-red-200/50 
-                          rounded-2xl shadow-lg shadow-red-300/25
-                          text-red-600">
-                <span class="text-xl flex-shrink-0 mt-0.5">❌</span>
+            <div style="display: flex; justify-content: center;">
+              <div style="display: inline-flex; align-items: flex-start; gap: 12px; padding: 16px 24px; max-width: 400px;
+                          background: rgba(254, 242, 242, 0.9); border: 1px solid rgba(252, 165, 165, 0.5); 
+                          border-radius: 16px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                          color: #dc2626;">
+                <span style="font-size: 20px; flex-shrink: 0; margin-top: 2px;">❌</span>
                 <div>
-                  <div class="font-semibold mb-2">
+                  <div style="font-weight: 600; margin-bottom: 8px;">
                     ${translations[currentLanguage].errorOccurred}
                   </div>
-                  <p class="text-sm text-slate-500 leading-relaxed">
+                  <p style="font-size: 14px; color: #64748b; line-height: 1.6; margin: 0;">
                     ${translations[currentLanguage].retryOrCheckNetwork}
                   </p>
                 </div>

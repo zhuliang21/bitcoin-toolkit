@@ -4,43 +4,389 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>USD Exchange Rate - Matrix Style</title>
-  <link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
-  <link rel="shortcut icon" href="icon/favicon.ico">
-  
-  <!-- Tailwind CSS -->
-  <link href="./css/tailwind.css" rel="stylesheet">
-  
+  <link rel="icon" href="icon/favicon.ico">
+  <style>
+    :root {
+      --matrix-green: #00ff41;
+      --matrix-bg: radial-gradient(ellipse at center, #001100 0%, #000000 70%);
+    }
 
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', monospace;
+      background: var(--matrix-bg);
+      color: var(--matrix-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Back and Language buttons */
+    .fixed-button {
+      position: fixed;
+      z-index: 50;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(0, 255, 65, 0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--matrix-green);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(4px);
+      text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+    }
+
+    .fixed-button:hover {
+      background: rgba(0, 0, 0, 0.4);
+      border-color: rgba(0, 255, 65, 0.6);
+      color: white;
+      transform: scale(1.1);
+      text-decoration: none;
+    }
+
+    .back-button {
+      top: 16px;
+      left: 16px;
+      width: 40px;
+      height: 40px;
+    }
+
+    .language-toggle {
+      top: 16px;
+      right: 16px;
+      height: 40px;
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(0, 255, 65, 0.3);
+      border-radius: 50px;
+    }
+
+    @media (min-width: 768px) {
+      .back-button {
+        top: 32px;
+        left: 32px;
+        width: 48px;
+        height: 48px;
+      }
+
+      .language-toggle {
+        top: 32px;
+        right: 32px;
+        height: 48px;
+        padding: 0 16px;
+        font-size: 14px;
+      }
+    }
+
+    /* Main Panel */
+    .main-panel {
+      position: relative;
+      z-index: 30;
+      max-width: 512px;
+      margin: 0 auto;
+      padding: 24px;
+      text-align: center;
+      transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
+    }
+
+    .main-title {
+      font-size: 32px;
+      font-weight: bold;
+      color: var(--matrix-green);
+      margin-bottom: 16px;
+      letter-spacing: 0.15em;
+      font-family: 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      animation: matrix-glow 3s ease-in-out infinite alternate;
+    }
+
+    @media (min-width: 768px) {
+      .main-title {
+        font-size: 64px;
+        margin-bottom: 48px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .main-title {
+        font-size: 80px;
+      }
+    }
+
+    .title-icon {
+      font-size: 32px;
+    }
+
+    @media (min-width: 768px) {
+      .title-icon {
+        font-size: 48px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .title-icon {
+        font-size: 64px;
+      }
+    }
+
+    /* Status Display */
+    .status-display {
+      font-size: 12px;
+      color: rgba(0, 255, 65, 0.6);
+      font-family: 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', monospace;
+      letter-spacing: 0.05em;
+      min-width: 384px;
+      text-align: center;
+      margin-bottom: 32px;
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+    }
+
+    @media (min-width: 768px) {
+      .status-display {
+        font-size: 14px;
+      }
+    }
+
+    /* API Status Grid */
+    .api-status-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 24px;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (min-width: 768px) {
+      .api-status-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .api-status-item {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(0, 255, 65, 0.2);
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .api-name {
+      font-weight: 600;
+      color: rgba(0, 255, 65, 0.8);
+    }
+
+    .api-region {
+      color: rgba(0, 255, 65, 0.4);
+    }
+
+    /* Error Display */
+    .error-message {
+      display: none;
+      margin-top: 24px;
+      background: rgba(139, 0, 0, 0.2);
+      border: 2px solid rgba(255, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 16px;
+      color: #ff6b6b;
+      font-size: 14px;
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @media (min-width: 768px) {
+      .error-message {
+        font-size: 16px;
+      }
+    }
+
+    .error-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    /* Animation Container */
+    .animation-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      z-index: 40;
+      overflow: hidden;
+    }
+
+    /* Falling Price Animation */
+    .falling-price {
+      position: absolute;
+      font-family: 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', monospace;
+      font-weight: bold;
+      color: var(--matrix-green);
+      text-shadow: 0 0 8px var(--matrix-green), 0 0 16px var(--matrix-green);
+      animation: smoothFall 8s linear forwards;
+      pointer-events: none;
+      font-size: 64px;
+      letter-spacing: 0.15em;
+      text-align: center;
+      white-space: nowrap;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: filter 1.5s ease-in-out, text-shadow 1.5s ease-in-out;
+    }
+
+    @media (max-width: 768px) {
+      .falling-price {
+        font-size: 48px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .falling-price {
+        font-size: 40px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .falling-price {
+        font-size: 32px;
+      }
+    }
+
+    /* Falling price blur effects when interface is visible */
+    .falling-price.blurred {
+      filter: blur(8px) saturate(150%) brightness(120%);
+      text-shadow: 0 0 15px currentColor, 0 0 30px currentColor;
+    }
+
+    /* Auto-hide animations */
+    .auto-hide {
+      transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
+    }
+
+    .hidden-state {
+      opacity: 0;
+      transform: translateY(-30px) scale(0.95);
+      pointer-events: none;
+    }
+
+    .visible-state {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    /* Status glow effect */
+    .status-glow {
+      text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+    }
+
+    /* SVG Icon */
+    .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    @media (min-width: 768px) {
+      .icon {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    /* Animation Keyframes */
+    @keyframes smoothFall {
+      0% {
+        transform: translateX(-50%) translateY(-100px);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(-50%) translateY(100vh);
+        opacity: 0;
+      }
+    }
+
+    @keyframes matrix-glow {
+      0%, 100% {
+        text-shadow: 
+          0 0 5px var(--matrix-green),
+          0 0 10px var(--matrix-green),
+          0 0 15px var(--matrix-green),
+          0 0 20px var(--matrix-green);
+      }
+      50% {
+        text-shadow: 
+          0 0 10px var(--matrix-green),
+          0 0 20px var(--matrix-green),
+          0 0 30px var(--matrix-green),
+          0 0 40px var(--matrix-green);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% {
+        text-shadow: 0 0 4px currentColor;
+        opacity: 1;
+      }
+      50% {
+        text-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
+        opacity: 0.8;
+      }
+    }
+
+    /* Status Colors */
+    .status-success {
+      color: var(--matrix-green);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    .status-error {
+      color: #ff6b6b;
+    }
+
+    .status-pending {
+      color: #ffd93d;
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
 </head>
-<body class="matrix-bg min-h-screen font-mono text-matrix-green flex items-center justify-center overflow-hidden">
+<body>
   
   <!-- Back Button -->
   <a href="index.html" 
-     class="fixed top-4 left-4 md:top-8 md:left-8 z-50
-            bg-black/20 hover:bg-black/40 border border-matrix-green/30 hover:border-matrix-green/60
-            rounded-full w-10 h-10 md:w-12 md:h-12
-            flex items-center justify-center
-            text-matrix-green hover:text-white
-            transition-all duration-300 hover:scale-110
-            backdrop-blur-sm status-glow auto-hide visible-state
-            no-underline"
+     class="fixed-button back-button auto-hide visible-state"
      id="backButton"
      title="Back to Home">
-    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
     </svg>
   </a>
 
   <!-- Language Toggle -->
-  <button class="language-toggle fixed top-4 right-4 md:top-8 md:right-8 z-50
-                 bg-black/20 hover:bg-black/40 border border-matrix-green/30 hover:border-matrix-green/60
-                 rounded-full px-3 py-1.5 md:px-4 md:py-2 h-10 md:h-12
-                 flex items-center justify-center
-                 text-matrix-green hover:text-white font-mono text-xs md:text-sm font-bold
-                 transition-all duration-300 hover:scale-110
-                 backdrop-blur-sm status-glow auto-hide visible-state"
+  <button class="fixed-button language-toggle auto-hide visible-state"
           onclick="toggleLanguage()" 
           id="langButton"
           title="Switch Language">
@@ -48,43 +394,36 @@
   </button>
 
   <!-- Main Container -->
-  <div id="mainPanel" 
-       class="relative z-30 max-w-2xl mx-auto px-6 py-4 text-center auto-hide visible-state">
+  <div id="mainPanel" class="main-panel auto-hide visible-state">
     
     <!-- Title -->
-    <div class="mb-8 md:mb-12">
-      <h1 class="text-2xl md:text-4xl lg:text-5xl font-bold text-matrix-green 
-                 animate-matrix-glow mb-4 tracking-widest font-mono flex items-center justify-center gap-3">
-        <span class="text-2xl md:text-3xl lg:text-4xl">💰</span>
+    <div>
+      <h1 class="main-title">
+        <span class="title-icon">💰</span>
         <span data-i18n="title">USD Rate</span>
       </h1>
     </div>
 
     <!-- Status Display -->
-    <div class="mb-8">
-      <div id="statusDisplay" class="text-xs md:text-sm text-matrix-green/60 animate-pulse font-mono tracking-wide min-w-96 text-center"
+    <div>
+      <div id="statusDisplay" class="status-display status-glow"
            data-i18n="initializing">
         Initializing...
       </div>
     </div>
 
     <!-- API Status Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6 max-w-lg mx-auto">
-      <div id="apiStatus" class="contents">
+    <div id="apiStatus" class="api-status-grid">
         <!-- API status indicators will be populated by JavaScript -->
-      </div>
     </div>
 
     <!-- Error Display -->
-    <div id="errorMessage" style="display: none;" 
-         class="mt-6 bg-red-900/20 border-2 border-red-500/30 rounded-lg 
-                p-4 text-red-400 text-sm md:text-base animate-pulse">
+    <div id="errorMessage" class="error-message">
     </div>
   </div>
     
   <!-- Animation container for falling prices -->
-  <div class="fixed inset-0 pointer-events-none z-40 overflow-hidden" 
-       id="animationContainer">
+  <div class="animation-container" id="animationContainer">
   </div>
 
   <script>
@@ -160,11 +499,11 @@
       
       apiEndpoints.forEach((api, index) => {
         const statusElement = document.createElement('div');
-        statusElement.className = 'bg-black/20 border border-matrix-green/20 rounded-lg p-2 text-xs';
+        statusElement.className = 'api-status-item';
         statusElement.innerHTML = `
-          <div class="font-semibold text-matrix-green/80">${api.name}</div>
-          <div class="text-matrix-green/40">${api.region}</div>
-          <div id="status-${index}" class="text-yellow-400">●</div>
+          <div class="api-name">${api.name}</div>
+          <div class="api-region">${api.region}</div>
+          <div id="status-${index}" class="status-pending">●</div>
         `;
         container.appendChild(statusElement);
         apiStatuses[index] = 'pending';
@@ -175,27 +514,15 @@
       const statusElement = document.getElementById(`status-${index}`);
       if (statusElement) {
         apiStatuses[index] = status;
-        switch(status) {
-          case 'success':
             statusElement.textContent = '●';
-            statusElement.className = 'text-matrix-green animate-pulse-glow';
-            break;
-          case 'error':
-            statusElement.textContent = '●';
-            statusElement.className = 'text-red-400';
-            break;
-          case 'pending':
-            statusElement.textContent = '●';
-            statusElement.className = 'text-yellow-400 animate-pulse';
-            break;
-        }
+        statusElement.className = `status-${status}`;
       }
     }
 
     function updateStatusDisplay(message) {
       const statusElement = document.getElementById('statusDisplay');
       statusElement.textContent = message;
-      statusElement.className = 'text-xs md:text-sm text-matrix-green/80 animate-matrix-glow font-mono tracking-wide min-w-96 text-center';
+      statusElement.className = 'status-display status-glow';
     }
 
     async function fetchPrice() {
@@ -304,8 +631,8 @@
     function showError(message) {
       const errorElement = document.getElementById('errorMessage');
       errorElement.innerHTML = `
-        <div class="flex items-center justify-center space-x-2">
-          <span class="text-red-400">⚠️</span>
+        <div class="error-content">
+          <span>⚠️</span>
           <span>${message}</span>
         </div>
       `;
@@ -316,19 +643,6 @@
       document.getElementById('errorMessage').style.display = 'none';
     }
 
-    // Start when page loads
-    document.addEventListener('DOMContentLoaded', () => {
-      startPriceUpdates();
-      setupInteractionListeners();
-      
-      // Set initial blur state for any existing elements
-      if (isInterfaceVisible) {
-        const fallingPrices = document.querySelectorAll('.falling-price');
-        fallingPrices.forEach(price => {
-          price.classList.add('blurred');
-        });
-      }
-    });
     function hideInterface() {
       if (!isInterfaceVisible) return;
       

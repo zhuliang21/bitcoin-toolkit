@@ -4,236 +4,373 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Code Generator</title>
-  
-  <!-- Preload critical resources to reduce flash -->
-  <link rel="preload" href="dist/qr.bundle.js" as="script">
+  <link rel="icon" href="icon/favicon.ico">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #334155;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      text-align: center;
+      padding: 40px 20px;
+      margin-bottom: 30px;
+    }
+    
+    .header-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .back-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      text-decoration: none;
+      padding: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      transition: all 0.3s ease;
+      font-size: 18px;
+      font-weight: 500;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+    }
+    
+    .language-toggle {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      padding: 10px 20px;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      font-weight: 500;
+      min-width: 80px;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 40px;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+    
+    .language-toggle:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.8);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+    }
+    
+    .title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      margin: 0;
+    }
+    
+    .form-section {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      transition: all 0.3s ease;
+    }
+    
 
-  
-  <link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
-  <link rel="shortcut icon" href="icon/favicon.ico">
-  
-  <!-- Tailwind CSS -->
-  <link href="./css/tailwind.css" rel="stylesheet">
-  
-
+    
+    .form-group {
+      margin-bottom: 25px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: white;
+      font-size: 16px;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 15px 20px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 15px;
+      color: #334155;
+      font-size: 16px;
+      outline: none;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: rgba(147, 51, 234, 0.5);
+      box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+      background: rgba(255, 255, 255, 0.6);
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    
+    .btn {
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-block;
+      min-width: 150px;
+      text-align: center;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+    }
+    
+    .btn:disabled {
+      background: rgba(108, 117, 125, 0.8);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .qr-result {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      display: none;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .qr-result img {
+      max-width: min(400px, 90vw);
+      width: 100%;
+      height: auto;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-radius: 15px;
+      margin-bottom: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    
+    .qr-result img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .qr-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .download-btn {
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-block;
+      min-width: 150px;
+      text-align: center;
+    }
+    
+    .download-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+    }
+    
+    .download-btn:disabled {
+      background: rgba(108, 117, 125, 0.8);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .new-qr-btn {
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-block;
+      min-width: 150px;
+      text-align: center;
+    }
+    
+    .new-qr-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      cursor: pointer;
+    }
+    
+    .modal img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 15px;
+      background: white;
+      padding: 20px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    }
+    
+    @media (max-width: 768px) {
+      .title {
+        font-size: 2rem;
+      }
+      .form-section {
+        margin: 0 10px 30px;
+        padding: 20px;
+      }
+      .qr-result {
+        margin: 0 10px;
+        padding: 20px;
+      }
+      .qr-actions {
+        flex-direction: column;
+      }
+      .btn, .download-btn, .new-qr-btn {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+  </style>
 </head>
 
-<body class="gradient-bg min-h-screen font-sans text-slate-700 relative overflow-x-hidden">
-  
-  <!-- Subtle background texture -->
-  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
-    <div class="absolute inset-0 bg-gradient-to-br from-purple-100/30 via-transparent to-violet-100/20"></div>
-    <div class="absolute inset-0 bg-gradient-to-tl from-indigo-100/20 via-transparent to-purple-100/25"></div>
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(139,92,246,0.05)_0%,transparent_50%)] animate-pulse" style="animation-duration: 8s;"></div>
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.04)_0%,transparent_50%)] animate-pulse" style="animation-duration: 12s; animation-delay: 2s;"></div>
-  </div>
-
-  <!-- Main Container -->
-  <div class="relative z-10 max-w-sm md:max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto 
-              md:rounded-3xl md:my-6 lg:my-8 
-              overflow-hidden min-h-screen md:min-h-0">
-    
-    <!-- Header -->
-    <div class="relative px-6 py-8 md:px-12 md:py-10 lg:px-16 lg:py-12 text-center">
-      
-      <!-- Mobile handle -->
-      <div class="absolute top-3 left-1/2 transform -translate-x-1/2 
-                  w-9 h-1.5 bg-slate-400/40 rounded-full md:hidden"></div>
-      
-      <!-- Back Button -->
-      <a href="index.html" 
-         class="absolute top-5 left-6 md:left-12 lg:left-16 z-20
-                glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2
-                text-slate-500 hover:text-slate-700 text-sm font-medium 
-                transition-all duration-300 hover:scale-105 transform
-                flex items-center justify-center gap-1
-                shadow-lg shadow-slate-500/10 hover:shadow-xl hover:shadow-slate-500/20
-                bg-white/25 backdrop-blur-xl border border-white/30 hover:border-white/50
-                ring-1 ring-white/30 hover:ring-white/40 ring-inset
-                no-underline min-w-12 h-8 md:min-w-14 md:h-10"
-         data-i18n="back">
-        <span class="text-lg">←</span>
-      </a>
-      
-      <!-- Language Toggle -->
-      <button class="language-toggle absolute top-5 right-6 md:right-12 lg:right-16 z-20
-                     glass-card hover:glass-card rounded-full px-3 py-1.5 md:px-4 md:py-2 
-                     text-slate-500 hover:text-slate-700 text-sm font-medium 
-                     cursor-pointer transition-all duration-300 hover:scale-105 transform
-                     min-w-11 h-8 md:min-w-12 md:h-10 
-                     flex items-center justify-center
-                     shadow-lg shadow-slate-500/10 hover:shadow-xl hover:shadow-slate-500/20
-                     bg-white/25 backdrop-blur-xl border border-white/30 hover:border-white/50
-                     ring-1 ring-white/30 hover:ring-white/40 ring-inset" 
-              onclick="toggleLanguage()">
-        ENG
-      </button>
-      
-      <!-- Title -->
-      <div class="relative z-10">
-        <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-700 
-                   tracking-tight mb-3 animate-fadeInUp" data-i18n="title">
-          📱 QR Code
-        </h1>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-controls">
+        <a href="index.html" class="back-btn" title="Back">←</a>
+        <button class="language-toggle" onclick="toggleLanguage()">ENG</button>
       </div>
+      <h1 class="title" data-i18n="title">📱 QR Code Generator</h1>
     </div>
     
-    <!-- Main Content Area -->
-    <div class="p-6 md:p-12 lg:p-16">
+    <div id="formSection" class="form-section">
+      <div class="form-group">
+        <label data-i18n="textLabel">Text/URL</label>
+        <textarea id="text" data-i18n-placeholder="textPlaceholder" placeholder="Enter text, URL, or any content"></textarea>
+      </div>
       
-      <!-- Desktop: Two Column Layout, Mobile: Single Column -->
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 xl:gap-12">
-        
-        <!-- Left Column: Input Section -->
-        <div class="xl:order-1">
-          <div class="glass-card hover:glass-card rounded-2xl md:rounded-3xl 
-                      p-6 md:p-8 lg:p-10 transition-all duration-300 ease-out
-                      shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
-                      bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
-                      ring-1 ring-white/20 hover:ring-white/35 ring-inset
-                      animate-fadeInUp xl:min-h-[600px] xl:sticky xl:top-8"
-               style="animation-delay: 0.2s;">
-            
-            <div class="space-y-6 lg:space-y-8">
-              <!-- Text Input -->
-              <div>
-                <label class="block text-sm lg:text-base font-semibold text-slate-600 mb-3 lg:mb-4 tracking-tight" 
-                       data-i18n="textLabel">
-                  Text/URL
-                </label>
-                <textarea id="text" 
-                       data-i18n-placeholder="textPlaceholder" 
-                       placeholder="Enter text, URL, or any content"
-                       rows="4"
-                       class="w-full px-4 py-3 md:px-6 md:py-4 lg:px-6 lg:py-5
-                              bg-white/50 backdrop-blur-xl border border-white/40
-                              rounded-xl md:rounded-2xl text-slate-700 placeholder-slate-400
-                              focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-300
-                              transition-all duration-300 hover:bg-white/60
-                              text-sm md:text-base lg:text-lg font-medium resize-none"></textarea>
-              </div>
-              
-              <!-- Tag Input -->
-              <div>
-                <label class="block text-sm lg:text-base font-semibold text-slate-600 mb-3 lg:mb-4 tracking-tight" 
-                       data-i18n="tagLabel">
-                  Tag (Optional)
-                </label>
-                <input type="text" 
-                       id="tag" 
-                       data-i18n-placeholder="tagPlaceholder" 
-                       placeholder="Enter tag for organizing"
-                       class="w-full px-4 py-3 md:px-6 md:py-4 lg:px-6 lg:py-5
-                              bg-white/50 backdrop-blur-xl border border-white/40
-                              rounded-xl md:rounded-2xl text-slate-700 placeholder-slate-400
-                              focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-purple-300
-                              transition-all duration-300 hover:bg-white/60
-                              text-sm md:text-base lg:text-lg font-medium" />
-              </div>
-              
-              <!-- Generate Button -->
-              <div class="pt-4 lg:pt-6 text-center">
-                <button id="generate" 
-                        data-i18n="generateBtn"
-                        class="gradient-button-primary">
-                  Generate QR Code
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="form-group">
+        <label data-i18n="tagLabel">Tag (Optional)</label>
+        <input type="text" id="tag" data-i18n-placeholder="tagPlaceholder" placeholder="Enter tag for organizing">
+      </div>
+      
+      <div style="text-align: center;">
+        <button id="generate" class="btn" data-i18n="generateBtn">Generate QR Code</button>
+      </div>
+    </div>
 
-        <!-- Right Column: QR Code Display -->
-        <div class="xl:order-2">
-          <div id="mainSection" style="display:none;">
-            <div class="glass-card hover:glass-card rounded-2xl md:rounded-3xl 
-                        p-6 md:p-8 lg:p-10 transition-all duration-300 ease-out
-                        shadow-xl shadow-slate-300/25 hover:shadow-2xl hover:shadow-slate-400/40
-                        bg-white/20 backdrop-blur-xl border border-white/30 hover:border-white/50
-                        ring-1 ring-white/20 hover:ring-white/35 ring-inset
-                        animate-fadeInUp xl:min-h-[600px] xl:sticky xl:top-8 flex flex-col">
-              
-              <div class="flex-1 flex flex-col justify-center">
-                <div class="text-center mb-6 lg:mb-8">
-                  <canvas id="qr-canvas" class="hidden"></canvas>
-                  <img id="qr-image" 
-                       class="hidden max-w-full h-auto rounded-2xl lg:rounded-3xl border border-white/40 
-                              cursor-pointer transition-transform duration-200 ease-out 
-                              hover:scale-105 mx-auto shadow-lg bg-white/50 backdrop-blur-xl
-                              max-h-80" 
-                       onclick="openModal()" />
-                </div>
-                
-                <div class="text-center">
-                  <button id="download" 
-                          disabled
-                          data-i18n="downloadBtn"
-                          class="gradient-button-success disabled:opacity-60 disabled:cursor-not-allowed">
-                    📥 Download PNG
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Desktop Placeholder when no QR generated -->
-          <div id="placeholderSection" class="hidden xl:block">
-            <div class="glass-card rounded-2xl md:rounded-3xl 
-                        p-6 md:p-8 lg:p-10 
-                        bg-white/10 backdrop-blur-xl border border-white/20
-                        ring-1 ring-white/10 ring-inset
-                        xl:min-h-[600px] xl:sticky xl:top-8 flex flex-col items-center justify-center">
-              
-              <div class="text-slate-400">
-                <svg class="w-16 h-16 lg:w-20 lg:h-20 mx-auto opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 16h4.01M12 8h4.01"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4h4v4H4V4zm0 12h4v4H4v-4zm12-12h4v4h-4V4z"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div id="qrResult" class="qr-result">
+      <canvas id="qr-canvas" style="display: none;"></canvas>
+      <img id="qr-image" onclick="openModal()" alt="Generated QR Code">
+      
+      <div class="qr-actions">
+        <button id="download" class="download-btn" disabled data-i18n="downloadBtn">📥 Download PNG</button>
+        <button id="newQr" class="new-qr-btn" data-i18n="newQrBtn">🔄 New QR Code</button>
       </div>
     </div>
   </div>
 
   <!-- Full Screen Modal -->
-  <div id="modal-overlay" 
-       class="modal-overlay fixed inset-0 bg-black/90 z-[9999] 
-              flex justify-center items-center cursor-pointer 
-              animate-fadeIn hidden"
-       onclick="closeModal()">
-    <img id="modal-image" 
-         class="max-w-[90%] max-h-[90%] rounded-3xl border border-white/10 
-                animate-modalZoomIn" />
+  <div id="modal-overlay" class="modal" onclick="closeModal()">
+    <img id="modal-image" alt="QR Code Full Size">
   </div>
 
   <script src="dist/qr.bundle.js"></script>
   
   <script>
-    // Show page and initialize
+    // Initialize page when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
-      // Show page
-      document.body.style.visibility = 'visible';
-      
-      // Show desktop placeholder on xl screens
-      if (window.innerWidth >= 1280) {
-        document.getElementById('placeholderSection').classList.remove('hidden');
+      // Signal that page is ready for bundle initialization
+      if (window.pageReady !== undefined) {
+        window.pageReady = true;
       }
-
-      // Signal that page is fully ready so the bundle can safely initialize
-      window.pageReady = true;
+      
+      // Initialize bundle app if available
       if (window.initializeBundleApp && typeof window.initializeBundleApp === 'function') {
         window.initializeBundleApp();
       }
     });
-    
-    // Fallback to ensure page is visible
-    setTimeout(() => {
-      document.body.style.visibility = 'visible';
-    }, 100);
   </script>
 </body>
 </html>

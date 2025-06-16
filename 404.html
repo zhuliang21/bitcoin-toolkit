@@ -2,65 +2,113 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>404</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Page Not Found</title>
+  <link rel="icon" href="icon/favicon.ico">
   <style>
-    html, body { 
-      background-color: #fff;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       margin: 0;
-      padding: 0;
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #334155;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      position: fixed;
-      top: 0;
-      left: 0;
+      justify-content: center;
+      text-align: center;
     }
-    svg {
-      width: 450px;
-      height: 450px;
-      max-width: 90vw;
-      max-height: 90vh;
+    
+    .error-container {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 50px 40px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      width: 100%;
+    }
+    
+    .bitcoin-icon {
+      font-size: 64px;
+      margin-bottom: 25px;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+    }
+    
+    .error-code {
+      font-size: 80px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      margin-bottom: 25px;
+    }
+    
+    .error-message {
+      font-size: 28px;
+      margin-bottom: 25px;
+      color: white;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    
+    .error-description {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 35px;
+      line-height: 1.6;
+    }
+    
+    .home-link {
+      display: inline-block;
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      text-decoration: none;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .home-link:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+      text-decoration: none;
+      color: white;
+    }
+    
+    @media (max-width: 768px) {
+      .error-container {
+        padding: 30px 20px;
+        margin: 0 10px;
+      }
+      .error-code {
+        font-size: 60px;
+      }
+      .error-message {
+        font-size: 24px;
+      }
+      .bitcoin-icon {
+        font-size: 48px;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- SVG 核心内容 -->
-  <svg viewBox="-160 -160 360 320"
-       xmlns="http://www.w3.org/2000/svg"
-       xmlns:xlink="http://www.w3.org/1999/xlink">
-    <path id="f"
-          d="m123,0a123,123 0,0 1-246,0a123,123 0,0 1 246,0"/>
-    <g fill="#057">
-      <circle r="160"/>
-      <circle r="150" fill="#fff"/>
-      <text font-size="28"
-            font-stretch="condensed"
-            font-family="Impact">
-        <animateTransform
-          type="rotate"
-          from="360 0 0"
-          to="0 0 0"
-          dur="10s"
-          attributeName="transform"
-          repeatCount="indefinite"/>
-        <textPath xlink:href="#f">
-          I thought what I’d do was, I’d pretend I was one of those deaf-mutes
-        </textPath>
-      </text>
-      <circle r="115"/>
-      <circle r="95" fill="#fff"/>
-      <path d="m-8-119h16 l2,5h-20z"/>
-      <circle cx="160" cy="0" r="40"/>
-      <path d="m-95-20v-20h255a40,40 0,0 1 0,80h-55v-20z"/>
-      <path d="m-85 0a85,85 0,0 0 170,0h-20a65,65 0,0 1-130,0z"/>
-      <path d="m-65 20v20h140v-20z"/>
-      <path d="m-115-20v10h25v30h250a20,20 0,0 0 0,-40z" fill="#fff"/>
-      <path d="m-20 10c-17-14-27-14-44 0 6-25 37-25 44 0z"/>
-      <path d="m60 10c-17-14-27-14-44 0 6-25 37-25 44 0z"/>
-    </g>
-  </svg>
+  <div class="error-container">
+    <div class="bitcoin-icon">₿</div>
+    <div class="error-code">404</div>
+    <div class="error-message">Page Not Found</div>
+    <div class="error-description">
+      Sorry, the page you are looking for doesn't exist or has been moved. 
+      Please check the URL or return to the homepage.
+    </div>
+    <a href="index.html" class="home-link">Return to Homepage</a>
+  </div>
 </body>
 </html>
