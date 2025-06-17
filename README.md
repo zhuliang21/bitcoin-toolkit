@@ -199,7 +199,7 @@ This project is licensed under the ISC License - see the [LICENSE](LICENSE) file
 This software is provided for educational and testing purposes only. While it implements industry-standard cryptographic libraries, users should:
 
 - Test thoroughly before using with real funds
-- Verify all generated addresses independently  
+- Verify all generated addresses independently
 - Use hardware wallets for significant amounts
 - Keep backups secure and offline
 

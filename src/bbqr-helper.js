@@ -152,6 +152,12 @@ function setViewportHeight() {
 
 // Initialize BBQr Helper
 function initBBQrHelper() {
+  // Prevent double initialization
+  if (window.bbqrHelperInitialized) {
+    return;
+  }
+  window.bbqrHelperInitialized = true;
+  
   console.log('BBQr Helper initializing...');
   
   // Set viewport height for mobile
@@ -178,23 +184,34 @@ function initBBQrHelper() {
 // Language functions
 function updateTexts() {
   const texts = translations[currentLanguage];
-  document.querySelectorAll('[data-i18n]').forEach(element => {
+  
+  // Cache DOM queries to reduce repeated searches
+  const i18nElements = document.querySelectorAll('[data-i18n]');
+  const placeholderElements = document.querySelectorAll('[data-i18n-placeholder]');
+  const toggleBtn = document.querySelector('.language-toggle');
+  
+  // Update text content
+  i18nElements.forEach(element => {
     const key = element.getAttribute('data-i18n');
-    if (texts[key]) {
+    if (texts[key] && element.textContent !== texts[key]) {
       element.textContent = texts[key];
     }
   });
 
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+  // Update placeholders
+  placeholderElements.forEach(element => {
     const key = element.getAttribute('data-i18n-placeholder');
-    if (texts[key]) {
+    if (texts[key] && element.placeholder !== texts[key]) {
       element.placeholder = texts[key];
     }
   });
 
-  const toggleBtn = document.querySelector('.language-toggle');
+  // Update language toggle button
   if (toggleBtn) {
-    toggleBtn.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
+    const newText = currentLanguage === 'en' ? '中文' : 'ENG';
+    if (toggleBtn.textContent !== newText) {
+      toggleBtn.textContent = newText;
+    }
   }
 
   // Update progress status text based on current step
@@ -275,151 +292,139 @@ function goToStep(step) {
 function renderStep(step) {
   const container = document.getElementById('steps-container');
   
-  switch (step) {
-    case 1:
-      container.innerHTML = renderStep1();
-      setupStep1Events();
-      break;
-    case 2:
-      container.innerHTML = renderStep2();
-      setupStep2Events();
-      break;
-    case 3:
-      container.innerHTML = renderStep3();
-      setupStep3Events();
-      break;
-    case 4:
-      container.innerHTML = renderStep4();
-      setupStep4Events();
-      break;
-    case 5:
-      container.innerHTML = renderStep5();
-      setupStep5Events();
-      // Show transaction summary when entering step 5
-      setTimeout(() => {
-        showTransactionSummary();
-      }, 100);
-      break;
+  // Prevent re-rendering the same step
+  if (container.dataset.currentStep === step.toString()) {
+    return;
   }
   
-  updateTexts();
+  // Use requestAnimationFrame to prevent flashing
+  requestAnimationFrame(() => {
+    container.dataset.currentStep = step.toString();
+    
+    switch (step) {
+      case 1:
+        container.innerHTML = renderStep1();
+        setupStep1Events();
+        break;
+      case 2:
+        container.innerHTML = renderStep2();
+        setupStep2Events();
+        break;
+      case 3:
+        container.innerHTML = renderStep3();
+        setupStep3Events();
+        break;
+      case 4:
+        container.innerHTML = renderStep4();
+        setupStep4Events();
+        break;
+      case 5:
+        container.innerHTML = renderStep5();
+        setupStep5Events();
+        // Show transaction summary when entering step 5
+        setTimeout(() => {
+          showTransactionSummary();
+        }, 100);
+        break;
+    }
+    
+    updateTexts();
+  });
 }
 
 // Step 1: Import PSBT
 function renderStep1() {
   return `
-    <!-- Quick Actions -->
-    <div class="glass-card">
-      <h3 style="color: white; margin-bottom: 20px;" data-i18n="quickActionsTitle">Quick Actions</h3>
-      <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px;" data-i18n="quickActionsDesc">Skip BBQr generation if you already have a signed PSBT</p>
+    <!-- Quick Actions - Only Button -->
+    <div style="text-align: center; margin-bottom: 40px;">
       <button id="quick-skip-to-scan-btn" class="gradient-button-primary" data-i18n="quickSkipBtn">📷 Skip to Scan Signed</button>
     </div>
 
-    <!-- Import PSBT Card -->
-    <div class="glass-card">
-      <h2 style="color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 30px;" data-i18n="importTitle">
-        📥 Import PSBT
-      </h2>
+    <!-- Import PSBT - Direct on Background -->
+    <div style="max-width: 700px; margin: 0 auto;">
       
       <!-- File Upload and Manual Input Side by Side -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px; align-items: start;">
         
         <!-- File Import Section -->
-        <div>
-          <div class="form-group">
-            <label for="psbt-file" data-i18n="fileLabel">📁 Import Local PSBT File</label>
-            <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
-              <label id="file-upload-area" for="psbt-file" style="display: flex; flex-direction: column; align-items: center; justify-content: center; 
-                                            width: 140px; height: 140px; border: 2px dashed rgba(255, 255, 255, 0.4); 
-                                            border-radius: 15px; cursor: pointer; background: rgba(255, 255, 255, 0.3); 
-                                            transition: all 0.3s ease; backdrop-filter: blur(10px);"
-                     onmouseover="this.style.background='rgba(255, 255, 255, 0.4)'; this.style.borderColor='rgba(255, 255, 255, 0.6)'"
-                     onmouseout="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.borderColor='rgba(255, 255, 255, 0.4)'">
-                <div id="upload-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; text-align: center;">
-                  <svg id="upload-icon" style="width: 32px; height: 32px; margin-bottom: 10px; color: rgba(255, 255, 255, 0.7);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                  </svg>
-                  <p style="margin-bottom: 5px; font-size: 12px; color: white; line-height: 1.2;">
-                    <span style="font-weight: 600;" data-i18n="uploadText">Click to import PSBT</span>
-                  </p>
-                  <p style="font-size: 10px; color: rgba(255, 255, 255, 0.7); line-height: 1.1;" data-i18n="supportedFormats">PSBT, TXT files supported</p>
-                </div>
-                <input id="psbt-file" type="file" style="display: none;" accept=".psbt,.txt,.dat" />
-              </label>
-            </div>
+        <div style="text-align: center;">
+          <label for="psbt-file" style="color: white; font-size: 16px; font-weight: 600; margin-bottom: 15px; display: block;" data-i18n="fileLabel">📁 Import PSBT File</label>
+          <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
+            <label id="file-upload-area" for="psbt-file" style="display: flex; flex-direction: column; align-items: center; justify-content: center; 
+                                          width: 160px; height: 160px; border: 2px dashed rgba(255, 255, 255, 0.4); 
+                                          border-radius: 15px; cursor: pointer; background: rgba(255, 255, 255, 0.3); 
+                                          transition: all 0.3s ease; backdrop-filter: blur(10px);"
+                   onmouseover="this.style.background='rgba(255, 255, 255, 0.4)'; this.style.borderColor='rgba(255, 255, 255, 0.6)'"
+                   onmouseout="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.borderColor='rgba(255, 255, 255, 0.4)'">
+              <div id="upload-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; text-align: center;">
+                <svg id="upload-icon" style="width: 36px; height: 36px; margin-bottom: 12px; color: rgba(255, 255, 255, 0.7);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+                <p style="margin-bottom: 8px; font-size: 13px; color: white; line-height: 1.2; font-weight: 600;" data-i18n="uploadText">Click to import</p>
+                <p style="font-size: 11px; color: rgba(255, 255, 255, 0.7); line-height: 1.1;" data-i18n="supportedFormats">PSBT, TXT files</p>
+          </div>
+              <input id="psbt-file" type="file" style="display: none;" accept=".psbt,.txt,.dat" />
+        </label>
           </div>
         </div>
 
         <!-- Manual Input Section -->
         <div>
-          <div class="form-group">
-            <label for="psbt-input" data-i18n="manualLabel">📝 Or Paste PSBT (Base64)</label>
-            <textarea 
-              id="psbt-input"
-              rows="6"
-              style="width: 100%; padding: 15px 20px; background: rgba(255, 255, 255, 0.5); 
-                     border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 15px; 
-                     color: #334155; font-size: 14px; outline: none; box-sizing: border-box; 
-                     transition: all 0.3s ease; resize: vertical; min-height: 160px;
-                     font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-                     line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;"
-              placeholder="Enter PSBT in Base64 format..."
-              data-i18n-placeholder="psbtPlaceholder"
-              spellcheck="false"
-              autocomplete="off"
-              autocorrect="off"
-              autocapitalize="off"></textarea>
-          </div>
+          <label for="psbt-input" style="color: white; font-size: 16px; font-weight: 600; margin-bottom: 15px; display: block;" data-i18n="manualLabel">📝 Paste PSBT (Base64)</label>
+      <textarea 
+        id="psbt-input"
+        rows="6"
+            style="width: 100%; padding: 15px 20px; background: rgba(255, 255, 255, 0.5); 
+                   border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 15px; 
+                   color: #334155; font-size: 14px; outline: none; box-sizing: border-box; 
+                   transition: all 0.3s ease; resize: vertical; height: 160px;
+                   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+                   line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;"
+        placeholder="Enter PSBT in Base64 format..."
+            data-i18n-placeholder="psbtPlaceholder"
+            spellcheck="false"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"></textarea>
         </div>
       </div>
 
-      <!-- Mobile Layout: Stack vertically on small screens -->
+      <!-- Mobile and Landscape Layout -->
       <style>
         @media (max-width: 768px) {
-          .glass-card div[style*="grid-template-columns"] {
+          div[style*="grid-template-columns"] {
             display: block !important;
           }
-          .glass-card div[style*="grid-template-columns"] > div {
+          div[style*="grid-template-columns"] > div {
             margin-bottom: 25px;
+          }
+        }
+        
+        @media (min-width: 769px) and (max-height: 600px) {
+          /* Landscape mode optimizations */
+          .step1-buttons {
+            max-width: 400px !important;
+            margin: 0 auto !important;
           }
         }
       </style>
 
       <!-- Action Buttons -->
-      <div style="display: flex; flex-wrap: wrap; gap: 15px; padding-top: 20px;">
+      <div class="step1-buttons" style="display: flex; flex-wrap: wrap; gap: 12px; padding-top: 20px; justify-content: center; max-width: 500px; margin: 0 auto;">
         <button 
           id="parse-psbt-btn"
           class="gradient-button-primary"
-          style="flex: 1; min-width: 150px;"
+          style="flex: 1; min-width: 180px; max-width: 240px; border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="parseBtn">
-          🔍 Parse PSBT
+          🔍 解析PSBT并生成BBQr
         </button>
         <button 
           id="clear-psbt-btn"
           class="gradient-button-secondary"
+          style="border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="clearBtn">
           🗑️ Clear
         </button>
-      </div>
-
-      <!-- PSBT Analysis -->
-      <div id="psbt-analysis" style="display: none; margin-top: 30px; padding: 25px; background: rgba(16, 185, 129, 0.1); 
-                                     border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 15px;
-                                     backdrop-filter: blur(10px);">
-        <h3 style="font-size: 1.2rem; font-weight: 600; color: #059669; margin-bottom: 20px;" data-i18n="analysisTitle">
-          ✅ PSBT Analysis
-        </h3>
-        <div id="psbt-details" style="color: #065f46; font-size: 14px; line-height: 1.6;">
-          <!-- PSBT details will be inserted here -->
-        </div>
-        <div style="margin-top: 25px;">
-          <button 
-            id="proceed-to-bbqr-btn"
-            class="gradient-button-success"
-            data-i18n="proceedBtn">
-            ➡️ Generate BBQr Codes
-          </button>
-        </div>
       </div>
 
       <!-- Error Display -->
@@ -484,7 +489,7 @@ function setupStep1Events() {
     const reader = new FileReader();
     reader.onload = (e) => {
       if (psbtInput) {
-        psbtInput.value = e.target.result.trim();
+      psbtInput.value = e.target.result.trim();
         // Clear any previous errors/analysis when new file is loaded
         const psbtAnalysis = document.getElementById('psbt-analysis');
         const psbtError = document.getElementById('psbt-error');
@@ -534,7 +539,7 @@ function setupStep1Events() {
     }
   }
 
-  // Parse PSBT
+  // Parse PSBT and go directly to step 2
   parsePsbtBtn?.addEventListener('click', () => {
     const psbtData = psbtInput.value.trim();
     if (!psbtData) {
@@ -545,7 +550,12 @@ function setupStep1Events() {
     try {
       const analysis = decodePSBT(psbtData);
       state.psbtData = psbtData;
-      displayPSBTAnalysis(analysis);
+      // Go directly to step 2 instead of displaying analysis
+      goToStep(2);
+      // Generate BBQr codes after switching to step 2
+      setTimeout(() => {
+        generateBBQrCodes();
+      }, 100);
     } catch (error) {
       showError(error.message);
     }
@@ -554,11 +564,11 @@ function setupStep1Events() {
   // Clear
   clearPsbtBtn?.addEventListener('click', () => {
     if (psbtInput) {
-      psbtInput.value = '';
+    psbtInput.value = '';
       psbtInput.focus();
     }
     if (psbtFile) {
-      psbtFile.value = '';
+    psbtFile.value = '';
     }
     const psbtAnalysis = document.getElementById('psbt-analysis');
     const psbtError = document.getElementById('psbt-error');
@@ -618,52 +628,55 @@ function setupStep1Events() {
 // Step 2: Generate BBQr
 function renderStep2() {
   return `
-    <div class="glass-card">
-      <h2 style="color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 30px; text-align: center;" data-i18n="bbqrTitle">
-        🔥 Generate BBQr for ColdCard
-      </h2>
+    <!-- Direct Background Layout -->
+    <div style="max-width: 1000px; margin: 0 auto;">
       
-      <!-- Two Square Layout: PSBT Summary + BBQr Codes -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 30px;">
+      <!-- Two Column Layout: PSBT Summary + BBQr Codes -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; min-height: 400px;">
         
-        <!-- PSBT Summary Square -->
-        <div style="aspect-ratio: 1; display: flex; flex-direction: column;">
-          <h3 style="color: white; font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; text-align: center;" data-i18n="psbtSummaryTitle">
-            📊 PSBT Summary
-          </h3>
-          <div id="psbt-summary-step2" style="background: rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.2); flex: 1; overflow-y: auto;">
+        <!-- PSBT Summary -->
+        <div style="display: flex; flex-direction: column; height: fit-content;">
+          <div id="psbt-summary-step2" style="background: rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.2);">
             <!-- PSBT summary will be inserted here -->
           </div>
         </div>
 
-        <!-- BBQr Codes Square -->
-        <div style="aspect-ratio: 1; display: flex; flex-direction: column;">
-          <h3 style="color: white; font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; text-align: center;" data-i18n="bbqrCodesTitle">
-            📱 BBQr Codes
-          </h3>
-          <div style="background: rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 15px; border: 1px solid rgba(255, 255, 255, 0.2); flex: 1; display: flex; flex-direction: column;">
-            <p style="color: rgba(255,255,255,0.8); margin-bottom: 15px; font-size: 14px; text-align: center;" data-i18n="bbqrDesc">
-              ColdCard Q compatible BBQr codes. Scan to sign on your device.
-            </p>
-            <div id="bbqr-output" style="flex: 1; text-align: center; display: flex; align-items: center; justify-content: center;">
+        <!-- BBQr Codes -->
+        <div style="display: flex; flex-direction: column; height: fit-content;">
+          <div style="background: rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.2);">
+            <h3 style="color: white; font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; text-align: center;" data-i18n="bbqrCodesTitle">
+              📱 BBQr Codes
+            </h3>
+            <div id="bbqr-output" style="text-align: center; min-height: 300px; display: flex; align-items: center; justify-content: center;">
               <!-- BBQr codes will be generated here -->
             </div>
           </div>
         </div>
       </div>
 
+      <!-- Mobile Layout: Stack vertically on small screens -->
+      <style>
+        @media (max-width: 768px) {
+          div[style*="grid-template-columns: 1fr 1fr"] {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+        }
+      </style>
+
       <!-- Navigation -->
-      <div style="display: flex; flex-wrap: wrap; gap: 15px; padding-top: 20px;">
+      <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; max-width: 500px; margin: 0 auto;">
         <button 
           id="back-to-step1-btn"
           class="gradient-button-secondary"
+          style="border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="backBtn">
           ← Back
         </button>
         <button 
           id="proceed-to-scan-btn"
           class="gradient-button-primary"
-          style="flex: 1; min-width: 200px;"
+          style="flex: 1; min-width: 200px; border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="proceedScanBtn">
           ➡️ Import Signed PSBT
         </button>
@@ -716,36 +729,110 @@ function displayPSBTSummaryInStep2() {
     if (summaryContainer) {
       // Find the largest output (likely the main transfer, not change)
       const sortedOutputs = [...analysis.outputs].sort((a, b) => b.amount - a.amount);
-      const mainOutput = sortedOutputs[0]; // Largest output is likely the main transfer
+      const mainOutput = sortedOutputs[0];
+      const changeOutputs = sortedOutputs.slice(1);
+
+      const statusIcon = analysis.signatureStatus === 'Fully Signed' ? '✅' : '⏳';
+      const statusColor = analysis.signatureStatus === 'Fully Signed' ? '#10b981' : '#f59e0b';
       
+      // Format BTC amount: remove leading zero and BTC suffix
+      function formatBTC(satoshis) {
+        const btc = (parseInt(satoshis) / 100000000).toFixed(8);
+        return btc.startsWith('0.') ? btc.substring(1) : btc;
+      }
+
+      // Format address with spaces every 4 characters, ensure it fits in 3 lines
+      function formatAddress(address) {
+        const spacedAddress = address.replace(/(.{4})/g, '$1 ').trim();
+        const maxLineLength = Math.ceil(spacedAddress.length / 3);
+        const lines = [];
+        
+        let remaining = spacedAddress;
+        for (let i = 0; i < 3 && remaining.length > 0; i++) {
+          if (i === 2) {
+            // Last line gets all remaining characters
+            lines.push(remaining.trim());
+          } else {
+            // Try to fit as many complete 4-char groups as possible
+            let lineLength = 0;
+            let cutPoint = 0;
+            
+            for (let j = 0; j < remaining.length; j += 5) { // 4 chars + 1 space
+              const nextGroup = remaining.substring(j, j + 5);
+              if (lineLength + nextGroup.length <= maxLineLength) {
+                lineLength += nextGroup.length;
+                cutPoint = j + nextGroup.length;
+              } else {
+                break;
+              }
+            }
+            
+            if (cutPoint === 0) {
+              // If no complete group fits, just cut at max length
+              cutPoint = Math.min(maxLineLength, remaining.length);
+            }
+            
+            const line = remaining.substring(0, cutPoint).trim();
+            lines.push(line);
+            remaining = remaining.substring(cutPoint).trim();
+          }
+        }
+        
+        return lines.filter(line => line.length > 0);
+      }
+
       summaryContainer.innerHTML = `
-        <div style="color: white; font-size: 16px; line-height: 1.8; text-align: center;">
-          <!-- Signature Status -->
-          <div style="margin-bottom: 25px;">
-            <div style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 8px;">签名状态 / Signature Status</div>
-            <div style="font-weight: 700; font-size: 18px; color: ${analysis.signatureStatus === 'Fully Signed' ? '#10b981' : '#f59e0b'};">
-              ${analysis.signatureStatus === 'Fully Signed' ? '✅ 已签名 / Signed' : '⏳ 未签名 / Unsigned'}
-            </div>
-          </div>
+        <h3 style="color: white; font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; text-align: center;" data-i18n="psbtSummaryTitle">
+          📊 PSBT Summary
+        </h3>
+        <div style="background: rgba(255, 255, 255, 0.95); border-radius: 12px; padding: 20px; 
+                    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; 
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.12); backdrop-filter: blur(10px); 
+                    border: 1px solid rgba(255, 255, 255, 0.3); max-width: 380px; margin: 0 auto;">
           
-          <!-- Main Transfer -->
-          <div style="margin-bottom: 25px;">
-            <div style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 12px;">转账金额 / Transfer Amount</div>
-            <div style="color: #10b981; font-weight: 700; font-size: 24px; margin-bottom: 12px;">
-              ${(mainOutput.amount / 100000000).toFixed(8)} BTC
-            </div>
-            <div style="color: rgba(255,255,255,0.8); font-size: 12px; margin-bottom: 8px;">目标地址 / Target Address</div>
-            <div style="background: rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 12px; word-break: break-all; line-height: 1.4;">
-              ${mainOutput.address}
-            </div>
+          <!-- Status -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-bottom: 16px;">
+            <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Status</span>
+            <span style="font-size: 14px; font-weight: 600; color: ${statusColor};">
+              ${statusIcon} ${analysis.signatureStatus}
+            </span>
           </div>
-          
-          <!-- Transaction Fee -->
-          <div>
-            <div style="color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 8px;">交易费用 / Transaction Fee</div>
-            <div style="color: #f59e0b; font-weight: 700; font-size: 18px;">
-              ${formatBitcoinAmount(analysis.fee)}
-            </div>
+
+                     <!-- Recipients -->
+           <div style="margin-bottom: 16px;">
+             ${sortedOutputs.map((output, index) => {
+               const addressLines = formatAddress(output.address);
+               return `
+                 ${index > 0 ? '<div style="border-top: 1px dashed rgba(209, 213, 219, 0.8); margin: 12px 0;"></div>' : ''}
+                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+                   <div style="flex: 1; margin-right: 20px;">
+                     <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px; font-weight: 500;">Recipient Address</div>
+                     <div style="font-family: 'SF Mono', Monaco, monospace; font-size: 12px; line-height: 1.4; color: #475569; font-weight: 500;">
+                       ${addressLines.map(line => `<div>${line}</div>`).join('')}
+                     </div>
+                   </div>
+                   <div style="font-size: 14px; font-weight: 600; color: #1f2937; text-align: right;">
+                     ${formatBTC(output.amount)}
+                   </div>
+                 </div>
+               `;
+             }).join('')}
+           </div>
+
+          <!-- Network Fee -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid rgba(229, 231, 235, 0.6);">
+            <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Network Fee</span>
+            <span style="font-size: 14px; font-weight: 600; color: #1f2937;">
+              ${formatBTC(analysis.fee)}
+            </span>
+          </div>
+
+          <!-- Total Cost -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-top: 2px solid rgba(229, 231, 235, 0.6); margin-top: 8px;">
+            <span style="font-size: 16px; font-weight: 700; color: #1f2937;">Total Cost</span>
+            <span style="font-size: 16px; font-weight: 700; color: #1f2937;">
+              ${formatBTC(parseInt(mainOutput.amount) + parseInt(analysis.fee))}
+            </span>
           </div>
         </div>
       `;
@@ -1000,30 +1087,110 @@ function displayPSBTAnalysis(analysis) {
   if (errorDiv) errorDiv.style.display = 'none';
   analysisDiv.style.display = 'block';
 
-  const statusColor = analysis.signatureStatus === 'Fully Signed' ? 
-    'background: #d1fae5; color: #065f46;' :
-    analysis.signatureStatus === 'Partially Signed' ? 
-    'background: #fed7aa; color: #9a3412;' :
-    'background: #fef3c7; color: #92400e;';
+  // Find the main output (usually the largest one, not change)
+  const sortedOutputs = [...analysis.outputs].sort((a, b) => b.amount - a.amount);
+  const mainOutput = sortedOutputs[0];
+  const changeOutputs = sortedOutputs.slice(1);
+
+  const statusIcon = analysis.signatureStatus === 'Fully Signed' ? '✅' : 
+                    analysis.signatureStatus === 'Partially Signed' ? '⏳' : '❌';
+  const statusColor = analysis.signatureStatus === 'Fully Signed' ? '#10b981' : 
+                     analysis.signatureStatus === 'Partially Signed' ? '#f59e0b' : '#ef4444';
+  
+  // Format BTC amount: remove leading zero and BTC suffix
+  function formatBTC(satoshis) {
+    const btc = (parseInt(satoshis) / 100000000).toFixed(8);
+    return btc.startsWith('0.') ? btc.substring(1) : btc;
+  }
+
+  // Format address with spaces every 4 characters, ensure it fits in 3 lines
+  function formatAddress(address) {
+    const spacedAddress = address.replace(/(.{4})/g, '$1 ').trim();
+    const maxLineLength = Math.ceil(spacedAddress.length / 3);
+    const lines = [];
     
+    let remaining = spacedAddress;
+    for (let i = 0; i < 3 && remaining.length > 0; i++) {
+      if (i === 2) {
+        // Last line gets all remaining characters
+        lines.push(remaining.trim());
+      } else {
+        // Try to fit as many complete 4-char groups as possible
+        let lineLength = 0;
+        let cutPoint = 0;
+        
+        for (let j = 0; j < remaining.length; j += 5) { // 4 chars + 1 space
+          const nextGroup = remaining.substring(j, j + 5);
+          if (lineLength + nextGroup.length <= maxLineLength) {
+            lineLength += nextGroup.length;
+            cutPoint = j + nextGroup.length;
+          } else {
+            break;
+          }
+        }
+        
+        if (cutPoint === 0) {
+          // If no complete group fits, just cut at max length
+          cutPoint = Math.min(maxLineLength, remaining.length);
+        }
+        
+        const line = remaining.substring(0, cutPoint).trim();
+        lines.push(line);
+        remaining = remaining.substring(cutPoint).trim();
+      }
+    }
+    
+    return lines.filter(line => line.length > 0);
+  }
+
   detailsDiv.innerHTML = `
-    <div style="margin-bottom: 15px;">
-      <strong>Signature Status:</strong> 
-      <span style="display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 12px; 
-                   font-size: 12px; font-weight: 500; ${statusColor}">
-        ${analysis.signatureStatus}
-      </span>
-    </div>
-    <div style="margin-bottom: 10px;"><strong>Transaction Fee:</strong> ${formatBitcoinAmount(analysis.fee)}</div>
-    <div style="margin-bottom: 15px;"><strong>Outputs:</strong> ${analysis.outputs.length}</div>
-    ${analysis.outputs.map((output, index) => `
-      <div style="margin-left: 16px; padding: 8px; background: white; border-radius: 8px; 
-                  border: 1px solid #e5e7eb; margin-bottom: 8px;">
-        <div style="font-size: 12px; color: #64748b;">Output ${index + 1}:</div>
-        <div style="font-family: monospace; font-size: 12px; word-break: break-all;">${output.address}</div>
-        <div style="font-size: 14px; font-weight: 500;">${formatBitcoinAmount(output.amount)}</div>
+    <div style="background: white; border-radius: 12px; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; box-shadow: 0 4px 16px rgba(0,0,0,0.08); max-width: 380px; margin: 0 auto;">
+      
+      <!-- Status -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-bottom: 16px;">
+        <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Status</span>
+        <span style="font-size: 14px; font-weight: 600; color: ${statusColor};">
+          ${statusIcon} ${analysis.signatureStatus}
+        </span>
       </div>
-    `).join('')}
+
+      <!-- Recipients -->
+      <div style="margin-bottom: 16px;">
+        ${sortedOutputs.map((output, index) => {
+          const addressLines = formatAddress(output.address);
+          return `
+            ${index > 0 ? '<div style="border-top: 1px dashed #d1d5db; margin: 12px 0;"></div>' : ''}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+              <div style="flex: 1; margin-right: 20px;">
+                <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px; font-weight: 500;">Recipient Address</div>
+                <div style="font-family: 'SF Mono', Monaco, monospace; font-size: 12px; line-height: 1.4; color: #475569; font-weight: 500;">
+                  ${addressLines.map(line => `<div>${line}</div>`).join('')}
+                </div>
+              </div>
+              <div style="font-size: 14px; font-weight: 600; color: #1f2937; text-align: right;">
+                ${formatBTC(output.amount)}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <!-- Network Fee -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid #e5e7eb;">
+        <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Network Fee</span>
+        <span style="font-size: 14px; font-weight: 600; color: #1f2937;">
+          ${formatBTC(analysis.fee)}
+        </span>
+      </div>
+
+      <!-- Total Cost -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-top: 2px solid #e5e7eb; margin-top: 8px;">
+        <span style="font-size: 16px; font-weight: 700; color: #1f2937;">Total Cost</span>
+        <span style="font-size: 16px; font-weight: 700; color: #1f2937;">
+          ${formatBTC(parseInt(mainOutput.amount) + parseInt(analysis.fee))}
+        </span>
+      </div>
+    </div>
   `;
 }
 
@@ -1042,19 +1209,14 @@ function showError(message) {
 // Step 3: Import Signed PSBT
 function renderStep3() {
   return `
-    <div style="background: transparent; border: none; padding: 0; margin: 0;">
-      
-      <p style="color: rgba(255,255,255,0.9); margin-bottom: 20px; text-align: center; font-size: 16px;" data-i18n="scanDesc">
-        After signing with ColdCard, scan the signed PSBT BBQr codes
-      </p>
+    <div style="max-width: 600px; margin: 0 auto;">
 
       <!-- Camera Controls -->
       <div style="text-align: center; margin-bottom: 30px;">
         <button 
           id="start-scan-btn"
-          style="padding: 15px 30px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; 
-                 border: none; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; 
-                 transition: all 0.3s ease; margin: 8px;"
+          class="gradient-button-primary"
+          style="border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="startScanBtn">
           📷 Start Camera Scan
         </button>
@@ -1080,18 +1242,18 @@ function renderStep3() {
                                 <!-- Top Controls -->
             <div style="position: absolute; top: 8px; left: 8px; right: 8px; display: flex; 
                         justify-content: space-between; align-items: center; pointer-events: auto; z-index: 30;">
-             <!-- Stop Button -->
-             <button 
-               id="stop-scan-btn"
+          <!-- Stop Button -->
+          <button 
+            id="stop-scan-btn"
                style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; 
                       width: 32px; height: 32px; border-radius: 50%; font-size: 14px; font-weight: bold; 
                       border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer; display: none;
                       align-items: center; justify-content: center; backdrop-filter: blur(10px);
                       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"
-               title="Stop Scanning">
-               ✕
-             </button>
-             
+            title="Stop Scanning">
+            ✕
+          </button>
+          
              <!-- Expand button for better view -->
              <button 
                id="expand-camera-btn"
@@ -1111,9 +1273,9 @@ function renderStep3() {
                                            color: white; padding: 6px 12px; border-radius: 8px; text-align: center; 
                                            font-weight: 500; font-size: 11px; backdrop-filter: blur(10px);
                                            border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
-                Ready to scan...
+            Ready to scan...
               </div>
-            </div>
+          </div>
         </div>
       </div>
 
@@ -1136,12 +1298,11 @@ function renderStep3() {
                          font-family: monospace; font-size: 12px; resize: none; margin-bottom: 20px; 
                          color: #374151; box-sizing: border-box;"></textarea>
         
-        <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div style="text-align: center;">
           <button 
             id="proceed-to-finalize-btn"
-            style="padding: 15px 30px; background: linear-gradient(135deg, #10b981, #059669); color: white; 
-                   border: none; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; 
-                   transition: all 0.3s ease; margin: 8px; flex: 1;"
+            class="gradient-button-primary"
+            style="border: 2px solid rgba(255, 255, 255, 0.3);"
             data-i18n="proceedFinalizeBtn">
             ➡️ Finalize & Broadcast
           </button>
@@ -1149,12 +1310,11 @@ function renderStep3() {
       </div>
 
       <!-- Navigation -->
-      <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 30px;">
+      <div style="display: flex; justify-content: center; margin-top: 30px;">
         <button 
           id="back-to-step2-btn"
-          style="padding: 15px 30px; background: linear-gradient(135deg, #6b7280, #4b5563); color: white; 
-                 border: none; border-radius: 25px; font-size: 16px; font-weight: 600; cursor: pointer; 
-                 transition: all 0.3s ease; margin: 8px;"
+          class="gradient-button-secondary"
+          style="border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="backBtn">
           ← Back
         </button>
@@ -1180,17 +1340,11 @@ function setupStep3Events() {
 // Step 4: Finalize Transaction
 function renderStep4() {
   return `
-    <div class="glass-card">
-      
-      <h2 style="color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 30px;" data-i18n="finalizeTitle">
-        🔨 Finalize Transaction
-      </h2>
+    <div style="max-width: 600px; margin: 0 auto;">
       
       <!-- Transaction Summary -->
-      <div id="tx-summary" style="margin-bottom: 30px; padding: 20px; background: rgba(59, 130, 246, 0.1); 
-                                  border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 15px; 
-                                  backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
-        <h3 style="font-size: 18px; font-weight: 600; color: #1e40af; margin-bottom: 20px;" data-i18n="txSummaryTitle">
+      <div id="tx-summary" style="margin-bottom: 30px;">
+        <h3 style="color: white; font-size: 18px; font-weight: 600; margin-bottom: 20px;" data-i18n="txSummaryTitle">
           📊 Transaction Summary
         </h3>
         <div id="tx-summary-details" style="color: #1e40af; font-size: 14px; line-height: 1.6;">
@@ -1199,10 +1353,11 @@ function renderStep4() {
       </div>
 
       <!-- Finalize Button -->
-      <div style="margin-bottom: 30px;">
+      <div style="text-align: center; margin-bottom: 30px;">
         <button 
           id="finalize-tx-btn"
           class="gradient-button-primary"
+          style="border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="finalizeBtn">
           🔨 Finalize Transaction
         </button>
@@ -1241,23 +1396,25 @@ function renderStep4() {
           </div>
           
           <!-- Action Buttons -->
-          <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+          <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;">
             <button 
               id="copy-txid-btn"
               class="gradient-button-primary"
+              style="border: 2px solid rgba(255, 255, 255, 0.3);"
               data-i18n="copyTxidBtn">
               📋 Copy TXID
             </button>
             <button 
               id="copy-hex-btn"
               class="gradient-button-secondary"
+              style="border: 2px solid rgba(255, 255, 255, 0.3);"
               data-i18n="copyHexBtn">
               📋 Copy Hex
             </button>
             <button 
               id="proceed-to-broadcast-btn"
               class="gradient-button-success"
-              style="flex: 1; min-width: 200px;"
+              style="border: 2px solid rgba(255, 255, 255, 0.3); flex: 1; min-width: 200px;"
               data-i18n="proceedBroadcastBtn">
               ➡️ Proceed to Broadcast
             </button>
@@ -1271,16 +1428,18 @@ function renderStep4() {
       </div>
 
       <!-- Navigation -->
-      <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 30px;">
+      <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 30px; justify-content: center; max-width: 500px; margin-left: auto; margin-right: auto;">
         <button 
           id="back-to-step3-btn"
           class="gradient-button-secondary"
+          style="border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="backBtn">
           ← Back
         </button>
         <button 
           id="restart-workflow-btn"
           class="gradient-button-secondary"
+          style="border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="restartBtn">
           🔄 Start New Transaction
         </button>
@@ -1320,17 +1479,11 @@ function setupStep4Events() {
 // Step 5: Broadcast Transaction
 function renderStep5() {
   return `
-    <div class="glass-card">
-      
-      <h2 style="color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 30px;" data-i18n="broadcastTitle">
-        📡 Broadcast Transaction
-      </h2>
+    <div style="max-width: 600px; margin: 0 auto;">
       
       <!-- Transaction Summary -->
-      <div id="tx-summary-broadcast" style="margin-bottom: 30px; padding: 20px; background: rgba(59, 130, 246, 0.1); 
-                                           border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 15px; 
-                                           backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);">
-        <h3 style="font-size: 18px; font-weight: 600; color: #1e40af; margin-bottom: 20px;" data-i18n="txSummaryTitle">
+      <div id="tx-summary-broadcast" style="margin-bottom: 30px;">
+        <h3 style="color: white; font-size: 18px; font-weight: 600; margin-bottom: 20px;" data-i18n="txSummaryTitle">
           📊 Transaction Summary
         </h3>
         <div id="tx-summary-broadcast-details" style="color: #1e40af; font-size: 14px; line-height: 1.6;">
@@ -1339,10 +1492,11 @@ function renderStep5() {
       </div>
 
       <!-- Broadcast Button -->
-      <div style="margin-bottom: 30px;">
+      <div style="text-align: center; margin-bottom: 30px;">
         <button 
           id="broadcast-tx-btn"
           class="gradient-button-success"
+          style="border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="broadcastBtn">
           📡 Broadcast Transaction
         </button>
@@ -1354,16 +1508,18 @@ function renderStep5() {
       </div>
 
       <!-- Navigation -->
-      <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 30px;">
+      <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 30px; justify-content: center; max-width: 500px; margin-left: auto; margin-right: auto;">
         <button 
           id="back-to-step4-btn"
           class="gradient-button-secondary"
+          style="border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="backBtn">
           ← Back
         </button>
         <button 
           id="restart-workflow-btn-step5"
           class="gradient-button-secondary"
+          style="border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="restartBtn">
           🔄 Start New Transaction
         </button>
@@ -1443,7 +1599,7 @@ async function startCameraScan() {
     // Wait for video to be ready
     video.addEventListener('loadedmetadata', () => {
       console.log('📹 Video loaded, starting scan loop');
-      scanLoop();
+    scanLoop();
     });
     
     // Start scan loop immediately if video is already ready
@@ -1713,68 +1869,109 @@ function showTransactionSummary() {
       const bgColor = canFinalize ? '#ecfdf5' : '#fff7ed';
       const borderColor = canFinalize ? '#a7f3d0' : '#fed7aa';
       
-      summaryDetails.innerHTML = `
-        <div style="margin-bottom: 16px; padding: 12px; border-radius: 8px; background: ${bgColor}; border: 1px solid ${borderColor};">
-          <div><strong>Signature Status:</strong> 
-            <span style="color: ${statusColor}; font-weight: 500;">${analysis.signatureStatus}</span>
-          </div>
-          <div style="font-size: 14px; margin-top: 4px; color: ${statusColor};">${statusMessage}</div>
-        </div>
+      // Find the main output and change outputs
+      const sortedOutputs = [...analysis.outputs].sort((a, b) => b.amount - a.amount);
+      const mainOutput = sortedOutputs[0];
+      const changeOutputs = sortedOutputs.slice(1);
+
+      const statusIcon = isFullySigned ? '✅' : isPartiallySigned ? '⏳' : '❌';
+      
+      // Format BTC amount: remove leading zero and BTC suffix
+      function formatBTC(satoshis) {
+        const btc = (parseInt(satoshis) / 100000000).toFixed(8);
+        return btc.startsWith('0.') ? btc.substring(1) : btc;
+      }
+
+      // Format address with spaces every 4 characters, ensure it fits in 3 lines
+      function formatAddress(address) {
+        const spacedAddress = address.replace(/(.{4})/g, '$1 ').trim();
+        const maxLineLength = Math.ceil(spacedAddress.length / 3);
+        const lines = [];
         
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
-          <div><strong>Transaction Fee:</strong> ${formatBitcoinAmount(analysis.fee)}</div>
-          <div><strong>Total Outputs:</strong> ${analysis.outputs.length}</div>
-          <div><strong>Input Count:</strong> ${analysis.inputs ? analysis.inputs.length : 'N/A'}</div>
-          <div><strong>Can Finalize:</strong> 
-            <span style="color: ${canFinalize ? '#059669' : '#dc2626'}; font-weight: 500;">
-              ${canFinalize ? 'Yes' : 'No'}
+        let remaining = spacedAddress;
+        for (let i = 0; i < 3 && remaining.length > 0; i++) {
+          if (i === 2) {
+            // Last line gets all remaining characters
+            lines.push(remaining.trim());
+          } else {
+            // Try to fit as many complete 4-char groups as possible
+            let lineLength = 0;
+            let cutPoint = 0;
+            
+            for (let j = 0; j < remaining.length; j += 5) { // 4 chars + 1 space
+              const nextGroup = remaining.substring(j, j + 5);
+              if (lineLength + nextGroup.length <= maxLineLength) {
+                lineLength += nextGroup.length;
+                cutPoint = j + nextGroup.length;
+              } else {
+                break;
+              }
+            }
+            
+            if (cutPoint === 0) {
+              // If no complete group fits, just cut at max length
+              cutPoint = Math.min(maxLineLength, remaining.length);
+            }
+            
+            const line = remaining.substring(0, cutPoint).trim();
+            lines.push(line);
+            remaining = remaining.substring(cutPoint).trim();
+          }
+        }
+        
+        return lines.filter(line => line.length > 0);
+      }
+
+      summaryDetails.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 20px; 
+                    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; 
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.12); margin-bottom: 24px; max-width: 380px; margin: 0 auto;">
+          
+          <!-- Status -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-bottom: 16px;">
+            <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Status</span>
+            <span style="font-size: 14px; font-weight: 600; color: ${statusColor};">
+              ${statusIcon} ${analysis.signatureStatus}
+            </span>
+          </div>
+
+          <!-- Recipients -->
+          <div style="margin-bottom: 16px;">
+            ${sortedOutputs.map((output, index) => {
+              const addressLines = formatAddress(output.address);
+              return `
+                ${index > 0 ? '<div style="border-top: 1px dashed #d1d5db; margin: 12px 0;"></div>' : ''}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+                  <div style="flex: 1; margin-right: 20px;">
+                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px; font-weight: 500;">Recipient Address</div>
+                    <div style="font-family: 'SF Mono', Monaco, monospace; font-size: 12px; line-height: 1.4; color: #475569; font-weight: 500;">
+                      ${addressLines.map(line => `<div>${line}</div>`).join('')}
+                    </div>
+                  </div>
+                  <div style="font-size: 14px; font-weight: 600; color: #1f2937; text-align: right;">
+                    ${formatBTC(output.amount)}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- Network Fee -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid #e5e7eb;">
+            <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Network Fee</span>
+            <span style="font-size: 14px; font-weight: 600; color: #1f2937;">
+              ${formatBTC(analysis.fee)}
+            </span>
+          </div>
+
+          <!-- Total Cost -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-top: 2px solid #e5e7eb; margin-top: 8px;">
+            <span style="font-size: 16px; font-weight: 700; color: #1f2937;">Total Cost</span>
+            <span style="font-size: 16px; font-weight: 700; color: #1f2937;">
+              ${formatBTC(sortedOutputs.reduce((sum, output) => sum + parseInt(output.amount), 0) + parseInt(analysis.fee))}
             </span>
           </div>
         </div>
-        
-        <div style="margin-bottom: 12px;">
-          <strong>Transaction Outputs:</strong>
-        </div>
-        ${analysis.outputs.map((output, index) => {
-          // Determine payment type
-          let paymentType = 'Unknown';
-          let typeColor = '#64748b';
-          
-          if (output.address) {
-            if (output.address.startsWith('bc1q')) {
-              paymentType = 'P2WPKH (Native SegWit)';
-              typeColor = '#2563eb';
-            } else if (output.address.startsWith('bc1p')) {
-              paymentType = 'P2TR (Taproot)';
-              typeColor = '#9333ea';
-            } else if (output.address.startsWith('3')) {
-              paymentType = 'P2SH (Script Hash)';
-              typeColor = '#059669';
-            } else if (output.address.startsWith('1')) {
-              paymentType = 'P2PKH (Legacy)';
-              typeColor = '#ea580c';
-            }
-          }
-          
-          return `
-            <div style="margin-left: 16px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #e5e7eb; margin-top: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-                <div style="font-size: 12px; color: #64748b;">Output ${index + 1}</div>
-                <div style="font-size: 12px; color: ${typeColor}; font-weight: 500;">${paymentType}</div>
-              </div>
-              <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">
-                ${output.address.match(/.{1,4}/g).map(chunk => `
-                  <span style="background: #fbbf24; color: #000; padding: 4px 6px; border-radius: 4px; font-family: monospace; font-size: 14px; font-weight: 600; letter-spacing: 0.5px;">
-                    ${chunk}
-                  </span>
-                `).join('')}
-              </div>
-              <div style="color: #10b981; font-weight: 700; font-size: 16px;">
-                ${(output.amount / 100000000).toFixed(8)} BTC
-              </div>
-            </div>
-          `;
-        }).join('')}
       `;
       
       // Update finalize button state
@@ -2145,9 +2342,11 @@ function setupQuickActions() {
 // Export for initialization
 window.initBBQrHelper = initBBQrHelper;
 
-// Initialize when DOM is loaded
+// Initialize when DOM is loaded - only initialize once
+let isInitialized = false;
 document.addEventListener('DOMContentLoaded', () => {
-  if (window.initBBQrHelper) {
+  if (!isInitialized && window.initBBQrHelper) {
+    isInitialized = true;
     window.initBBQrHelper();
   }
 }); 

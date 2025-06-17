@@ -13,6 +13,12 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #334155;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        body.loaded {
+            opacity: 1;
         }
         
         .container {
@@ -34,44 +40,15 @@
             margin-bottom: 20px;
         }
         
-        .back-btn {
+        .back-btn, .language-toggle {
             background: rgba(255, 255, 255, 0.2);
             color: white;
             text-decoration: none;
-            padding: 0;
-            border-radius: 50%;
             border: 2px solid rgba(255, 255, 255, 0.6);
-            transition: all 0.3s ease;
-            font-size: 18px;
-            font-weight: 500;
-            width: 40px;
-            height: 40px;
-            text-align: center;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-        }
-        
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            color: white;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-        }
-        
-        .language-toggle {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            padding: 10px 20px;
             border-radius: 25px;
             transition: all 0.3s ease;
             font-size: 14px;
             font-weight: 500;
-            min-width: 80px;
             text-align: center;
             display: inline-flex;
             align-items: center;
@@ -81,9 +58,23 @@
             cursor: pointer;
         }
         
-        .language-toggle:hover {
+        .back-btn {
+            width: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            padding: 0;
+        }
+        
+        .language-toggle {
+            padding: 10px 20px;
+            min-width: 80px;
+        }
+        
+        .back-btn:hover, .language-toggle:hover {
             background: rgba(255, 255, 255, 0.3);
             border-color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            color: white;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
         }
@@ -107,15 +98,7 @@
             margin-bottom: 20px;
         }
         
-        .progress-header {
-            display: none;
-        }
-        
-        .progress-title {
-            display: none;
-        }
-        
-        .progress-status {
+        .progress-header, .progress-title, .progress-status {
             display: none;
         }
         
@@ -131,16 +114,16 @@
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, #10b981, #059669);
-            border-radius: 25px;
+            border-radius: 0;
             transition: width 0.6s ease;
             position: relative;
+            border-top-left-radius: 23px;
+            border-bottom-left-radius: 23px;
         }
         
         .progress-bar.active {
             background: linear-gradient(90deg, #9333ea, #7c3aed);
         }
-        
-
         
         .step-indicators {
             position: absolute;
@@ -172,11 +155,7 @@
             line-height: 1;
         }
         
-        .step-dot.completed {
-            color: white;
-        }
-        
-        .step-dot.active {
+        .step-dot.completed, .step-dot.active {
             color: white;
         }
         
@@ -205,12 +184,11 @@
             backdrop-filter: blur(10px);
         }
         
-        /* Button styles */
-        .btn {
+        /* Unified Button Styles */
+        .btn, .gradient-button-primary, .gradient-button-secondary, .gradient-button-success {
             padding: 15px 30px;
-            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
-            border: 2px solid rgba(255, 255, 255, 0.6);
+            border: none;
             border-radius: 25px;
             font-size: 16px;
             font-weight: 600;
@@ -222,54 +200,32 @@
             text-align: center;
         }
         
-        .btn:hover {
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        .btn, .gradient-button-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: 2px solid rgba(255, 255, 255, 0.6);
         }
         
         .gradient-button-primary {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 8px;
-        }
-        
-        .gradient-button-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
         }
         
         .gradient-button-secondary {
             background: linear-gradient(135deg, #6b7280, #4b5563);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 8px;
         }
         
-        .gradient-button-success {
-            background: linear-gradient(135deg, #10b981, #059669);
+        .btn:hover, .gradient-button-primary:hover, .gradient-button-secondary:hover, .gradient-button-success:hover {
+            transform: translateY(-2px);
+            text-decoration: none;
             color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 8px;
+        }
+        
+        .btn:hover, .gradient-button-success:hover {
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+        
+        .gradient-button-primary:hover {
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
         }
         
         /* Form styles */
@@ -285,8 +241,7 @@
             font-size: 16px;
         }
         
-        .form-group input,
-        .form-group textarea {
+        .form-group input, .form-group textarea {
             width: 100%;
             padding: 15px 20px;
             background: rgba(255, 255, 255, 0.5);
@@ -299,8 +254,7 @@
             transition: all 0.3s ease;
         }
         
-        .form-group input:focus,
-        .form-group textarea:focus {
+        .form-group input:focus, .form-group textarea:focus {
             border-color: rgba(147, 51, 234, 0.5);
             box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
             background: rgba(255, 255, 255, 0.6);
@@ -353,21 +307,6 @@
             border-radius: 10px;
         }
         
-        /* Scanning animation */
-        @keyframes scanLine {
-            0% {
-                top: 0;
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                top: calc(100% - 4px);
-                opacity: 0;
-            }
-        }
-        
         /* Fullscreen camera styles */
         .camera-fullscreen {
             position: fixed !important;
@@ -411,7 +350,7 @@
                 height: calc(var(--vh, 1vh) * 100) !important;
             }
         }
-
+        
         @media (max-width: 768px) {
             .title {
                 font-size: 1.5rem;
@@ -459,7 +398,7 @@
                     <div id="step3-dot" class="step-dot" data-step-en="Import Signed" data-step-zh="导入签名"></div>
                     <div id="step4-dot" class="step-dot" data-step-en="Finalize" data-step-zh="完成交易"></div>
                     <div id="step5-dot" class="step-dot" data-step-en="Broadcast" data-step-zh="广播"></div>
-                </div>
+            </div>
             </div>
         </div>
 
@@ -470,5 +409,11 @@
     </div>
 
     <script src="dist/bbqr-helper.bundle.js"></script>
+    <script>
+        // Prevent flash of unstyled content
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('loaded');
+        });
+    </script>
 </body>
 </html> 
