@@ -56,7 +56,7 @@ const translations = {
   en: {
     back: '←',
     title: '🧠 Brain Wallet',
-    inputPlaceholder: 'Enter any text to generate wallet',
+    inputPlaceholder: 'Enter long, unique, and complex text (minimum 20 characters recommended)',
     generateBtn: 'Generate Wallet',
     inputTextTitle: 'Input Text',
     inputTextLabel: 'SHA256 hash → Entropy → Mnemonic',
@@ -83,12 +83,14 @@ const translations = {
     walletUsedSimple: 'Wallet Has Been Used',
     walletUnusedSimple: 'Wallet Appears Unused',
     errorOccurred: 'An error occurred during checking',
-    retryOrCheckNetwork: 'Please try again later or check your network connection'
+    retryOrCheckNetwork: 'Please try again later or check your network connection',
+    warningBanner: 'Brain wallets cannot provide sufficient randomness and are for testing purposes only. Use with caution.',
+    newWalletBtn: '🔄 Generate New Wallet'
   },
   zh: {
     back: '←',
     title: '🧠 脑钱包',
-    inputPlaceholder: '输入任意文本生成钱包',
+    inputPlaceholder: '输入长且独特的复杂文本（建议至少20个字符）',
     generateBtn: '生成钱包',
     inputTextTitle: '输入文本',
     inputTextLabel: 'SHA256哈希 → 熵值 → 助记词',
@@ -115,7 +117,9 @@ const translations = {
     walletUsedSimple: '钱包已被使用',
     walletUnusedSimple: '钱包未被使用',
     errorOccurred: '检查过程中出现错误',
-    retryOrCheckNetwork: '请稍后重试，或检查网络连接'
+    retryOrCheckNetwork: '请稍后重试，或检查网络连接',
+    warningBanner: '脑钱包难以提供足够的随机性，仅供测试目的，谨慎使用。',
+    newWalletBtn: '🔄 生成新钱包'
   }
 };
 
@@ -131,7 +135,7 @@ function toggleLanguage() {
 function updateLanguage() {
   const langToggle = document.querySelector('.language-toggle');
   if (langToggle) {
-    langToggle.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
+    langToggle.textContent = currentLanguage === 'en' ? '中' : 'EN';
   }
 
   // Update all elements with data-i18n attributes
@@ -157,6 +161,48 @@ function updateLanguage() {
 
 // Make toggleLanguage available globally
 window.toggleLanguage = toggleLanguage;
+
+// Function to close warning banner
+function closeWarningBanner() {
+  const banner = document.getElementById('warningBanner');
+  if (banner) {
+    banner.style.animation = 'slideUp 0.3s ease-out';
+    setTimeout(() => {
+      banner.style.display = 'none';
+    }, 300);
+  }
+}
+
+// Function to show input section and hide results
+function showInputSection() {
+  const inputSection = document.getElementById('inputSection');
+  const mainSection = document.getElementById('mainSection');
+  const newWalletBtn = document.getElementById('newWalletBtn');
+  
+  if (inputSection) inputSection.style.display = 'block';
+  if (mainSection) mainSection.style.display = 'none';
+  if (newWalletBtn) newWalletBtn.style.display = 'none';
+  
+  // Clear the input field
+  const entropyInput = document.getElementById('entropyInput');
+  if (entropyInput) entropyInput.value = '';
+}
+
+// Function to show results and hide input section
+function showResultsSection() {
+  const inputSection = document.getElementById('inputSection');
+  const mainSection = document.getElementById('mainSection');
+  const newWalletBtn = document.getElementById('newWalletBtn');
+  
+  if (inputSection) inputSection.style.display = 'none';
+  if (mainSection) mainSection.style.display = 'block';
+  if (newWalletBtn) newWalletBtn.style.display = 'block';
+}
+
+// Make functions available globally
+window.closeWarningBanner = closeWarningBanner;
+window.showInputSection = showInputSection;
+window.showResultsSection = showResultsSection;
 
 // Unwrap default export if needed
 if (bs58check && bs58check.default) bs58check = bs58check.default;
@@ -352,6 +398,12 @@ function initializeApp() {
   // Initialize language immediately
   updateLanguage();
   
+  // Add new wallet button event listener
+  const newWalletBtn = document.getElementById('newWalletBtn');
+  if (newWalletBtn) {
+    newWalletBtn.addEventListener('click', showInputSection);
+  }
+  
   document.getElementById('genMnemonic').addEventListener('click', () => {
     const text = document.getElementById('entropyInput').value.trim();
     if (!text) return;
@@ -426,6 +478,9 @@ function initializeApp() {
     document.getElementById('seed').value = seedBuf.toString('hex');
     QRCode.toCanvas(document.getElementById('qrcode'), newMnemonic, { errorCorrectionLevel: 'H' });
     generateKeysAndAddresses(seedBuf);
+    
+    // Switch to results view
+    showResultsSection();
 
     const fetchBtn = document.getElementById('fetchUsage');
     if (fetchBtn && usageDiv) {

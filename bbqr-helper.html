@@ -5,86 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BBQr Helper - Complete ColdCard Workflow</title>
     <link rel="icon" href="icon/favicon.ico">
+    
+    <!-- Shared layout styles -->
+    <link rel="stylesheet" href="shared-styles.css">
+    
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #334155;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        body.loaded {
-            opacity: 1;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        /* Page-specific styles for BBQr Helper */
+        .title {
+            font-size: 1.8rem;
         }
         
         .header {
-            text-align: center;
-            padding: 20px 20px 10px 20px;
+            padding: 80px 20px 20px 20px;
             margin-bottom: 10px;
-        }
-        
-        .header-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .back-btn, .language-toggle {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            text-decoration: none;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            border-radius: 25px;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            font-weight: 500;
-            text-align: center;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            height: 40px;
-            box-sizing: border-box;
-            cursor: pointer;
-        }
-        
-        .back-btn {
-            width: 40px;
-            border-radius: 50%;
-            font-size: 18px;
-            padding: 0;
-        }
-        
-        .language-toggle {
-            padding: 10px 20px;
-            min-width: 80px;
-        }
-        
-        .back-btn:hover, .language-toggle:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            color: white;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-        }
-        
-        .title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-            margin: 0;
         }
         
         .subtitle {
@@ -375,13 +308,13 @@
 </head>
 <body>
     <div class="container">
+        <div class="header-controls">
+            <a href="index.html" class="back-btn" title="Back">←</a>
+            <div style="color: white; font-size: 16px; font-weight: 600; position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap;" data-i18n="title">🔐 BBQr Helper</div>
+            <button class="language-toggle" onclick="toggleLanguage()">EN</button>
+        </div>
+        
         <div class="header">
-            <div class="header-controls">
-                <a href="index.html" class="back-btn" title="Back">←</a>
-                <button class="language-toggle" onclick="toggleLanguage()">ENG</button>
-            </div>
-            <h1 class="title" data-i18n="title">🔐 BBQr Helper</h1>
-            <p class="subtitle" data-i18n="subtitle">Complete PSBT to ColdCard to Broadcast Workflow</p>
         </div>
 
         <!-- Progress Steps -->
@@ -412,6 +345,7 @@
     <script>
         // Prevent flash of unstyled content
         document.addEventListener('DOMContentLoaded', function() {
+            document.documentElement.classList.add('loaded');
             document.body.classList.add('loaded');
         });
     </script>

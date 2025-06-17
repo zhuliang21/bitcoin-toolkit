@@ -37,9 +37,10 @@ const translations = {
     fileLabel: 'Import Local PSBT File',
     uploadText: 'Click to import PSBT',
     supportedFormats: 'PSBT, TXT files supported',
+    noPsbtError: 'Please enter PSBT data',
     manualLabel: 'Or Paste PSBT (Base64)',
     psbtPlaceholder: 'Enter PSBT in Base64 format...',
-    parseBtn: '🔍 Parse PSBT',
+    parseBtn: '🔍 Parse PSBT & Generate BBQr',
     clearBtn: '🗑️ Clear',
     analysisTitle: 'PSBT Analysis',
     proceedBtn: '➡️ Generate BBQr Codes',
@@ -77,7 +78,11 @@ const translations = {
     broadcastTitle: 'Broadcast Transaction',
     proceedBroadcastBtn: '➡️ Proceed to Broadcast',
     scanInstruction: 'Align QR code within the frame',
-    scanTip: 'Supports multi-part BBQr auto-assembly'
+    scanTip: 'Supports multi-part BBQr auto-assembly',
+    scanReady: 'Ready to scan...',
+    scanningStatus: '{current}/{total} scanned',
+    scanComplete: '{current}/{current} scan complete',
+    cameraError: 'Camera access failed: {error}'
   },
   zh: {
     title: 'BBQr 助手',
@@ -93,9 +98,10 @@ const translations = {
     fileLabel: '导入本地 PSBT 文件',
     uploadText: '点击导入 PSBT',
     supportedFormats: '支持 PSBT, TXT 文件',
+    noPsbtError: '请输入 PSBT 数据',
     manualLabel: '或粘贴 PSBT (Base64)',
     psbtPlaceholder: '输入 Base64 格式的 PSBT...',
-    parseBtn: '🔍 解析 PSBT',
+    parseBtn: '🔍 解析PSBT并生成BBQr',
     clearBtn: '🗑️ 清除',
     analysisTitle: 'PSBT 分析',
     proceedBtn: '➡️ 生成 BBQr 码',
@@ -133,7 +139,11 @@ const translations = {
     broadcastTitle: '广播交易',
     proceedBroadcastBtn: '➡️ 进入广播',
     scanInstruction: '将QR码对准扫描框',
-    scanTip: '支持多部分BBQr码自动拼接'
+    scanTip: '支持多部分BBQr码自动拼接',
+    scanReady: '准备扫描...',
+    scanningStatus: '{current}/{total} 已扫描',
+    scanComplete: '{current}/{current} 扫描完成',
+    cameraError: '相机访问失败: {error}'
   }
 };
 
@@ -208,7 +218,7 @@ function updateTexts() {
 
   // Update language toggle button
   if (toggleBtn) {
-    const newText = currentLanguage === 'en' ? '中文' : 'ENG';
+    const newText = currentLanguage === 'en' ? '中' : 'EN';
     if (toggleBtn.textContent !== newText) {
       toggleBtn.textContent = newText;
     }
@@ -300,35 +310,35 @@ function renderStep(step) {
   // Use requestAnimationFrame to prevent flashing
   requestAnimationFrame(() => {
     container.dataset.currentStep = step.toString();
-    
-    switch (step) {
-      case 1:
-        container.innerHTML = renderStep1();
-        setupStep1Events();
-        break;
-      case 2:
-        container.innerHTML = renderStep2();
-        setupStep2Events();
-        break;
-      case 3:
-        container.innerHTML = renderStep3();
-        setupStep3Events();
-        break;
-      case 4:
-        container.innerHTML = renderStep4();
-        setupStep4Events();
-        break;
-      case 5:
-        container.innerHTML = renderStep5();
-        setupStep5Events();
-        // Show transaction summary when entering step 5
-        setTimeout(() => {
-          showTransactionSummary();
-        }, 100);
-        break;
-    }
-    
-    updateTexts();
+  
+  switch (step) {
+    case 1:
+      container.innerHTML = renderStep1();
+      setupStep1Events();
+      break;
+    case 2:
+      container.innerHTML = renderStep2();
+      setupStep2Events();
+      break;
+    case 3:
+      container.innerHTML = renderStep3();
+      setupStep3Events();
+      break;
+    case 4:
+      container.innerHTML = renderStep4();
+      setupStep4Events();
+      break;
+    case 5:
+      container.innerHTML = renderStep5();
+      setupStep5Events();
+      // Show transaction summary when entering step 5
+      setTimeout(() => {
+        showTransactionSummary();
+      }, 100);
+      break;
+  }
+  
+  updateTexts();
   });
 }
 
@@ -349,43 +359,43 @@ function renderStep1() {
         <!-- File Import Section -->
         <div style="text-align: center;">
           <label for="psbt-file" style="color: white; font-size: 16px; font-weight: 600; margin-bottom: 15px; display: block;" data-i18n="fileLabel">📁 Import PSBT File</label>
-          <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
-            <label id="file-upload-area" for="psbt-file" style="display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            <div style="display: flex; align-items: center; justify-content: center; width: 100%;">
+              <label id="file-upload-area" for="psbt-file" style="display: flex; flex-direction: column; align-items: center; justify-content: center; 
                                           width: 160px; height: 160px; border: 2px dashed rgba(255, 255, 255, 0.4); 
-                                          border-radius: 15px; cursor: pointer; background: rgba(255, 255, 255, 0.3); 
-                                          transition: all 0.3s ease; backdrop-filter: blur(10px);"
-                   onmouseover="this.style.background='rgba(255, 255, 255, 0.4)'; this.style.borderColor='rgba(255, 255, 255, 0.6)'"
-                   onmouseout="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.borderColor='rgba(255, 255, 255, 0.4)'">
-              <div id="upload-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; text-align: center;">
+                                            border-radius: 15px; cursor: pointer; background: rgba(255, 255, 255, 0.3); 
+                                            transition: all 0.3s ease; backdrop-filter: blur(10px);"
+                     onmouseover="this.style.background='rgba(255, 255, 255, 0.4)'; this.style.borderColor='rgba(255, 255, 255, 0.6)'"
+                     onmouseout="this.style.background='rgba(255, 255, 255, 0.3)'; this.style.borderColor='rgba(255, 255, 255, 0.4)'">
+                <div id="upload-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; text-align: center;">
                 <svg id="upload-icon" style="width: 36px; height: 36px; margin-bottom: 12px; color: rgba(255, 255, 255, 0.7);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
                 <p style="margin-bottom: 8px; font-size: 13px; color: white; line-height: 1.2; font-weight: 600;" data-i18n="uploadText">Click to import</p>
                 <p style="font-size: 11px; color: rgba(255, 255, 255, 0.7); line-height: 1.1;" data-i18n="supportedFormats">PSBT, TXT files</p>
-          </div>
-              <input id="psbt-file" type="file" style="display: none;" accept=".psbt,.txt,.dat" />
-        </label>
-          </div>
+            </div>
+                <input id="psbt-file" type="file" style="display: none;" accept=".psbt,.txt,.dat" />
+          </label>
         </div>
+      </div>
 
         <!-- Manual Input Section -->
         <div>
           <label for="psbt-input" style="color: white; font-size: 16px; font-weight: 600; margin-bottom: 15px; display: block;" data-i18n="manualLabel">📝 Paste PSBT (Base64)</label>
-      <textarea 
-        id="psbt-input"
-        rows="6"
-            style="width: 100%; padding: 15px 20px; background: rgba(255, 255, 255, 0.5); 
-                   border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 15px; 
-                   color: #334155; font-size: 14px; outline: none; box-sizing: border-box; 
+        <textarea 
+          id="psbt-input"
+          rows="6"
+              style="width: 100%; padding: 15px 20px; background: rgba(255, 255, 255, 0.5); 
+                     border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 15px; 
+                     color: #334155; font-size: 14px; outline: none; box-sizing: border-box; 
                    transition: all 0.3s ease; resize: vertical; height: 160px;
-                   font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-                   line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;"
-        placeholder="Enter PSBT in Base64 format..."
-            data-i18n-placeholder="psbtPlaceholder"
-            spellcheck="false"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"></textarea>
+                     font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+                     line-height: 1.4; word-wrap: break-word; white-space: pre-wrap;"
+          placeholder="Enter PSBT in Base64 format..."
+              data-i18n-placeholder="psbtPlaceholder"
+              spellcheck="false"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"></textarea>
         </div>
       </div>
 
@@ -416,7 +426,7 @@ function renderStep1() {
           class="gradient-button-primary"
           style="flex: 1; min-width: 180px; max-width: 240px; border: 2px solid rgba(255, 255, 255, 0.3);"
           data-i18n="parseBtn">
-          🔍 解析PSBT并生成BBQr
+          🔍 Parse PSBT
         </button>
         <button 
           id="clear-psbt-btn"
@@ -543,7 +553,8 @@ function setupStep1Events() {
   parsePsbtBtn?.addEventListener('click', () => {
     const psbtData = psbtInput.value.trim();
     if (!psbtData) {
-      showError('请输入 PSBT 数据');
+      const texts = translations[currentLanguage];
+      showError(texts.noPsbtError || 'Please enter PSBT data');
       return;
     }
 
@@ -602,12 +613,14 @@ function setupStep1Events() {
       const supportedFormats = uploadContent.querySelector('[data-i18n="supportedFormats"]');
       
       if (uploadText) {
-        uploadText.textContent = currentLanguage === 'zh' ? '点击导入 PSBT' : 'Click to import PSBT';
+        const texts = translations[currentLanguage];
+        uploadText.textContent = texts.uploadText || 'Click to import';
         uploadText.style.color = 'white';
       }
       
       if (supportedFormats) {
-        supportedFormats.textContent = currentLanguage === 'zh' ? '支持 PSBT, TXT 文件' : 'PSBT, TXT files supported';
+        const texts = translations[currentLanguage];
+        supportedFormats.textContent = texts.supportedFormats || 'PSBT, TXT files';
         supportedFormats.style.color = 'rgba(255, 255, 255, 0.7)';
       }
     }
@@ -645,10 +658,10 @@ function renderStep2() {
         <div style="display: flex; flex-direction: column; height: fit-content;">
           <div style="background: rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.2);">
             <h3 style="color: white; font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; text-align: center;" data-i18n="bbqrCodesTitle">
-              📱 BBQr Codes
-            </h3>
+            📱 BBQr Codes
+          </h3>
             <div id="bbqr-output" style="text-align: center; min-height: 300px; display: flex; align-items: center; justify-content: center;">
-              <!-- BBQr codes will be generated here -->
+        <!-- BBQr codes will be generated here -->
             </div>
           </div>
         </div>
@@ -780,7 +793,7 @@ function displayPSBTSummaryInStep2() {
         
         return lines.filter(line => line.length > 0);
       }
-
+      
       summaryContainer.innerHTML = `
         <h3 style="color: white; font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; text-align: center;" data-i18n="psbtSummaryTitle">
           📊 PSBT Summary
@@ -797,7 +810,7 @@ function displayPSBTSummaryInStep2() {
               ${statusIcon} ${analysis.signatureStatus}
             </span>
           </div>
-
+          
                      <!-- Recipients -->
            <div style="margin-bottom: 16px;">
              ${sortedOutputs.map((output, index) => {
@@ -809,23 +822,23 @@ function displayPSBTSummaryInStep2() {
                      <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px; font-weight: 500;">Recipient Address</div>
                      <div style="font-family: 'SF Mono', Monaco, monospace; font-size: 12px; line-height: 1.4; color: #475569; font-weight: 500;">
                        ${addressLines.map(line => `<div>${line}</div>`).join('')}
-                     </div>
-                   </div>
+            </div>
+            </div>
                    <div style="font-size: 14px; font-weight: 600; color: #1f2937; text-align: right;">
                      ${formatBTC(output.amount)}
                    </div>
                  </div>
                `;
              }).join('')}
-           </div>
-
+          </div>
+          
           <!-- Network Fee -->
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-top: 1px solid rgba(229, 231, 235, 0.6);">
             <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Network Fee</span>
             <span style="font-size: 14px; font-weight: 600; color: #1f2937;">
               ${formatBTC(analysis.fee)}
             </span>
-          </div>
+            </div>
 
           <!-- Total Cost -->
           <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-top: 2px solid rgba(229, 231, 235, 0.6); margin-top: 8px;">
@@ -1151,8 +1164,8 @@ function displayPSBTAnalysis(analysis) {
         <span style="font-size: 14px; color: #6b7280; font-weight: 500;">Status</span>
         <span style="font-size: 14px; font-weight: 600; color: ${statusColor};">
           ${statusIcon} ${analysis.signatureStatus}
-        </span>
-      </div>
+      </span>
+    </div>
 
       <!-- Recipients -->
       <div style="margin-bottom: 16px;">
@@ -1165,7 +1178,7 @@ function displayPSBTAnalysis(analysis) {
                 <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px; font-weight: 500;">Recipient Address</div>
                 <div style="font-family: 'SF Mono', Monaco, monospace; font-size: 12px; line-height: 1.4; color: #475569; font-weight: 500;">
                   ${addressLines.map(line => `<div>${line}</div>`).join('')}
-                </div>
+      </div>
               </div>
               <div style="font-size: 14px; font-weight: 600; color: #1f2937; text-align: right;">
                 ${formatBTC(output.amount)}
@@ -1583,8 +1596,8 @@ async function startCameraScan() {
     
     // Initialize scan status
     if (scanStatus) {
-      const readyText = currentLanguage === 'zh' ? '准备扫描...' : 'Ready to scan...';
-      scanStatus.textContent = readyText;
+      const texts = translations[currentLanguage];
+      scanStatus.textContent = texts.scanReady || 'Ready to scan...';
     }
     
     canvas.width = 640;
@@ -1609,9 +1622,8 @@ async function startCameraScan() {
     
   } catch (error) {
     console.error('Camera error:', error);
-    const errorText = currentLanguage === 'zh' ? 
-      '相机访问失败: ' + error.message :
-      'Camera access failed: ' + error.message;
+    const texts = translations[currentLanguage];
+    const errorText = texts.cameraError.replace('{error}', error.message);
     alert(errorText);
   }
 }
@@ -1739,9 +1751,10 @@ function scanLoop() {
       }
       
       // Update scan status with bilingual support
-      const statusText = currentLanguage === 'zh' ? 
-        `${state.camera.parts.length}/${totalParts} 已扫描` :
-        `${state.camera.parts.length}/${totalParts} scanned`;
+      const texts = translations[currentLanguage];
+      const statusText = texts.scanningStatus
+        .replace('{current}', state.camera.parts.length)
+        .replace('{total}', totalParts);
       scanStatus.textContent = statusText;
 
       // Try to join the parts
@@ -1754,9 +1767,10 @@ function scanLoop() {
           state.signedPsbtData = base64;
           
           // Update final status with bilingual support
-          const completeText = currentLanguage === 'zh' ? 
-            `${state.camera.parts.length}/${state.camera.parts.length} 扫描完成` :
-            `${state.camera.parts.length}/${state.camera.parts.length} scan complete`;
+          const texts = translations[currentLanguage];
+          const completeText = texts.scanComplete
+            .replace('{current}', state.camera.parts.length)
+            .replace('{current}', state.camera.parts.length);
           scanStatus.textContent = completeText;
           
           stopCameraScan();
@@ -1939,21 +1953,21 @@ function showTransactionSummary() {
           <div style="margin-bottom: 16px;">
             ${sortedOutputs.map((output, index) => {
               const addressLines = formatAddress(output.address);
-              return `
+          return `
                 ${index > 0 ? '<div style="border-top: 1px dashed #d1d5db; margin: 12px 0;"></div>' : ''}
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
                   <div style="flex: 1; margin-right: 20px;">
                     <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px; font-weight: 500;">Recipient Address</div>
                     <div style="font-family: 'SF Mono', Monaco, monospace; font-size: 12px; line-height: 1.4; color: #475569; font-weight: 500;">
                       ${addressLines.map(line => `<div>${line}</div>`).join('')}
-                    </div>
-                  </div>
+              </div>
+              </div>
                   <div style="font-size: 14px; font-weight: 600; color: #1f2937; text-align: right;">
                     ${formatBTC(output.amount)}
-                  </div>
-                </div>
-              `;
-            }).join('')}
+              </div>
+            </div>
+          `;
+        }).join('')}
           </div>
 
           <!-- Network Fee -->

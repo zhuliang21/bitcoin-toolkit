@@ -2,7 +2,7 @@
 const translations = {
   en: {
     mainTitle: '🔧 Bitcoin Toolkit',
-    mainSubtitle: 'Essential tools for Bitcoin development and testing',
+    mainSubtitle: 'Open-source, pure frontend tools - Use at your own risk',
     securityNotice: 'For educational and testing purposes only. Use at your own risk.',
     brainWalletTitle: 'Brain Wallet Generator',
     brainWalletDesc: 'Generate Bitcoin wallets from memorable text using deterministic algorithms.',
@@ -16,7 +16,7 @@ const translations = {
   },
   zh: {
     mainTitle: '🔧 比特币工具包',
-    mainSubtitle: '比特币开发和测试的必备工具',
+    mainSubtitle: '开源纯前端工具 - 风险自负',
     securityNotice: '仅供教育和测试目的使用，风险自负。',
     brainWalletTitle: '脑钱包生成器',
     brainWalletDesc: '使用确定性算法从可记忆的文本生成比特币钱包。',
@@ -42,7 +42,7 @@ function toggleLanguage() {
 function updateLanguage() {
   const langToggle = document.querySelector('.language-toggle');
   if (langToggle) {
-    langToggle.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
+    langToggle.textContent = currentLanguage === 'en' ? '中' : 'EN';
   }
 
   // Update all elements with data-i18n attributes
@@ -58,6 +58,12 @@ function updateLanguage() {
   
   // Update document language attribute
   document.documentElement.lang = currentLanguage;
+
+  // Add loaded class once language has been updated to avoid layout shift
+  if (!document.documentElement.classList.contains('loaded')) {
+    document.documentElement.classList.add('loaded');
+    document.body.classList.add('loaded');
+  }
 }
 
 // Make toggleLanguage available globally
@@ -95,4 +101,11 @@ if (window.pageReady) {
   }, 200); // Fallback after 200ms
   
   checkPageReady();
+}
+
+// Immediately update language once script is executed (DOM already parsed when script is at the end)
+if (document.readyState !== 'loading') {
+  updateLanguage();
+} else {
+  document.addEventListener('DOMContentLoaded', updateLanguage);
 } 

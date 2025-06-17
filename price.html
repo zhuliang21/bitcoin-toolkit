@@ -3,241 +3,263 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>USD Exchange Rate - Matrix Style</title>
+  <title>Bitcoin Price API Status</title>
   <link rel="icon" href="icon/favicon.ico">
+  
+  <!-- Shared layout styles -->
+  <link rel="stylesheet" href="shared-styles.css">
+  
+  <!-- Ensure page is visible on load -->
   <style>
-    :root {
-      --matrix-green: #00ff41;
-      --matrix-bg: radial-gradient(ellipse at center, #001100 0%, #000000 70%);
+    /* Override shared-styles opacity to prevent blank page */
+    html, body {
+      opacity: 1 !important;
     }
-
-    body {
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      font-family: 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', monospace;
-      background: var(--matrix-bg);
-      color: var(--matrix-green);
+  </style>
+  
+  <style>
+    /* Page-specific styles for price API status */
+    .status-section {
+      margin-bottom: 30px;
+    }
+    
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
+      gap: 10px;
+      text-align: center;
       justify-content: center;
+    }
+    
+    .api-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    
+    .api-card {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      min-height: 120px;
+    }
+    
+    .api-card.success {
+      border-color: rgba(16, 185, 129, 0.6);
+      background: rgba(16, 185, 129, 0.1);
+    }
+    
+    .api-card.error {
+      border-color: rgba(239, 68, 68, 0.6);
+      background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .api-card.testing {
+      border-color: rgba(251, 191, 36, 0.6);
+      background: rgba(251, 191, 36, 0.1);
+      animation: pulse 2s infinite;
+    }
+    
+    .api-card.active {
+      border-color: rgba(59, 130, 246, 0.8);
+      background: rgba(59, 130, 246, 0.2);
+      transform: scale(1.02);
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .api-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .api-name {
+      font-weight: bold;
+      color: white;
+      font-size: 14px;
+    }
+    
+    .api-region {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .api-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #6b7280;
+    }
+    
+    .status-dot.success {
+      background: #10b981;
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+    }
+    
+    .status-dot.error {
+      background: #ef4444;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+    }
+    
+    .status-dot.testing {
+      background: #fbbf24;
+      box-shadow: 0 0 6px rgba(251, 191, 36, 0.4);
+    }
+    
+    .status-text {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 12px;
+    }
+    
+    .api-price {
+      font-family: 'Courier New', monospace;
+      color: #10b981;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    
+    .api-response-time {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 10px;
+      margin-top: 3px;
+    }
+    
+    .test-controls {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .test-btn {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 12px 25px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 0 8px;
+    }
+    
+    .test-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+    }
+    
+    .test-btn:disabled {
+      background: rgba(108, 117, 125, 0.8);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    /* Matrix Animation Button */
+    .matrix-btn {
+      background: linear-gradient(135deg, #00ff41, #00cc33);
+      color: black;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .matrix-btn:hover:not(:disabled) {
+      box-shadow: 0 10px 25px rgba(0, 255, 65, 0.3);
+    }
+    
+    /* Matrix Mode Styles */
+    .matrix-mode {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(ellipse at center, #001100 0%, #000000 70%);
+      z-index: 1000;
+      display: none;
       overflow: hidden;
     }
-
-    /* Back and Language buttons */
-    .fixed-button {
+    
+    .matrix-mode.active {
+      display: block;
+    }
+    
+    .matrix-controls {
       position: fixed;
-      z-index: 50;
+      top: 20px;
+      left: 20px;
+      z-index: 1001;
+      transition: opacity 1.5s ease-in-out;
+      display: flex;
+      gap: 12px;
+    }
+    
+    .matrix-controls.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .matrix-btn-control {
       background: rgba(0, 0, 0, 0.2);
       border: 1px solid rgba(0, 255, 65, 0.3);
       border-radius: 50%;
+      width: 48px;
+      height: 48px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--matrix-green);
-      text-decoration: none;
+      color: #00ff41;
+      cursor: pointer;
       transition: all 0.3s ease;
       backdrop-filter: blur(4px);
-      text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
+      text-shadow: 0 0 8px currentColor;
     }
-
-    .fixed-button:hover {
+    
+    .matrix-btn-control:hover {
       background: rgba(0, 0, 0, 0.4);
       border-color: rgba(0, 255, 65, 0.6);
       color: white;
       transform: scale(1.1);
-      text-decoration: none;
     }
-
-    .back-button {
-      top: 16px;
-      left: 16px;
-      width: 40px;
-      height: 40px;
-    }
-
-    .language-toggle {
-      top: 16px;
-      right: 16px;
-      height: 40px;
-      padding: 0 12px;
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(0, 255, 65, 0.3);
-      border-radius: 50px;
-    }
-
-    @media (min-width: 768px) {
-      .back-button {
-        top: 32px;
-        left: 32px;
-        width: 48px;
-        height: 48px;
-      }
-
-      .language-toggle {
-        top: 32px;
-        right: 32px;
-        height: 48px;
-        padding: 0 16px;
-        font-size: 14px;
-      }
-    }
-
-    /* Main Panel */
-    .main-panel {
-      position: relative;
-      z-index: 30;
-      max-width: 512px;
-      margin: 0 auto;
-      padding: 24px;
-      text-align: center;
-      transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
-    }
-
-    .main-title {
-      font-size: 32px;
-      font-weight: bold;
-      color: var(--matrix-green);
-      margin-bottom: 16px;
-      letter-spacing: 0.15em;
-      font-family: 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', monospace;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      animation: matrix-glow 3s ease-in-out infinite alternate;
-    }
-
-    @media (min-width: 768px) {
-      .main-title {
-        font-size: 64px;
-        margin-bottom: 48px;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .main-title {
-        font-size: 80px;
-      }
-    }
-
-    .title-icon {
-      font-size: 32px;
-    }
-
-    @media (min-width: 768px) {
-      .title-icon {
-        font-size: 48px;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .title-icon {
-        font-size: 64px;
-      }
-    }
-
-    /* Status Display */
-    .status-display {
-      font-size: 12px;
-      color: rgba(0, 255, 65, 0.6);
-      font-family: 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', monospace;
-      letter-spacing: 0.05em;
-      min-width: 384px;
-      text-align: center;
-      margin-bottom: 32px;
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-      text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
-    }
-
-    @media (min-width: 768px) {
-      .status-display {
-        font-size: 14px;
-      }
-    }
-
-    /* API Status Grid */
-    .api-status-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      margin-bottom: 24px;
-      max-width: 320px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    @media (min-width: 768px) {
-      .api-status-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    .api-status-item {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(0, 255, 65, 0.2);
-      border-radius: 8px;
-      padding: 8px;
-      font-size: 12px;
-    }
-
-    .api-name {
-      font-weight: 600;
-      color: rgba(0, 255, 65, 0.8);
-    }
-
-    .api-region {
-      color: rgba(0, 255, 65, 0.4);
-    }
-
-    /* Error Display */
-    .error-message {
-      display: none;
-      margin-top: 24px;
-      background: rgba(139, 0, 0, 0.2);
-      border: 2px solid rgba(255, 0, 0, 0.3);
-      border-radius: 8px;
-      padding: 16px;
-      color: #ff6b6b;
-      font-size: 14px;
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    @media (min-width: 768px) {
-      .error-message {
-        font-size: 16px;
-      }
-    }
-
-    .error-content {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    /* Animation Container */
-    .animation-container {
+    
+    .matrix-animation-container {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
       pointer-events: none;
-      z-index: 40;
+      z-index: 1000;
       overflow: hidden;
     }
 
-    /* Falling Price Animation */
     .falling-price {
       position: absolute;
       font-family: 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', monospace;
       font-weight: bold;
-      color: var(--matrix-green);
-      text-shadow: 0 0 8px var(--matrix-green), 0 0 16px var(--matrix-green);
+      color: #00ff41;
+      text-shadow: 0 0 8px #00ff41, 0 0 16px #00ff41;
       animation: smoothFall 8s linear forwards;
       pointer-events: none;
       font-size: 64px;
@@ -246,7 +268,6 @@
       white-space: nowrap;
       left: 50%;
       transform: translateX(-50%);
-      transition: filter 1.5s ease-in-out, text-shadow 1.5s ease-in-out;
     }
 
     @media (max-width: 768px) {
@@ -261,54 +282,6 @@
       }
     }
 
-    @media (max-width: 360px) {
-      .falling-price {
-        font-size: 32px;
-      }
-    }
-
-    /* Falling price blur effects when interface is visible */
-    .falling-price.blurred {
-      filter: blur(8px) saturate(150%) brightness(120%);
-      text-shadow: 0 0 15px currentColor, 0 0 30px currentColor;
-    }
-
-    /* Auto-hide animations */
-    .auto-hide {
-      transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
-    }
-
-    .hidden-state {
-      opacity: 0;
-      transform: translateY(-30px) scale(0.95);
-      pointer-events: none;
-    }
-
-    .visible-state {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
-    }
-
-    /* Status glow effect */
-    .status-glow {
-      text-shadow: 0 0 8px currentColor, 0 0 16px currentColor;
-    }
-
-    /* SVG Icon */
-    .icon {
-      width: 20px;
-      height: 20px;
-    }
-
-    @media (min-width: 768px) {
-      .icon {
-        width: 24px;
-        height: 24px;
-      }
-    }
-
-    /* Animation Keyframes */
     @keyframes smoothFall {
       0% {
         transform: translateX(-50%) translateY(-100px);
@@ -320,565 +293,778 @@
       }
     }
 
-    @keyframes matrix-glow {
-      0%, 100% {
-        text-shadow: 
-          0 0 5px var(--matrix-green),
-          0 0 10px var(--matrix-green),
-          0 0 15px var(--matrix-green),
-          0 0 20px var(--matrix-green);
-      }
-      50% {
-        text-shadow: 
-          0 0 10px var(--matrix-green),
-          0 0 20px var(--matrix-green),
-          0 0 30px var(--matrix-green),
-          0 0 40px var(--matrix-green);
+    @media (max-width: 1200px) {
+      .api-grid {
+        grid-template-columns: repeat(3, 1fr);
       }
     }
-
-    @keyframes pulse {
-      0%, 100% {
-        opacity: 1;
+    
+    @media (max-width: 768px) {
+      .api-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
-      50% {
-        opacity: 0.5;
+    }
+    
+    @media (max-width: 480px) {
+      .api-grid {
+        grid-template-columns: 1fr;
       }
     }
 
-    @keyframes pulse-glow {
-      0%, 100% {
-        text-shadow: 0 0 4px currentColor;
-        opacity: 1;
-      }
-      50% {
-        text-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
-        opacity: 0.8;
-      }
+    /* Center Mode Styles */
+    .center-mode {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at center, #000000 0%, #001111 70%);
+      z-index: 1000;
+      display: none;
+      overflow: hidden;
+    }
+    .center-mode.active {
+      display: block;
+    }
+    .center-price {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', monospace;
+      font-weight: bold;
+      font-size: 12vw;
+      line-height: 1;
+      white-space: nowrap;
+      color: #ffffff;
+      text-shadow: none;
+      transition: color 0.6s ease;
+    }
+    .center-price.animate {
+      /* 取消跳动动画 */
+      animation: none;
     }
 
-    /* Status Colors */
-    .status-success {
-      color: var(--matrix-green);
-      animation: pulse-glow 2s ease-in-out infinite;
-    }
-
-    .status-error {
-      color: #ff6b6b;
-    }
-
-    .status-pending {
-      color: #ffd93d;
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
+    /* Simulated fullscreen removed */
   </style>
 </head>
+
 <body>
-  
-  <!-- Back Button -->
-  <a href="index.html" 
-     class="fixed-button back-button auto-hide visible-state"
-     id="backButton"
-     title="Back to Home">
-    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-    </svg>
-  </a>
-
-  <!-- Language Toggle -->
-  <button class="fixed-button language-toggle auto-hide visible-state"
-          onclick="toggleLanguage()" 
-          id="langButton"
-          title="Switch Language">
-    ENG
-  </button>
-
-  <!-- Main Container -->
-  <div id="mainPanel" class="main-panel auto-hide visible-state">
+  <div class="container">
+    <div class="header-controls">
+      <a href="index.html" class="back-btn" title="Back">←</a>
+      <div style="color: white; font-size: 16px; font-weight: 600; position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap;" data-i18n="title">💰 Bitcoin Price API</div>
+      <button class="language-toggle" onclick="toggleLanguage()">EN</button>
+    </div>
     
-    <!-- Title -->
-    <div>
-      <h1 class="main-title">
-        <span class="title-icon">💰</span>
-        <span data-i18n="title">USD Rate</span>
-      </h1>
+    <div class="header">
+      <p class="subtitle" data-i18n="subtitle">Real-time Bitcoin price from multiple APIs</p>
+    </div>
+    
+    <div class="content-section">
+      <!-- Test Controls -->
+      <div class="test-controls">
+        <button id="testAllBtn" class="test-btn" onclick="testAllAPIs()" data-i18n="testAll">Test All APIs</button>
+        <button id="refreshBtn" class="test-btn" onclick="refreshPrice()" data-i18n="refresh">Refresh Price</button>
+        <button id="matrixBtn" class="test-btn matrix-btn" onclick="enterMatrixMode()" data-i18n="matrixMode">Matrix Mode</button>
+        <button id="centerBtn" class="test-btn" onclick="enterCenterMode()" data-i18n="centerMode">Center Mode</button>
     </div>
 
-    <!-- Status Display -->
-    <div>
-      <div id="statusDisplay" class="status-display status-glow"
-           data-i18n="initializing">
-        Initializing...
+      <!-- API Status Section -->
+      <div class="status-section">
+        <div class="section-title">
+          <span data-i18n="currentPrice">Current Bitcoin Price</span>
       </div>
+        <div id="apiGrid" class="api-grid">
+          <!-- API cards will be populated by JavaScript -->
     </div>
-
-    <!-- API Status Grid -->
-    <div id="apiStatus" class="api-status-grid">
-        <!-- API status indicators will be populated by JavaScript -->
     </div>
-
-    <!-- Error Display -->
-    <div id="errorMessage" class="error-message">
     </div>
   </div>
     
-  <!-- Animation container for falling prices -->
-  <div class="animation-container" id="animationContainer">
+  <!-- Matrix Mode Overlay -->
+  <div id="matrixMode" class="matrix-mode">
+    <div id="matrixControls" class="matrix-controls">
+      <button class="matrix-btn-control" onclick="exitMatrixMode()" title="Exit Matrix Mode">
+        ✕
+      </button>
+      <button class="matrix-btn-control" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+        ⛶
+      </button>
+    </div>
+    <div id="matrixAnimationContainer" class="matrix-animation-container">
+      <!-- Falling price animations will be added here -->
+    </div>
+  </div>
+
+  <!-- Center Mode Overlay -->
+  <div id="centerMode" class="center-mode">
+    <div id="centerControls" class="matrix-controls">
+      <button class="matrix-btn-control" onclick="exitCenterMode()" title="Exit Center Mode">✕</button>
+      <button class="matrix-btn-control" onclick="toggleFullscreen()" title="Toggle Fullscreen">⛶</button>
+    </div>
+    <div id="centerPrice" class="center-price">--</div>
   </div>
 
   <script>
-    let previousPrice = null;
-    let updateInterval = null;
-    let currentApiIndex = 0;
-    let isPageVisible = true;
-    let pendingAnimations = 0;
-    let apiStatuses = {};
-    
-    // Auto-hide functionality
-    let hideTimeout = null;
-    let isInterfaceVisible = true;
-    let lastInteractionTime = Date.now();
-    const HIDE_DELAY = 5000; // 5 seconds of inactivity
+    // Language translations
+    const translations = {
+      en: {
+        title: "💰 Bitcoin Price API",
+        subtitle: "Real-time Bitcoin price from multiple APIs",
+        currentPrice: "Current Bitcoin Price",
+        loading: "Fetching price data...",
+        testAll: "Test All APIs",
+        refresh: "Refresh Price",
+        matrixMode: "Matrix Mode",
+        centerMode: "Center Mode",
+        apiStatus: "API Status",
+        connected: "Connected",
+        failed: "Failed",
+        testing: "Testing...",
+        notTested: "Not tested",
+        activeApi: "Active API",
+        responseTime: "Response time"
+      },
+      zh: {
+        title: "💰 比特币价格API",
+        subtitle: "来自多个API的实时比特币价格",
+        currentPrice: "当前比特币价格",
+        loading: "获取价格数据中...",
+        testAll: "测试所有API",
+        refresh: "刷新价格",
+        matrixMode: "矩阵模式",
+        centerMode: "中心模式",
+        apiStatus: "API状态",
+        connected: "已连接",
+        failed: "失败",
+        testing: "测试中...",
+        notTested: "未测试",
+        activeApi: "当前API",
+        responseTime: "响应时间"
+      }
+    };
 
-    // Multiple API endpoints with China-friendly options
+    let currentLanguage = 'en';
+    let activeAPIIndex = 0;
+    let testResults = {};
+    
+    // Matrix mode variables
+    let matrixMode = false;
+    let matrixInterval = null;
+    let matrixAnimationCount = 0;
+    let matrixHideTimeout = null;
+    let isFullscreen = false;
+
+    // Center mode variables
+    let centerMode = false;
+    let centerInterval = null;
+    let centerPreviousPrice = null;
+    let centerHideTimeout = null;
+
+         // Multiple API endpoints
     const apiEndpoints = [
       {
         name: 'OKX',
         region: 'CN',
         url: 'https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT',
-        parser: (data) => parseFloat(data.data[0].last)
+        parser: (data) => parseFloat(data.data[0].last),
+        enabled: true
       },
       {
         name: 'Huobi',
         region: 'CN', 
         url: 'https://api.huobi.pro/market/detail/merged?symbol=btcusdt',
-        parser: (data) => parseFloat(data.tick.close)
-      },
-      {
-        name: 'Gate.io',
-        region: 'CN',
-        url: 'https://api.gateio.ws/api/v4/spot/tickers?currency_pair=BTC_USDT',
-        parser: (data) => parseFloat(data[0].last)
+        parser: (data) => parseFloat(data.tick.close),
+        enabled: true
       },
       {
         name: 'CoinGecko',
         region: 'Global',
         url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
-        parser: (data) => data.bitcoin.usd
-      },
-      {
-        name: 'Binance',
-        region: 'Global',
-        url: 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT',
-        parser: (data) => parseFloat(data.lastPrice)
+        parser: (data) => data.bitcoin.usd,
+        enabled: true
       },
       {
         name: 'Coinbase',
         region: 'US',
         url: 'https://api.exchange.coinbase.com/products/BTC-USD/ticker',
-        parser: (data) => parseFloat(data.price)
+        parser: (data) => parseFloat(data.price),
+        enabled: true
       },
       {
         name: 'Kraken',
         region: 'US',
         url: 'https://api.kraken.com/0/public/Ticker?pair=XBTUSD',
-        parser: (data) => parseFloat(data.result.XXBTZUSD.c[0])
-      },
-      {
-        name: 'Bitfinex',
-        region: 'Global',
-        url: 'https://api.bitfinex.com/v1/pubticker/btcusd',
-        parser: (data) => parseFloat(data.last_price)
-      }
-    ];
+        parser: (data) => parseFloat(data.result.XXBTZUSD.c[0]),
+        enabled: true
+       }
+     ];
 
-    // Initialize API status display
-    function initApiStatusDisplay() {
-      const container = document.getElementById('apiStatus');
-      container.innerHTML = '';
+    function updateLanguage() {
+      const elements = document.querySelectorAll('[data-i18n]');
+      elements.forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[currentLanguage] && translations[currentLanguage][key]) {
+          element.textContent = translations[currentLanguage][key];
+        }
+      });
+      
+      const langBtn = document.querySelector('.language-toggle');
+      langBtn.textContent = currentLanguage === 'en' ? 'EN' : '中';
+      
+      // Update API status texts
+      updateAPIStatusTexts();
+    }
+
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
+      updateLanguage();
+    }
+
+    function initializeAPIGrid() {
+      const grid = document.getElementById('apiGrid');
+      grid.innerHTML = '';
       
       apiEndpoints.forEach((api, index) => {
-        const statusElement = document.createElement('div');
-        statusElement.className = 'api-status-item';
-        statusElement.innerHTML = `
+        const card = document.createElement('div');
+        card.className = 'api-card';
+        card.id = `api-${index}`;
+        
+        card.innerHTML = `
+          <div class="api-header">
           <div class="api-name">${api.name}</div>
           <div class="api-region">${api.region}</div>
-          <div id="status-${index}" class="status-pending">●</div>
+          </div>
+          <div class="api-status">
+            <div class="status-dot" id="status-dot-${index}"></div>
+            <div class="status-text" id="status-text-${index}">${translations[currentLanguage].notTested}</div>
+          </div>
+          <div class="api-price" id="api-price-${index}">-</div>
+          <div class="api-response-time" id="response-time-${index}"></div>
         `;
-        container.appendChild(statusElement);
-        apiStatuses[index] = 'pending';
+        
+        grid.appendChild(card);
       });
     }
 
-    function updateApiStatus(index, status) {
-      const statusElement = document.getElementById(`status-${index}`);
-      if (statusElement) {
-        apiStatuses[index] = status;
-            statusElement.textContent = '●';
-        statusElement.className = `status-${status}`;
+    function updateAPIStatusTexts() {
+      apiEndpoints.forEach((api, index) => {
+        const statusText = document.getElementById(`status-text-${index}`);
+        if (statusText) {
+          const result = testResults[index];
+          if (!result) {
+            statusText.textContent = translations[currentLanguage].notTested;
+          } else if (result.status === 'success') {
+            statusText.textContent = translations[currentLanguage].connected;
+          } else if (result.status === 'error') {
+            statusText.textContent = translations[currentLanguage].failed;
+          } else if (result.status === 'testing') {
+            statusText.textContent = translations[currentLanguage].testing;
+          }
+        }
+      });
+    }
+
+    async function testAPI(index) {
+      const api = apiEndpoints[index];
+      if (!api.enabled) {
+        return { success:false, disabled:true };
       }
-    }
-
-    function updateStatusDisplay(message) {
-      const statusElement = document.getElementById('statusDisplay');
-      statusElement.textContent = message;
-      statusElement.className = 'status-display status-glow';
-    }
-
-    async function fetchPrice() {
-      let lastError = null;
+      const card = document.getElementById(`api-${index}`);
+      const statusDot = document.getElementById(`status-dot-${index}`);
+      const statusText = document.getElementById(`status-text-${index}`);
+      const priceElement = document.getElementById(`api-price-${index}`);
+      const responseTimeElement = document.getElementById(`response-time-${index}`);
       
-      // Try all APIs until success
-      for (let i = 0; i < apiEndpoints.length; i++) {
-        const apiIndex = (currentApiIndex + i) % apiEndpoints.length;
-        const api = apiEndpoints[apiIndex];
-        
-        updateApiStatus(apiIndex, 'pending');
-        
-        try {
-          console.log(`Trying API ${apiIndex + 1}: ${api.name} - ${api.url}`);
-          updateStatusDisplay(`Getting ${api.name}...`);
-          
+      // Set testing status
+      testResults[index] = { status: 'testing' };
+      card.className = 'api-card testing';
+      statusDot.className = 'status-dot testing';
+      statusText.textContent = translations[currentLanguage].testing;
+      priceElement.textContent = '-';
+      responseTimeElement.textContent = '';
+      
+      const startTime = Date.now();
+      
+      try {
           const response = await fetch(api.url);
+        const responseTime = Date.now() - startTime;
           
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`HTTP ${response.status}`);
           }
           
           const data = await response.json();
           const price = api.parser(data);
           
           if (price && !isNaN(price)) {
-            updatePriceDisplay(price);
-            updateApiStatus(apiIndex, 'success');
-            updateStatusDisplay(`✅ $${price.toLocaleString()} • ${api.name}`);
-            hideError();
-            
-            // Update current API index on success
-            currentApiIndex = apiIndex;
-            console.log(`✅ Successfully fetched rate: $${price.toLocaleString()} (source: ${api.name})`);
-            return;
+          testResults[index] = { 
+            status: 'success', 
+            price: price, 
+            responseTime: responseTime 
+          };
+          
+          card.className = 'api-card success';
+          statusDot.className = 'status-dot success';
+          statusText.textContent = translations[currentLanguage].connected;
+          priceElement.textContent = `$${price.toLocaleString()}`;
+          responseTimeElement.textContent = `${responseTime}ms`;
+          
+          return { success: true, price: price, responseTime: responseTime };
           } else {
             throw new Error('Invalid price data');
           }
-          
         } catch (error) {
-          console.error(`❌ API ${apiIndex + 1} (${api.name}) failed:`, error);
-          updateApiStatus(apiIndex, 'error');
-          lastError = error;
-          continue;
-        }
+        // Disable API permanently on error
+        api.enabled = false;
+        testResults[index] = { status: 'error', error: error.message };
+        
+        card.className = 'api-card error';
+        statusDot.className = 'status-dot error';
+        statusText.textContent = translations[currentLanguage].failed;
+        priceElement.textContent = 'Error';
+        responseTimeElement.textContent = error.message;
+        
+        return { success: false, error: error.message };
       }
-      
-      // All APIs failed
-      console.error('All APIs failed, last error:', lastError);
-      updateStatusDisplay('❌ Connection failed');
-      showError('All price sources failed. Check connection.');
     }
 
-    function updatePriceDisplay(price) {
-      const currentPrice = parseInt(price);
+    async function testAllAPIs() {
+      const testBtn = document.getElementById('testAllBtn');
+      const refreshBtn = document.getElementById('refreshBtn');
       
-      // Always create falling price animation
-      createFallingPriceAnimation(currentPrice);
+      testBtn.disabled = true;
+      refreshBtn.disabled = true;
+      testBtn.textContent = 'Testing...';
       
-      previousPrice = currentPrice;
+      // Clear previous active status
+      document.querySelectorAll('.api-card').forEach(card => {
+        card.classList.remove('active');
+      });
+      
+      // Test all APIs
+      for (let i = 0; i < apiEndpoints.length; i++) {
+        if (apiEndpoints[i].enabled) {
+          await testAPI(i);
+        }
+        await new Promise(resolve => setTimeout(resolve, 200)); // Small delay between tests
+      }
+      
+      // Find the best working API (fastest response)
+      let bestAPI = null;
+      let bestResponseTime = Infinity;
+      
+      Object.keys(testResults).forEach(index => {
+        const result = testResults[index];
+        if (result.status === 'success' && result.responseTime < bestResponseTime) {
+          bestResponseTime = result.responseTime;
+          bestAPI = parseInt(index);
+        }
+      });
+      
+      if (bestAPI !== null) {
+        activeAPIIndex = bestAPI;
+        const activeCard = document.getElementById(`api-${bestAPI}`);
+        activeCard.classList.add('active');
+      }
+      
+      testBtn.disabled = false;
+      refreshBtn.disabled = false;
+      testBtn.textContent = translations[currentLanguage].testAll;
     }
-    
-    function createFallingPriceAnimation(price) {
-      const container = document.getElementById('animationContainer');
+
+    async function refreshPrice() {
+      if (activeAPIIndex !== null && testResults[activeAPIIndex]?.status === 'success') {
+        const result = await testAPI(activeAPIIndex);
+      } else {
+        await testAllAPIs();
+      }
+    }
+
+    // Matrix Mode Functions
+    function enterMatrixMode() {
+      matrixMode = true;
+      const matrixOverlay = document.getElementById('matrixMode');
+      matrixOverlay.classList.add('active');
       
-      // Clean up old animations when page is not visible or too many animations
-      if (!isPageVisible || pendingAnimations > 5) {
-        const existingElements = container.querySelectorAll('.falling-price');
-        existingElements.forEach(element => {
-          const animationStartTime = element.dataset.startTime;
-          if (animationStartTime) {
-            const elapsed = Date.now() - parseInt(animationStartTime);
-            // Clean up animations that are 70% complete (5.6 seconds)
-            if (elapsed > 5600) {
-              container.removeChild(element);
-              pendingAnimations = Math.max(0, pendingAnimations - 1);
+      // Start matrix animations
+      startMatrixAnimations();
+      
+      // Auto-hide controls after 5 seconds
+      resetMatrixHideTimer();
+      
+      // Add interaction listeners to show controls
+      setupMatrixInteractionListeners();
+    }
+
+    function exitMatrixMode() {
+      matrixMode = false;
+      const matrixOverlay = document.getElementById('matrixMode');
+      matrixOverlay.classList.remove('active');
+      
+      // Exit fullscreen if currently in fullscreen mode
+      if (isFullscreen) {
+        exitFullscreen();
+      }
+      
+      // Stop matrix animations
+      stopMatrixAnimations();
+      
+      // Clear timers
+      if (matrixHideTimeout) {
+        clearTimeout(matrixHideTimeout);
+      }
+    }
+
+    function startMatrixAnimations() {
+      // Stop any existing interval
+      stopMatrixAnimations();
+      
+      // Start price fetching and animation
+      matrixInterval = setInterval(async () => {
+        // Get price from active API or test a random one
+        let price = null;
+        
+        if (activeAPIIndex !== null && testResults[activeAPIIndex]?.status === 'success') {
+          try {
+            const api = apiEndpoints[activeAPIIndex];
+            const response = await fetch(api.url);
+            if (response.ok) {
+              const data = await response.json();
+              price = api.parser(data);
             }
+          } catch (error) {
+            console.log('Matrix mode API fetch failed:', error);
           }
-        });
+        }
+        
+        // If no price or error, use a recent successful price
+        if (!price) {
+          const successfulResults = Object.values(testResults).filter(r => r.status === 'success' && r.price);
+          if (successfulResults.length > 0) {
+            price = successfulResults[Math.floor(Math.random() * successfulResults.length)].price;
+          } else {
+            // Fallback to a reasonable BTC price
+            price = 45000 + Math.random() * 10000;
+          }
+        }
+        
+        if (price) {
+          createMatrixFallingPrice(price);
+        }
+      }, 2000); // Every 2 seconds
+    }
+
+    function stopMatrixAnimations() {
+      if (matrixInterval) {
+        clearInterval(matrixInterval);
+        matrixInterval = null;
+      }
+      
+      // Clear all animations
+      const container = document.getElementById('matrixAnimationContainer');
+      if (container) {
+        container.innerHTML = '';
+        matrixAnimationCount = 0;
+      }
+    }
+
+    function createMatrixFallingPrice(price) {
+      const container = document.getElementById('matrixAnimationContainer');
+      
+      // Limit concurrent animations
+      if (matrixAnimationCount > 5) {
+        const existingElements = container.querySelectorAll('.falling-price');
+        if (existingElements.length > 0) {
+          container.removeChild(existingElements[0]);
+          matrixAnimationCount--;
+        }
       }
       
       const priceElement = document.createElement('div');
       priceElement.className = 'falling-price';
-      priceElement.textContent = price.toLocaleString('en-US');
-      priceElement.dataset.startTime = Date.now().toString();
-      
-      // Apply blur if interface is currently visible
-      if (isInterfaceVisible) {
-        priceElement.classList.add('blurred');
-      }
-      
-      // Price always displays in center position (via CSS left: 50% and animation)
+      priceElement.textContent = Math.round(price).toLocaleString('en-US');
       
       container.appendChild(priceElement);
-      pendingAnimations++;
+      matrixAnimationCount++;
       
       // Remove element after animation completes (8 seconds)
       setTimeout(() => {
         if (container.contains(priceElement)) {
           container.removeChild(priceElement);
-          pendingAnimations = Math.max(0, pendingAnimations - 1);
+          matrixAnimationCount = Math.max(0, matrixAnimationCount - 1);
         }
       }, 8000);
     }
 
-    function showError(message) {
-      const errorElement = document.getElementById('errorMessage');
-      errorElement.innerHTML = `
-        <div class="error-content">
-          <span>⚠️</span>
-          <span>${message}</span>
-        </div>
-      `;
-      errorElement.style.display = 'block';
+    function resetMatrixHideTimer() {
+      const controls = document.getElementById('matrixControls');
+      controls.classList.remove('hidden');
+      
+      if (matrixHideTimeout) {
+        clearTimeout(matrixHideTimeout);
+      }
+      
+      matrixHideTimeout = setTimeout(() => {
+        controls.classList.add('hidden');
+      }, 5000);
     }
 
-    function hideError() {
-      document.getElementById('errorMessage').style.display = 'none';
-    }
-
-    function hideInterface() {
-      if (!isInterfaceVisible) return;
+    function setupMatrixInteractionListeners() {
+      const events = ['mousedown', 'mousemove', 'touchstart', 'keydown'];
       
-      isInterfaceVisible = false;
-      const mainPanel = document.getElementById('mainPanel');
-      const backButton = document.getElementById('backButton');
-      const langButton = document.getElementById('langButton');
-      
-      if (mainPanel) {
-        mainPanel.classList.remove('visible-state');
-        mainPanel.classList.add('hidden-state');
-      }
-      
-      if (backButton) {
-        backButton.classList.remove('visible-state');
-        backButton.classList.add('hidden-state');
-      }
-      
-      if (langButton) {
-        langButton.classList.remove('visible-state');
-        langButton.classList.add('hidden-state');
-      }
-      
-      // Remove blur from all falling prices
-      const fallingPrices = document.querySelectorAll('.falling-price');
-      fallingPrices.forEach(price => {
-        price.classList.remove('blurred');
-      });
-      
-      console.log('🫥 Interface hidden - entering zen mode');
-    }
-
-    function showInterface() {
-      if (isInterfaceVisible) return;
-      
-      isInterfaceVisible = true;
-      const mainPanel = document.getElementById('mainPanel');
-      const backButton = document.getElementById('backButton');
-      const langButton = document.getElementById('langButton');
-      
-      if (mainPanel) {
-        mainPanel.classList.remove('hidden-state');
-        mainPanel.classList.add('visible-state');
-      }
-      
-      if (backButton) {
-        backButton.classList.remove('hidden-state');
-        backButton.classList.add('visible-state');
-      }
-      
-      if (langButton) {
-        langButton.classList.remove('hidden-state');
-        langButton.classList.add('visible-state');
-      }
-      
-      // Add blur to all falling prices
-      const fallingPrices = document.querySelectorAll('.falling-price');
-      fallingPrices.forEach(price => {
-        price.classList.add('blurred');
-      });
-      
-      console.log('👁️ Interface visible - controls restored');
-    }
-
-    function resetHideTimer() {
-      lastInteractionTime = Date.now();
-      
-      // Show interface if it's hidden
-      if (!isInterfaceVisible) {
-        showInterface();
-      }
-      
-      // Clear existing timer
-      if (hideTimeout) {
-        clearTimeout(hideTimeout);
-      }
-      
-      // Set new timer
-      hideTimeout = setTimeout(() => {
-        if (Date.now() - lastInteractionTime >= HIDE_DELAY) {
-          hideInterface();
+      const handleInteraction = () => {
+        if (matrixMode) {
+          resetMatrixHideTimer();
         }
-      }, HIDE_DELAY);
-    }
-
-    // Event listeners for user interaction
-    function setupInteractionListeners() {
-      const events = [
-        'mousedown', 'mousemove', 'mouseup', 'click',
-        'touchstart', 'touchmove', 'touchend',
-        'keydown', 'scroll', 'wheel'
-      ];
+      };
       
       events.forEach(eventType => {
-        document.addEventListener(eventType, resetHideTimer, { passive: true });
+        document.addEventListener(eventType, handleInteraction, { passive: true });
       });
-      
-      // Special handling for touch events to ensure mobile compatibility
-      document.addEventListener('touchstart', (e) => {
-        resetHideTimer();
-      }, { passive: true });
-      
-      document.addEventListener('touchmove', (e) => {
-        resetHideTimer();
-      }, { passive: true });
-      
-      // Initial timer
-      resetHideTimer();
     }
 
-    // Initialize
-    function startPriceUpdates() {
-      // Clear any existing intervals
-      if (updateInterval) {
-        clearInterval(updateInterval);
-      }
-      
-      // Clear existing animations
-      const container = document.getElementById('animationContainer');
-      if (container) {
-        container.innerHTML = '';
-        pendingAnimations = 0;
-      }
-      
-      // Initialize API status display
-      initApiStatusDisplay();
-      
-      // Fetch immediately
-      fetchPrice();
-      
-      // Then update every 2 seconds
-      updateInterval = setInterval(fetchPrice, 2000);
-    }
-
-    function stopPriceUpdates() {
-      if (updateInterval) {
-        clearInterval(updateInterval);
-        updateInterval = null;
+    // Fullscreen functionality
+    function toggleFullscreen() {
+      if (!isFullscreen) {
+        enterFullscreen();
+      } else {
+        exitFullscreen();
       }
     }
 
-    // Handle page visibility changes
-    function handleVisibilityChange() {
-      if (document.hidden) {
-        isPageVisible = false;
-        stopPriceUpdates();
-        updateStatusDisplay('⏸️ Paused (page hidden)');
-        console.log('Page hidden, stopping price updates');
-        
-        // Clear hide timer when page is hidden
-        if (hideTimeout) {
-          clearTimeout(hideTimeout);
+    function enterFullscreen() {
+      const element = document.documentElement;
+      
+      if (element.requestFullscreen) {
+        element.requestFullscreen().catch(()=>{});
+      } else if (element.webkitRequestFullscreen) { // Safari
+        element.webkitRequestFullscreen();
+      } else if (element.msRequestFullscreen) { // IE11
+        element.msRequestFullscreen();
+      } else if (element.mozRequestFullScreen) { // Firefox
+        element.mozRequestFullScreen();
+      }
+      
+      // 若 300ms 后仍未处于全屏，则认为浏览器不支持，启用模拟全屏
+      setTimeout(()=>{
+        isFullscreen = true;
+        document.body.classList.toggle('sim-fullscreen', false);
+        if (centerMode) adjustCenterPrice();
+      },300);
+    }
+
+    function exitFullscreen() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) { // Safari
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) { // IE11
+        document.msExitFullscreen();
+      } else if (document.mozCancelFullScreen) { // Firefox
+        document.mozCancelFullScreen();
+      }
+      
+      isFullscreen = false;
+      document.body.classList.remove('sim-fullscreen');
+      if (centerMode) adjustCenterPrice();
+    }
+
+    function updateFullscreenButton() {
+      const fullscreenBtn = document.querySelector('[onclick="toggleFullscreen()"]');
+      if (fullscreenBtn) {
+        fullscreenBtn.textContent = isFullscreen ? '⛶' : '⛶';
+        fullscreenBtn.title = isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen';
+      }
+    }
+
+    // Listen for fullscreen changes
+    function handleFullscreenChange() {
+      isFullscreen = !!(document.fullscreenElement || 
+                       document.webkitFullscreenElement || 
+                       document.msFullscreenElement || 
+                       document.mozFullScreenElement);
+      updateFullscreenButton();
+      if (centerMode) adjustCenterPrice();
+    }
+
+    // Add fullscreen event listeners
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('msfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+
+    // Center Mode Functions
+    function enterCenterMode() {
+      // If matrix mode active, exit it first
+      if (matrixMode) {
+        exitMatrixMode();
+      }
+      centerMode = true;
+      const overlay = document.getElementById('centerMode');
+      overlay.classList.add('active');
+      startCenterUpdates();
+      adjustCenterPrice();
+      resetCenterHideTimer();
+      setupCenterInteractionListeners();
+    }
+
+    function exitCenterMode() {
+      centerMode = false;
+      const overlay = document.getElementById('centerMode');
+      overlay.classList.remove('active');
+      // Exit fullscreen if active
+      if (isFullscreen) {
+        exitFullscreen();
+      }
+      stopCenterUpdates();
+      if (centerHideTimeout) clearTimeout(centerHideTimeout);
+    }
+
+    function startCenterUpdates() {
+      stopCenterUpdates();
+      updateCenterPriceDisplay();
+      centerInterval = setInterval(updateCenterPriceDisplay, 2000);
+    }
+
+    function stopCenterUpdates() {
+      if (centerInterval) {
+        clearInterval(centerInterval);
+        centerInterval = null;
+      }
+    }
+
+    async function updateCenterPriceDisplay() {
+      let price = null;
+      // Try active API first
+      if (activeAPIIndex !== null && testResults[activeAPIIndex]?.status === 'success') {
+        try {
+          const api = apiEndpoints[activeAPIIndex];
+          const response = await fetch(api.url);
+          if (response.ok) {
+            const data = await response.json();
+            price = api.parser(data);
+          }
+        } catch (err) {}
+      }
+      // fallback to successful cached
+      if (!price) {
+        const successful = Object.values(testResults).filter(r => r.status === 'success' && r.price);
+        if (successful.length) {
+          price = successful[Math.floor(Math.random()*successful.length)].price;
+        }
+      }
+      // fallback to pseudo price
+      if (!price) {
+        price = 45000 + Math.random()*10000;
+      }
+      if (price) {
+        updateCenterPrice(price);
+      }
+    }
+
+    function updateCenterPrice(price) {
+      const priceInt = Math.round(price);
+      const priceEl = document.getElementById('centerPrice');
+      if (!priceEl) return;
+      priceEl.textContent = priceInt.toLocaleString('en-US');
+      // Determine color
+      if (centerPreviousPrice !== null) {
+        if (priceInt > centerPreviousPrice) {
+          priceEl.style.color = '#10b981';
+        } else if (priceInt < centerPreviousPrice) {
+          priceEl.style.color = '#ef4444';
+        }
+      }
+      centerPreviousPrice = priceInt;
+      adjustCenterPrice();
+    }
+
+    // 计算并调整中央价格字体大小及旋转
+    function adjustCenterPrice() {
+      const priceEl = document.getElementById('centerPrice');
+      if (!priceEl || !centerMode) return;
+      if (!isFullscreen) {
+        // 退出全屏时恢复默认 12vw 字号，由 CSS 控制
+        priceEl.style.fontSize = '';
+      } else {
+        const txt = priceEl.textContent || '88888';
+        const chars = txt.length;
+        const shortSide = Math.min(window.innerWidth, window.innerHeight);
+        // 全屏时尽量填满 90% 短边
+        let fontSize = (shortSide * 0.9) / (chars * 0.45);
+        const maxHeight = window.innerHeight * 0.9;
+        if (fontSize > maxHeight) fontSize = maxHeight;
+        priceEl.style.fontSize = `${fontSize}px`;
+      }
+      // 仅在全屏时允许旋转
+      if (isFullscreen) {
+        if (window.innerHeight > window.innerWidth) {
+          priceEl.style.transform = 'translate(-50%, -50%) rotate(90deg)';
+        } else {
+          priceEl.style.transform = 'translate(-50%, -50%)';
         }
       } else {
-        isPageVisible = true;
-        updateStatusDisplay('🔄 Resuming updates...');
-        console.log('Page visible, restarting price updates');
-        
-        // Reset interaction timer when page becomes visible
-        resetHideTimer();
-        
-        // Delay restart to avoid immediate duplicate requests
-        setTimeout(() => {
-          if (updateInterval) {
-            clearInterval(updateInterval);
-          }
-          fetchPrice();
-          updateInterval = setInterval(fetchPrice, 2000);
-        }, 500);
+        priceEl.style.transform = 'translate(-50%, -50%)';
       }
     }
 
-    // Start when page loads
-    document.addEventListener('DOMContentLoaded', () => {
-      startPriceUpdates();
-      setupInteractionListeners();
+    // 在窗口变动时重新调整
+    window.addEventListener('resize', () => {
+      if (centerMode) adjustCenterPrice();
+    });
+    window.addEventListener('orientationchange', () => {
+      if (centerMode) {
+        // 部分移动浏览器 orientationchange 不会触发 resize
+        setTimeout(adjustCenterPrice, 300);
+      }
+    });
+
+    function resetCenterHideTimer() {
+      const controls = document.getElementById('centerControls');
+      controls.classList.remove('hidden');
+      if (centerHideTimeout) clearTimeout(centerHideTimeout);
+      centerHideTimeout = setTimeout(()=>{controls.classList.add('hidden');},5000);
+    }
+
+    function setupCenterInteractionListeners() {
+      const events=['mousedown','mousemove','touchstart','keydown'];
+      const handler=()=>{if(centerMode) resetCenterHideTimer();};
+      events.forEach(evt=>{document.addEventListener(evt,handler,{passive:true});});
+    }
+
+    // Initialize page
+    function initializePage() {
+      updateLanguage();
+      initializeAPIGrid();
       
-      // Set initial blur state for any existing elements
-      if (isInterfaceVisible) {
-        const fallingPrices = document.querySelectorAll('.falling-price');
-        fallingPrices.forEach(price => {
-          price.classList.add('blurred');
-        });
-      }
-    });
-    
-    // Listen for page visibility changes
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Clean up interval when page unloads
-    window.addEventListener('beforeunload', () => {
-      stopPriceUpdates();
-      if (hideTimeout) {
-        clearTimeout(hideTimeout);
-      }
-    });
-
-    // Language support
-    const translations = {
-      en: {
-        title: 'USD Rate',
-        initializing: 'Initializing...'
-      },
-      zh: {
-        title: 'USD汇率',
-        initializing: '初始化中...'
-      }
-    };
-
-    let currentLanguage = localStorage.getItem('language') || 'en';
-
-    function updateTexts() {
-      const texts = translations[currentLanguage];
-      document.querySelectorAll('[data-i18n]').forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        if (texts[key]) {
-          element.textContent = texts[key];
-        }
-      });
-
-      const toggleBtn = document.querySelector('.language-toggle');
-      if (toggleBtn) {
-        toggleBtn.textContent = currentLanguage === 'en' ? '中文' : 'ENG';
-      }
-
-      document.documentElement.lang = currentLanguage;
+      // Show content with smooth fade-in
+      setTimeout(() => {
+        document.documentElement.classList.add('loaded');
+        document.body.classList.add('loaded');
+      }, 100);
+      
+      // Auto-test APIs on load
+      setTimeout(() => {
+        testAllAPIs();
+      }, 500);
     }
 
-    function toggleLanguage() {
-      currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
-      localStorage.setItem('language', currentLanguage);
-      updateTexts();
+    // Initialize as soon as DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializePage);
+    } else {
+      initializePage();
     }
-
-    // Initialize language on page load
-    updateTexts();
+    
+    // Fallback: ensure page is visible
+    setTimeout(() => {
+      if (!document.documentElement.classList.contains('loaded')) {
+        document.documentElement.classList.add('loaded');
+        document.body.classList.add('loaded');
+      }
+    }, 500);
   </script>
 </body>
 </html>
