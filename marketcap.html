@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bitcoin vs Big Tech Market Cap</title>
+  <link rel="icon" href="icon/favicon.ico">
+  <link rel="stylesheet" href="shared-styles.css"/>
+  <style>
+    html,body{opacity:1!important}
+    .container{max-width:900px;margin:0 auto;padding:0 20px}
+    h1{font-size:2.2rem;text-align:center;color:#fff;margin-bottom:50px;text-shadow:0 2px 4px rgba(0,0,0,0.3);font-weight:700}
+    .progress-block{margin-bottom:45px;padding:25px;background:rgba(255,255,255,0.15);border-radius:20px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);box-shadow:0 8px 32px rgba(0,0,0,0.1)}
+    .label{margin-bottom:15px;font-weight:600;color:#fff;font-size:1.1rem;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,0.2)}
+    .caps{margin-top:12px;font-size:0.9rem;color:rgba(255,255,255,0.8);text-align:center;font-weight:500}
+    .progress-container{position:relative;width:100%;height:35px;background:rgba(255,255,255,0.2);border-radius:18px;overflow:hidden;box-shadow:inset 0 2px 8px rgba(0,0,0,0.1)}
+    .progress-inner{height:100%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:flex-start;color:#fff;font-weight:700;font-size:0.95rem;transition:width 0.8s cubic-bezier(0.25,0.46,0.45,0.94);box-shadow:0 2px 8px rgba(16,185,129,0.3);position:relative}
+    .progress-percentage{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#fff;font-weight:700;font-size:0.95rem;text-shadow:0 1px 2px rgba(0,0,0,0.3);z-index:2}
+    .btc-label{color:#f59e0b;font-weight:600}
+    .company-label{color:#3b82f6;font-weight:600}
+    @media (max-width: 768px) {
+      h1{font-size:1.8rem}
+      .progress-block{margin-bottom:35px;padding:20px}
+      .progress-container{height:32px}
+      .progress-percentage{font-size:0.9rem;right:10px}
+      .caps{font-size:0.85rem}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Navigation Header -->
+    <div class="header-controls">
+      <a href="index.html" class="back-btn">←</a>
+      <div style="color: white; font-size: 16px; font-weight: 600; position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap;">📊 Market Cap Comparison</div>
+      <button class="language-toggle" onclick="toggleLanguage()">EN</button>
+    </div>
+    
+    <div class="header-section">
+      <h1>Bitcoin vs Big Tech Market Cap</h1>
+    </div>
+
+    <div class="progress-block" id="block-apple">
+      <div class="label">Apple (AAPL)</div>
+      <div class="progress-container">
+        <div class="progress-inner" id="bar-apple" style="width:0%"></div>
+        <div class="progress-percentage" id="bar-apple-text">0%</div>
+      </div>
+      <div class="caps"><span class="btc-label">BTC:</span> <span id="btcCap">--</span> &nbsp;|&nbsp; <span class="company-label">Apple:</span> <span id="cap-apple">--</span></div>
+    </div>
+
+    <div class="progress-block" id="block-alphabet-google">
+      <div class="label">Alphabet (Google) (GOOGL)</div>
+      <div class="progress-container">
+        <div class="progress-inner" id="bar-alphabet-google" style="width:0%"></div>
+        <div class="progress-percentage" id="bar-alphabet-google-text">0%</div>
+      </div>
+      <div class="caps"><span class="btc-label">BTC:</span> <span id="btcCap2">--</span> &nbsp;|&nbsp; <span class="company-label">Google:</span> <span id="cap-alphabet-google">--</span></div>
+    </div>
+
+    <div class="progress-block" id="block-amazon">
+      <div class="label">Amazon (AMZN)</div>
+      <div class="progress-container">
+        <div class="progress-inner" id="bar-amazon" style="width:0%"></div>
+        <div class="progress-percentage" id="bar-amazon-text">0%</div>
+      </div>
+      <div class="caps"><span class="btc-label">BTC:</span> <span id="btcCap3">--</span> &nbsp;|&nbsp; <span class="company-label">Amazon:</span> <span id="cap-amazon">--</span></div>
+    </div>
+  </div>
+
+<script>
+// Language toggle function for consistency
+function toggleLanguage() {
+  // Placeholder for language functionality
+  console.log('Language toggle clicked');
+}
+
+(async()=>{
+  const btcUrl='https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true';
+  const companySlugs=[
+    {name:'Apple',slug:'apple'},
+    {name:'Alphabet (Google)',slug:'alphabet-google'},
+    {name:'Amazon',slug:'amazon'}
+  ];
+  const formatCap=v=>{
+    if(!v||isNaN(v))return'--';
+    if(v>=1e12) return `$${(v/1e12).toFixed(2)}T`;
+    if(v>=1e9) return `$${(v/1e9).toFixed(2)}B`;
+    if(v>=1e6) return `$${(v/1e6).toFixed(2)}M`;
+    return `$${v.toLocaleString()}`;
+  };
+  let btcCap;
+  try{
+    const data=await (await fetch(btcUrl)).json();
+    btcCap=data.bitcoin.usd_market_cap;
+  }catch(e){console.error('BTC cap fetch failed',e);return;}
+  // Update BTC cap placeholders
+  document.querySelectorAll('#btcCap,#btcCap2,#btcCap3').forEach(el=>el.textContent=formatCap(btcCap));
+
+  const fetchCompanyCap=async slug=>{
+    const proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent('https://companiesmarketcap.com/'+slug+'/marketcap/')}`;
+    const html=await (await fetch(proxy)).text();
+    const match=html.match(/\$([0-9\.]+)\s*(Trillion|Billion|Million)/i);
+    if(!match) throw new Error('parse fail');
+    let val=parseFloat(match[1]);
+    const unit=match[2].toLowerCase();
+    if(unit.startsWith('trillion')) val*=1e12;
+    else if(unit.startsWith('billion')) val*=1e9;
+    else if(unit.startsWith('million')) val*=1e6;
+    return val;
+  };
+
+  for(const {slug} of companySlugs){
+    try{
+      const cap=await fetchCompanyCap(slug);
+      const ratio=btcCap/cap*100;
+      const bar=document.getElementById('bar-'+slug);
+      const text=document.getElementById('bar-'+slug+'-text');
+      const capEl=document.getElementById('cap-'+slug);
+      if(bar&&text){
+        // Animate the bar width
+        setTimeout(() => {
+          bar.style.width=Math.min(ratio,100)+'%';
+        }, 300);
+        text.textContent=ratio.toFixed(2)+'%';
+      }
+      if(capEl) capEl.textContent=formatCap(cap);
+    }catch(err){console.error('cap fetch err',slug,err)}
+  }
+})();
+</script>
+</body>
+</html> 
