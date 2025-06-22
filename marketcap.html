@@ -121,8 +121,12 @@ function toggleLanguage() {
         // Animate the bar width
         setTimeout(() => {
           bar.style.width=Math.min(ratio,100)+'%';
+          // Change to bitcoin gold color when ratio >= 100%
+          if(ratio >= 100) {
+            bar.style.background='linear-gradient(135deg,#f59e0b,#d97706)';
+          }
         }, 300);
-        text.textContent=ratio.toFixed(2)+'%';
+        text.textContent=Math.min(ratio,100).toFixed(2)+'%';
       }
       if(capEl) capEl.textContent=formatCap(cap);
     }catch(err){console.error('cap fetch err',slug,err)}

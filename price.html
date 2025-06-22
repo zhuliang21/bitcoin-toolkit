@@ -6,6 +6,12 @@
   <title>Bitcoin Price API Status</title>
   <link rel="icon" href="icon/favicon.ico">
   
+  <!-- Digital watch font -->
+  <link href="https://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
+  
+  <!-- Condensed font for center mode -->
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <!-- Shared layout styles -->
   <link rel="stylesheet" href="shared-styles.css">
   
@@ -148,8 +154,12 @@
     }
     
     .test-controls {
-      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
       margin-bottom: 30px;
+      padding: 0 10px;
     }
     
     .test-btn {
@@ -157,12 +167,13 @@
       color: white;
       border: none;
       border-radius: 25px;
-      padding: 12px 25px;
+      padding: 12px 20px;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      margin: 0 8px;
+      white-space: nowrap;
+      min-width: 120px;
     }
     
     .test-btn:hover:not(:disabled) {
@@ -309,6 +320,27 @@
       .api-grid {
         grid-template-columns: 1fr;
       }
+      
+      .test-controls {
+        gap: 8px;
+        padding: 0 5px;
+      }
+      
+      .test-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+        min-width: 100px;
+        flex: 1 1 calc(50% - 4px);
+        max-width: calc(50% - 4px);
+      }
+    }
+    
+    @media (max-width: 360px) {
+      .test-btn {
+        flex: 1 1 100%;
+        max-width: 100%;
+        margin-bottom: 5px;
+      }
     }
 
     /* Center Mode Styles */
@@ -331,9 +363,10 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-family: 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', monospace;
+      font-family: 'Oswald', 'Arial Narrow', 'Arial Black', sans-serif;
       font-weight: bold;
-      font-size: 12vw;
+      font-size: 20vw;
+      font-stretch: condensed;
       line-height: 1;
       white-space: nowrap;
       color: #ffffff;
@@ -343,6 +376,77 @@
     .center-price.animate {
       /* 取消跳动动画 */
       animation: none;
+    }
+
+    /* Moscow Mode Styles */
+    .moscow-mode {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #000000;
+      z-index: 1000;
+      display: none;
+      overflow: hidden;
+    }
+    .moscow-mode.active {
+      display: block;
+    }
+    .moscow-display {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      white-space: nowrap;
+    }
+    .moscow-logo {
+      font-family: -webkit-system-font, 'Helvetica Neue', 'Roboto', 'Segoe UI', 'Arial', sans-serif;
+      font-weight: bold;
+      font-size: 1.25vw;
+      letter-spacing: 0.4em;
+      color: #888888;
+      margin-bottom: 0.5vw;
+      display: inline-block;
+      text-transform: uppercase;
+      border: 1px solid #555555;
+      border-radius: 50px;
+      padding: 0.3vw 1.2vw;
+    }
+    .moscow-time {
+      font-family: 'Digital-7 Mono', 'Courier New', monospace;
+      font-weight: bold;
+      font-size: 14vw;
+      letter-spacing: 0.1em;
+      color: #cccccc;
+      text-shadow: none;
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+    .blink-colon {
+      animation: blink 1s steps(1, start) infinite;
+    }
+
+    @media (max-width: 768px) {
+      .moscow-logo {
+        font-size: 2vw;
+        margin-bottom: 1vw;
+        letter-spacing: 0.3em;
+        padding: 0.5vw 1.5vw;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .moscow-logo {
+        font-size: 2.5vw;
+        margin-bottom: 1.5vw;
+        letter-spacing: 0.25em;
+        padding: 0.7vw 2vw;
+      }
     }
 
     /* Simulated fullscreen removed */
@@ -368,6 +472,7 @@
         <button id="refreshBtn" class="test-btn" onclick="refreshPrice()" data-i18n="refresh">Refresh Price</button>
         <button id="matrixBtn" class="test-btn matrix-btn" onclick="enterMatrixMode()" data-i18n="matrixMode">Matrix Mode</button>
         <button id="centerBtn" class="test-btn" onclick="enterCenterMode()" data-i18n="centerMode">Center Mode</button>
+        <button id="moscowBtn" class="test-btn" onclick="enterMoscowMode()" data-i18n="moscowMode">Moscow Time</button>
     </div>
 
       <!-- API Status Section -->
@@ -406,6 +511,18 @@
     <div id="centerPrice" class="center-price">--</div>
   </div>
 
+  <!-- Moscow Time Overlay -->
+  <div id="moscowMode" class="moscow-mode">
+    <div id="moscowControls" class="matrix-controls">
+      <button class="matrix-btn-control" onclick="exitMoscowMode()" title="Exit Moscow Time">✕</button>
+      <button class="matrix-btn-control" onclick="toggleFullscreen()" title="Toggle Fullscreen">⛶</button>
+    </div>
+    <div class="moscow-display">
+      <div id="moscowLogo" class="moscow-logo">MOSCOW TIME</div>
+      <div id="moscowTime" class="moscow-time">--</div>
+    </div>
+  </div>
+
   <script>
     // Language translations
     const translations = {
@@ -418,6 +535,7 @@
         refresh: "Refresh Price",
         matrixMode: "Matrix Mode",
         centerMode: "Center Mode",
+        moscowMode: "Moscow Time",
         apiStatus: "API Status",
         connected: "Connected",
         failed: "Failed",
@@ -435,6 +553,7 @@
         refresh: "刷新价格",
         matrixMode: "矩阵模式",
         centerMode: "中心模式",
+        moscowMode: "莫斯科时间",
         apiStatus: "API状态",
         connected: "已连接",
         failed: "失败",
@@ -461,6 +580,12 @@
     let centerInterval = null;
     let centerPreviousPrice = null;
     let centerHideTimeout = null;
+
+    // Moscow mode variables
+    let moscowMode = false;
+    let moscowInterval = null;
+    let moscowPreviousValue = null;
+    let moscowHideTimeout = null;
 
          // Multiple API endpoints
     const apiEndpoints = [
@@ -991,10 +1116,12 @@
       } else {
         const txt = priceEl.textContent || '88888';
         const chars = txt.length;
-        const shortSide = Math.min(window.innerWidth, window.innerHeight);
-        // 全屏时尽量填满 90% 短边
-        let fontSize = (shortSide * 0.9) / (chars * 0.45);
-        const maxHeight = window.innerHeight * 0.9;
+        // 更激进的尺寸计算，利用 Oswald 窄体特性
+        const screenWidth = window.innerWidth;
+        const screenHeight = window.innerHeight;
+        // 基于宽度计算，Oswald 字符宽度约为高度的 0.5 倍
+        let fontSize = (screenWidth * 0.95) / (chars * 0.5);
+        const maxHeight = screenHeight * 0.95;
         if (fontSize > maxHeight) fontSize = maxHeight;
         priceEl.style.fontSize = `${fontSize}px`;
       }
@@ -1031,6 +1158,98 @@
     function setupCenterInteractionListeners() {
       const events=['mousedown','mousemove','touchstart','keydown'];
       const handler=()=>{if(centerMode) resetCenterHideTimer();};
+      events.forEach(evt=>{document.addEventListener(evt,handler,{passive:true});});
+    }
+
+    // Moscow Time Functions
+    function enterMoscowMode() {
+      // exit other modes first
+      if (matrixMode) exitMatrixMode();
+      if (centerMode) exitCenterMode();
+
+      moscowMode = true;
+      const overlay = document.getElementById('moscowMode');
+      overlay.classList.add('active');
+
+      startMoscowUpdates();
+      resetMoscowHideTimer();
+      setupMoscowInteractionListeners();
+    }
+
+    function exitMoscowMode() {
+      moscowMode = false;
+      const overlay = document.getElementById('moscowMode');
+      overlay.classList.remove('active');
+
+      if (isFullscreen) exitFullscreen();
+      stopMoscowUpdates();
+      if (moscowHideTimeout) clearTimeout(moscowHideTimeout);
+    }
+
+    function startMoscowUpdates() {
+      stopMoscowUpdates();
+      updateMoscowTimeDisplay();
+      moscowInterval = setInterval(updateMoscowTimeDisplay, 2000);
+    }
+
+    function stopMoscowUpdates() {
+      if (moscowInterval) {
+        clearInterval(moscowInterval);
+        moscowInterval = null;
+      }
+    }
+
+    async function updateMoscowTimeDisplay() {
+      let price = null;
+      if (activeAPIIndex !== null && testResults[activeAPIIndex]?.status === 'success') {
+        try {
+          const api = apiEndpoints[activeAPIIndex];
+          const response = await fetch(api.url);
+          if (response.ok) {
+            const data = await response.json();
+            price = api.parser(data);
+          }
+        } catch (err) {}
+      }
+      // fallback to successful cached price
+      if (!price) {
+        const successful = Object.values(testResults).filter(r => r.status === 'success' && r.price);
+        if (successful.length) {
+          price = successful[Math.floor(Math.random()*successful.length)].price;
+        }
+      }
+      // fallback pseudo price
+      if (!price) {
+        price = 45000 + Math.random()*10000;
+      }
+
+      if (price) {
+        const moscowValue = Math.round(100000000 / price);
+        updateMoscowTime(moscowValue);
+      }
+    }
+
+    function updateMoscowTime(value) {
+      const timeEl = document.getElementById('moscowTime');
+      if (!timeEl) return;
+      const intVal = Math.floor(value);
+      let str = intVal.toString();
+      if (str.length < 4) str = str.padStart(4, '0');
+      const main = str.slice(0, -2);
+      const last = str.slice(-2);
+      timeEl.innerHTML = `${main}<span class="blink-colon">:</span>${last}`;
+    }
+
+    function resetMoscowHideTimer() {
+      const controls = document.getElementById('moscowControls');
+      controls.classList.remove('hidden');
+      if (moscowHideTimeout) clearTimeout(moscowHideTimeout);
+      moscowHideTimeout = setTimeout(()=>{controls.classList.add('hidden');},5000);
+    }
+
+    function setupMoscowInteractionListeners() {
+      const events=['mousedown','mousemove','touchstart','keydown'];
+      const handler=()=>{if(moscowMode) resetMoscowHideTimer();};
       events.forEach(evt=>{document.addEventListener(evt,handler,{passive:true});});
     }
 
