@@ -9,6 +9,11 @@
   <!-- Digital watch font -->
   <link href="https://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
   
+  <!-- Elegant Monospace Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+  
   <!-- Condensed font for center mode -->
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
   
@@ -363,14 +368,14 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-family: 'Oswald', 'Arial Narrow', 'Arial Black', sans-serif;
-      font-weight: bold;
+      font-family: 'Source Code Pro', monospace;
       font-size: 20vw;
-      font-stretch: condensed;
+      font-weight: 500;
+      color: #fff;
+      text-shadow: none;
+      letter-spacing: normal;
       line-height: 1;
       white-space: nowrap;
-      color: #ffffff;
-      text-shadow: none;
       transition: color 0.6s ease;
     }
     .center-price.animate {
@@ -580,6 +585,7 @@
     let centerInterval = null;
     let centerPreviousPrice = null;
     let centerHideTimeout = null;
+    let screenWakeLock = null;
 
     // Moscow mode variables
     let moscowMode = false;
@@ -1005,13 +1011,32 @@
     }
 
     // Listen for fullscreen changes
-    function handleFullscreenChange() {
+    async function handleFullscreenChange() {
       isFullscreen = !!(document.fullscreenElement || 
                        document.webkitFullscreenElement || 
                        document.msFullscreenElement || 
                        document.mozFullScreenElement);
       updateFullscreenButton();
       if (centerMode) adjustCenterPrice();
+
+      try {
+        if (isFullscreen) {
+          if ('wakeLock' in navigator) {
+            screenWakeLock = await navigator.wakeLock.request('screen');
+            screenWakeLock.addEventListener('release', () => {
+              // The wake lock has been released for some reason.
+              screenWakeLock = null;
+            });
+          }
+        } else {
+          if (screenWakeLock !== null) {
+            await screenWakeLock.release();
+            screenWakeLock = null;
+          }
+        }
+      } catch (err) {
+        console.error(`Screen Wake Lock error: ${err.name}, ${err.message}`);
+      }
     }
 
     // Add fullscreen event listeners
@@ -1093,7 +1118,7 @@
       const priceInt = Math.round(price);
       const priceEl = document.getElementById('centerPrice');
       if (!priceEl) return;
-      priceEl.textContent = priceInt.toLocaleString('en-US');
+      priceEl.textContent = priceInt.toString();
       // Determine color
       if (centerPreviousPrice !== null) {
         if (priceInt > centerPreviousPrice) {
@@ -1116,11 +1141,11 @@
       } else {
         const txt = priceEl.textContent || '88888';
         const chars = txt.length;
-        // 更激进的尺寸计算，利用 Oswald 窄体特性
+        // 字体尺寸动态计算
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
-        // 基于宽度计算，Oswald 字符宽度约为高度的 0.5 倍
-        let fontSize = (screenWidth * 0.95) / (chars * 0.5);
+        // 基于宽度计算, 字符宽度约为高度的 0.55 倍
+        let fontSize = (screenWidth * 0.95) / (chars * 0.55);
         const maxHeight = screenHeight * 0.95;
         if (fontSize > maxHeight) fontSize = maxHeight;
         priceEl.style.fontSize = `${fontSize}px`;
