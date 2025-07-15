@@ -54,12 +54,6 @@ function updateLanguage() {
   
   // Update document language attribute
   document.documentElement.lang = currentLanguage;
-
-  // Add loaded class once language has been updated to avoid layout shift
-  if (!document.documentElement.classList.contains('loaded')) {
-    document.documentElement.classList.add('loaded');
-    document.body.classList.add('loaded');
-  }
 }
 
 // Make toggleLanguage available globally

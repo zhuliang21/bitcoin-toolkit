@@ -162,15 +162,16 @@ async function downloadScreenshot() {
     
     const svgReplacements = (await Promise.all(svgProcessPromises)).filter(Boolean);
     
-    // Configure html2canvas options
+    // Configure html2canvas options for square output
+    const squareSize = 800; // Square dimensions for mobile-friendly viewing
     const options = {
-      backgroundColor: 'transparent',
+      backgroundColor: '#0f1419', // Use page background color
       scale: 2,
       useCORS: true,
       allowTaint: false,
       logging: false,
-      width: document.documentElement.scrollWidth,
-      height: document.documentElement.scrollHeight,
+      width: squareSize,
+      height: squareSize,
       scrollX: 0,
       scrollY: 0,
       ignoreElements: (element) => {
@@ -181,7 +182,13 @@ async function downloadScreenshot() {
         // Ensure cloned document has the same styling
         const clonedBody = clonedDoc.body;
         clonedBody.style.margin = '0';
-        clonedBody.style.padding = '0';
+        clonedBody.style.padding = '20px';
+        clonedBody.style.background = 'linear-gradient(135deg, #0f1419, #1a1f2e)';
+        clonedBody.style.minHeight = squareSize + 'px';
+        clonedBody.style.width = squareSize + 'px';
+        clonedBody.style.display = 'flex';
+        clonedBody.style.alignItems = 'center';
+        clonedBody.style.justifyContent = 'center';
         
         // Remove download button from clone
         const clonedBtn = clonedDoc.getElementById('downloadBtn');
@@ -189,18 +196,19 @@ async function downloadScreenshot() {
           clonedBtn.remove();
         }
         
-        // Fix any positioning issues
+        // Adjust content container for square format
         const contentContainer = clonedDoc.querySelector('.content-container');
         if (contentContainer) {
           contentContainer.style.position = 'relative';
           contentContainer.style.zIndex = '1';
+          contentContainer.style.maxWidth = (squareSize - 80) + 'px';
+          contentContainer.style.padding = '20px';
         }
       }
     };
     
-    // Generate canvas from the content container
-    const contentContainer = document.querySelector('.content-container');
-    const canvas = await html2canvas(contentContainer, options);
+    // Generate canvas from the entire body for square format
+    const canvas = await html2canvas(document.body, options);
     
     // Restore SVG elements
     svgReplacements.forEach(({ original, replacement }) => {

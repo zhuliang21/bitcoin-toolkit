@@ -30,6 +30,15 @@ Compare Bitcoin's market cap with major tech companies
 - **Visual Charts**: Interactive market cap visualizations
 - **Historical Analysis**: Track market cap changes over time
 
+### 🐍 Python Data Tools
+Streamlined Bitcoin data analysis with professional visualizations
+- **Daily Close Prices**: Download Bitcoin daily closing prices (2013+)
+- **Monthly Averages**: Calculate monthly price averages automatically
+- **Professional Charts**: Generate high-resolution trend and analysis charts
+- **Lightweight**: Simple CSV output, Excel compatible
+- **One-Click**: Automated data download and chart generation
+- **See**: [`python-tools/`](./python-tools/) directory
+
 ## 🚀 Quick Start
 
 ### Prerequisites

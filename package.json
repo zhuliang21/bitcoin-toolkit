@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run build",
-    "start": "node index.js",
-    "dev": "node --watch index.js",
+    "start": "npm run build && npm run serve",
+    "dev": "npm run build && npm run serve",
     "build": "npx webpack",
     "serve": "npx http-server -p 8080",
     "serve-https": "npx http-server -p 8443 -S -C cert.pem -K key.pem"
