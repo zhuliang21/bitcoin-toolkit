@@ -60,24 +60,32 @@
       letter-spacing: -0.02em;
     }
     
+    .progress-wrapper {
+      width: 100%;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      margin-bottom: 30px;
+      backdrop-filter: blur(10px);
+    }
+    
     .progress-bar-container {
       background: rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
+      border-radius: 20px;
       height: 40px;
       position: relative;
       overflow: hidden;
       width: 100%;
-      margin-bottom: 30px;
-      backdrop-filter: blur(10px);
     }
     
     .progress-bar {
       height: 100%;
       background: linear-gradient(90deg, #f7931a, #ff8c00);
-      border-radius: 12px;
-      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 20px;
+      transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       position: relative;
       min-width: 0;
+      overflow: hidden;
     }
     
     .progress-bar::after {
@@ -87,13 +95,41 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      animation: shimmer 2s infinite;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        rgba(255, 255, 255, 0.5), 
+        rgba(255, 255, 255, 0.3), 
+        transparent
+      );
+      animation: shimmer 3s ease-in-out infinite;
+      opacity: 0;
+      animation-delay: 0.5s;
+    }
+    
+    .progress-bar[style*="width: 0%"]::after {
+      display: none;
+    }
+    
+    .progress-bar:not([style*="width: 0%"])::after {
+      opacity: 1;
     }
     
     @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
+      0% { 
+        transform: translateX(-200%);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% { 
+        transform: translateX(200%);
+        opacity: 0;
+      }
     }
     
     .progress-text {
@@ -105,7 +141,8 @@
       font-weight: 700;
       font-size: 1rem;
       white-space: nowrap;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      z-index: 10;
     }
     
     .current-price {
@@ -129,6 +166,20 @@
         margin-bottom: 15px;
       }
       
+      .progress-wrapper {
+        padding: 6px;
+        border-radius: 20px;
+      }
+      
+      .progress-bar-container {
+        border-radius: 16px;
+        height: 36px;
+      }
+      
+      .progress-bar {
+        border-radius: 16px;
+      }
+      
       .current-price {
         font-size: 1.1rem;
       }
@@ -147,9 +198,11 @@
     <h1 class="page-title">一币一百万</h1>
     
     <!-- Progress Bar -->
-    <div class="progress-bar-container">
-      <div class="progress-bar" id="progressBar" style="width: 0%">
-        <div class="progress-text" id="progressText">0%</div>
+    <div class="progress-wrapper">
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar" style="width: 0%">
+          <div class="progress-text" id="progressText">0%</div>
+        </div>
       </div>
     </div>
     
