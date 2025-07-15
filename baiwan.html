@@ -170,55 +170,42 @@
     }
     
     .page-url {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: #13cdd3;
+      font-size: 1.1rem;
+      font-weight: 400;
       text-align: center;
-      padding: 8px 16px;
-      background: rgba(19, 205, 211, 0.1);
-      border-radius: 20px;
-      border: 1px solid rgba(19, 205, 211, 0.3);
-      backdrop-filter: blur(10px);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-decoration: none;
       user-select: all;
+      margin: 8px 0;
     }
     
-    .page-url:hover {
-      background: rgba(19, 205, 211, 0.2);
-      border-color: rgba(19, 205, 211, 0.5);
-      transform: translateY(-1px);
+    .url-domain {
+      color: white;
+    }
+    
+    .url-path {
       color: #13cdd3;
-      text-decoration: none;
     }
     
     .download-button {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      font-weight: 500;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
       color: #f7931a;
-      text-align: center;
-      padding: 10px 20px;
       background: rgba(247, 147, 26, 0.1);
-      border-radius: 20px;
+      border-radius: 50%;
       border: 1px solid rgba(247, 147, 26, 0.3);
       backdrop-filter: blur(10px);
       cursor: pointer;
       transition: all 0.3s ease;
-      text-decoration: none;
-      user-select: none;
       margin-top: 4px;
     }
     
     .download-button:hover {
       background: rgba(247, 147, 26, 0.2);
       border-color: rgba(247, 147, 26, 0.5);
-      transform: translateY(-1px);
-      color: #f7931a;
-      text-decoration: none;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(247, 147, 26, 0.3);
     }
     
     .download-button:active {
@@ -232,8 +219,8 @@
     }
     
     .download-icon {
-      width: 16px;
-      height: 16px;
+      width: 20px;
+      height: 20px;
       stroke: currentColor;
       stroke-width: 2;
       fill: none;
@@ -274,13 +261,17 @@
       }
       
       .page-url {
-        font-size: 0.8rem;
-        padding: 6px 12px;
+        font-size: 1rem;
       }
       
       .download-button {
-        font-size: 0.8rem;
-        padding: 8px 16px;
+        width: 40px;
+        height: 40px;
+      }
+      
+      .download-icon {
+        width: 18px;
+        height: 18px;
       }
     }
   </style>
@@ -314,7 +305,9 @@
       <div class="current-time" id="currentTime">（当前时间）</div>
       
       <!-- Page URL -->
-      <div class="page-url" onclick="copyToClipboard(this.textContent)">21baiwan.com/baiwan</div>
+      <div class="page-url">
+        <span class="url-domain">21baiwan.com</span><span class="url-path">/baiwan</span>
+      </div>
       
       <!-- Download Button -->
       <button class="download-button" onclick="downloadScreenshot()" id="downloadBtn">
@@ -323,7 +316,6 @@
           <polyline points="7,10 12,15 17,10"></polyline>
           <line x1="12" y1="15" x2="12" y2="3"></line>
         </svg>
-        下载图片
       </button>
     </div>
   </div>

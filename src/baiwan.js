@@ -93,74 +93,142 @@ function updateCurrentTime() {
   }
 }
 
+// Convert SVG to image for better html2canvas compatibility
+function convertSVGToImg(svgElement) {
+  return new Promise((resolve, reject) => {
+    const svgData = new XMLSerializer().serializeToString(svgElement);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(svgUrl);
+      resolve(img);
+    };
+    img.onerror = reject;
+    img.src = svgUrl;
+  });
+}
+
 // Download screenshot functionality
 async function downloadScreenshot() {
   const downloadBtn = document.getElementById('downloadBtn');
-  const originalText = downloadBtn.innerHTML;
+  const originalHTML = downloadBtn.innerHTML;
   
   try {
     // Show loading state
     downloadBtn.classList.add('downloading');
     downloadBtn.innerHTML = `
       <svg class="download-icon" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M8 12l2 2 4-4"/>
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"/>
       </svg>
-      生成中...
     `;
     
-    // Wait a moment for any ongoing animations to complete
-    await new Promise(resolve => setTimeout(resolve, 100));
+    // Wait for any ongoing animations to complete
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Pre-process SVG images
+    const svgElements = document.querySelectorAll('svg');
+    const svgProcessPromises = Array.from(svgElements).map(async (svg) => {
+      if (svg.closest('.download-button')) return; // Skip download button SVG
+      
+      try {
+        const img = await convertSVGToImg(svg);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = svg.getBoundingClientRect().width * 2;
+        canvas.height = svg.getBoundingClientRect().height * 2;
+        
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        // Replace SVG with canvas temporarily
+        const dataURL = canvas.toDataURL('image/png');
+        const replacement = document.createElement('img');
+        replacement.src = dataURL;
+        replacement.style.width = svg.style.width || svg.getBoundingClientRect().width + 'px';
+        replacement.style.height = svg.style.height || svg.getBoundingClientRect().height + 'px';
+        replacement.className = 'svg-replacement';
+        
+        svg.parentNode.replaceChild(replacement, svg);
+        
+        return { original: svg, replacement };
+      } catch (error) {
+        console.warn('SVG processing failed:', error);
+        return null;
+      }
+    });
+    
+    const svgReplacements = (await Promise.all(svgProcessPromises)).filter(Boolean);
     
     // Configure html2canvas options
     const options = {
-      backgroundColor: null,
-      scale: 2, // Higher quality
+      backgroundColor: 'transparent',
+      scale: 2,
       useCORS: true,
-      allowTaint: true,
+      allowTaint: false,
       logging: false,
-      width: window.innerWidth,
-      height: window.innerHeight,
+      width: document.documentElement.scrollWidth,
+      height: document.documentElement.scrollHeight,
       scrollX: 0,
       scrollY: 0,
-      windowWidth: window.innerWidth,
-      windowHeight: window.innerHeight,
-      foreignObjectRendering: true,
-      removeContainer: true,
+      ignoreElements: (element) => {
+        // Ignore download button and its contents
+        return element.closest('.download-button') !== null;
+      },
       onclone: (clonedDoc) => {
-        // Remove any elements that shouldn't be in the screenshot
+        // Ensure cloned document has the same styling
+        const clonedBody = clonedDoc.body;
+        clonedBody.style.margin = '0';
+        clonedBody.style.padding = '0';
+        
+        // Remove download button from clone
         const clonedBtn = clonedDoc.getElementById('downloadBtn');
         if (clonedBtn) {
-          clonedBtn.style.display = 'none';
+          clonedBtn.remove();
+        }
+        
+        // Fix any positioning issues
+        const contentContainer = clonedDoc.querySelector('.content-container');
+        if (contentContainer) {
+          contentContainer.style.position = 'relative';
+          contentContainer.style.zIndex = '1';
         }
       }
     };
     
-    // Generate canvas from the entire page
-    const canvas = await html2canvas(document.body, options);
+    // Generate canvas from the content container
+    const contentContainer = document.querySelector('.content-container');
+    const canvas = await html2canvas(contentContainer, options);
+    
+    // Restore SVG elements
+    svgReplacements.forEach(({ original, replacement }) => {
+      replacement.parentNode.replaceChild(original, replacement);
+    });
     
     // Create download link
     const link = document.createElement('a');
-    link.download = `一币一百万_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`;
-    link.href = canvas.toDataURL('image/png');
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    link.download = `一币一百万_${timestamp}.png`;
+    link.href = canvas.toDataURL('image/png', 1.0);
     
     // Trigger download
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     
-    // Show success state briefly
+    // Show success state
     downloadBtn.innerHTML = `
       <svg class="download-icon" viewBox="0 0 24 24">
         <path d="M20 6L9 17l-5-5"/>
       </svg>
-      已下载
     `;
     
     // Reset after 2 seconds
     setTimeout(() => {
       downloadBtn.classList.remove('downloading');
-      downloadBtn.innerHTML = originalText;
+      downloadBtn.innerHTML = originalHTML;
     }, 2000);
     
   } catch (error) {
@@ -173,71 +241,17 @@ async function downloadScreenshot() {
         <line x1="15" y1="9" x2="9" y2="15"/>
         <line x1="9" y1="9" x2="15" y2="15"/>
       </svg>
-      下载失败
     `;
     
     // Reset after 2 seconds
     setTimeout(() => {
       downloadBtn.classList.remove('downloading');
-      downloadBtn.innerHTML = originalText;
+      downloadBtn.innerHTML = originalHTML;
     }, 2000);
   }
 }
 
-// Copy to clipboard function
-function copyToClipboard(text) {
-  if (navigator.clipboard && window.isSecureContext) {
-    // Modern way
-    navigator.clipboard.writeText(text).then(() => {
-      showCopyFeedback();
-    }).catch(err => {
-      console.error('Failed to copy: ', err);
-      fallbackCopyTextToClipboard(text);
-    });
-  } else {
-    // Fallback
-    fallbackCopyTextToClipboard(text);
-  }
-}
-
-// Fallback copy method
-function fallbackCopyTextToClipboard(text) {
-  const textArea = document.createElement('textarea');
-  textArea.value = text;
-  textArea.style.position = 'fixed';
-  textArea.style.left = '-999999px';
-  textArea.style.top = '-999999px';
-  document.body.appendChild(textArea);
-  textArea.focus();
-  textArea.select();
-  
-  try {
-    document.execCommand('copy');
-    showCopyFeedback();
-  } catch (err) {
-    console.error('Fallback: Oops, unable to copy', err);
-  }
-  
-  document.body.removeChild(textArea);
-}
-
-// Show copy feedback
-function showCopyFeedback() {
-  const urlElement = document.querySelector('.page-url');
-  if (urlElement) {
-    const originalText = urlElement.textContent;
-    urlElement.textContent = '已复制到剪贴板！';
-    urlElement.style.color = '#4CAF50';
-    
-    setTimeout(() => {
-      urlElement.textContent = originalText;
-      urlElement.style.color = '#13cdd3';
-    }, 2000);
-  }
-}
-
-// Make functions available globally
-window.copyToClipboard = copyToClipboard;
+// Make download function available globally
 window.downloadScreenshot = downloadScreenshot;
 
 // Update progress bar and price display
