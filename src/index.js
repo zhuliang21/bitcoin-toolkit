@@ -4,28 +4,24 @@ const translations = {
     mainTitle: '🔧 Bitcoin Toolkit',
     mainSubtitle: 'Open-source, pure frontend tools - Use at your own risk',
     securityNotice: 'For educational and testing purposes only. Use at your own risk.',
-    brainWalletTitle: 'Brain Wallet Generator',
-    brainWalletDesc: 'Generate Bitcoin wallets from memorable text using deterministic algorithms.',
     qrTitle: 'QR Code Generator',
     qrDesc: 'Create QR codes for text and URLs with instant download.',
-    bbqrHelperTitle: 'BBQr Helper',
-    bbqrHelperDesc: 'Complete PSBT to ColdCard to Broadcast workflow with BBQr codes.',
     priceTitle: 'Price Tracker',
     priceDesc: 'Track Bitcoin prices with real-time updates and alerts.',
+    marketCapTitle: 'Market Cap Comparison',
+    marketCapDesc: 'Compare Bitcoin\'s market cap with major tech companies like Apple, Google, and Amazon.',
     footerText: '© 2024 Bitcoin Toolkit. All rights reserved.'
   },
   zh: {
     mainTitle: '🔧 比特币工具包',
     mainSubtitle: '开源纯前端工具 - 风险自负',
     securityNotice: '仅供教育和测试目的使用，风险自负。',
-    brainWalletTitle: '脑钱包生成器',
-    brainWalletDesc: '使用确定性算法从可记忆的文本生成比特币钱包。',
     qrTitle: '二维码生成器',
     qrDesc: '为文本和网址创建二维码，支持即时下载。',
-    bbqrHelperTitle: 'BBQr 助手',
-    bbqrHelperDesc: '完整的 PSBT 到 ColdCard 到广播工作流程，使用 BBQr 码。',
     priceTitle: '价格追踪器',
     priceDesc: '实时更新和提醒追踪比特币价格。',
+    marketCapTitle: '市值比较',
+    marketCapDesc: '将比特币的市值与苹果、谷歌和亚马逊等主要科技公司进行比较。',
     footerText: '© 2024 比特币工具包。保留所有权利。'
   }
 };

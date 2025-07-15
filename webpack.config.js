@@ -5,8 +5,6 @@ module.exports = {
   mode: 'development',
   entry: {
     'index': './src/index.js',
-    'brain-wallet': './src/brain-wallet.js',
-    'bbqr-helper': './src/bbqr-helper.js',
     'qr': './src/qr.js'
   },
   output: {

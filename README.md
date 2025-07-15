@@ -1,6 +1,6 @@
 # 🔧 Bitcoin Toolkit
 
-> A comprehensive web-based collection of Bitcoin utilities for development, testing, and educational purposes.
+> A streamlined web-based collection of Bitcoin utilities focused on QR code generation, price monitoring, and market analysis.
 
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
@@ -8,20 +8,6 @@
 [![Bitcoin](https://img.shields.io/badge/Bitcoin-Compatible-orange.svg)]()
 
 ## 🌟 Features
-
-### 🔥 BBQr Helper
-Complete PSBT to ColdCard to broadcast workflow with BBQr QR code support
-- **5-Step Workflow**: Import PSBT → Generate BBQr → Scan Signed → Finalize → Broadcast
-- **Smart PSBT Analysis**: Automatic change detection and transaction summary
-- **Camera Integration**: Real-time QR code scanning with mobile optimization
-- **Multi-API Broadcasting**: BlockCypher and Blockstream API support
-
-### 🧠 Brain Wallet Generator
-Generate deterministic Bitcoin wallets from any text input
-- **Multiple Address Types**: Legacy (P2PKH), SegWit (P2SH-P2WPKH), Native SegWit (P2WPKH), Taproot (P2TR)
-- **BIP39 Mnemonic**: Standard 12-word mnemonic phrase generation
-- **Usage Verification**: Check address history via blockchain APIs
-- **Security Warnings**: Educational disclaimers and safety notices
 
 ### 📱 QR Code Generator
 Universal QR code generation with responsive design
@@ -36,6 +22,13 @@ Real-time Bitcoin price tracking with alerts
 - **Price Alerts**: Browser notifications for threshold breaches
 - **Historical Charts**: Canvas-based price visualization
 - **Dual Currency**: USD and CNY support
+
+### 📊 Market Cap Comparison
+Compare Bitcoin's market cap with major tech companies
+- **Real-time Data**: Live Bitcoin market cap updates
+- **Company Comparisons**: Apple, Google, Amazon, and more
+- **Visual Charts**: Interactive market cap visualizations
+- **Historical Analysis**: Track market cap changes over time
 
 ## 🚀 Quick Start
 
@@ -71,11 +64,10 @@ node simple-https-server.js
 - **UI Design**: Responsive design with glass morphism effects
 - **Mobile Support**: Touch-optimized interface
 
-### Bitcoin Libraries
-- **bitcoinjs-lib**: Bitcoin protocol implementation
-- **bip39**: Mnemonic generation and validation
+### Utility Libraries
 - **qrious**: QR code generation
 - **jsqr**: QR code scanning
+- **html5-qrcode**: Camera-based QR scanning
 
 ### APIs & Services
 - **Camera**: MediaDevices API for QR scanning
@@ -88,14 +80,11 @@ node simple-https-server.js
 ```
 bitcoin-toolkit/
 ├── 📄 index.html              # Homepage with tool navigation
-├── 🔥 bbqr-helper.html        # BBQr workflow interface
-├── 🧠 brain-wallet.html       # Brain wallet generator
 ├── 📱 qr.html                 # QR code generator
 ├── 💰 price.html              # Bitcoin price monitor
+├── 📊 marketcap.html          # Market cap comparison
 ├── 📂 src/                    # Source code
 │   ├── index.js               # Homepage logic
-│   ├── bbqr-helper.js         # BBQr workflow implementation
-│   ├── brain-wallet.js        # Wallet generation logic
 │   └── qr.js                  # QR generation logic
 ├── 📦 dist/                   # Build output
 ├── 📚 docs/                   # Documentation
@@ -184,8 +173,8 @@ A: To ensure user fund security and avoid transmitting sensitive information lik
 **Q: Can it be used offline?**
 A: Yes, except for price query functionality, all other features support complete offline usage.
 
-**Q: Is it safe for real Bitcoin?**
-A: This is designed for educational and testing purposes. Always verify with small amounts first.
+**Q: What tools are included?**
+A: QR code generator, Bitcoin price tracker, and market cap comparison tools.
 
 **Q: Mobile camera not working?**
 A: Ensure you're using HTTPS and have granted camera permissions to your browser.
@@ -207,10 +196,9 @@ This software is provided for educational and testing purposes only. While it im
 
 ## 🔗 Useful Links
 
-- [Bitcoin Developer Documentation](https://developer.bitcoin.org/)
-- [BIP39 Specification](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)
-- [BBQr Specification](https://github.com/coinkite/BBQr)
-- [PSBT Documentation](https://github.com/bitcoin/bips/blob/master/bip-0174.mediawiki)
+- [Bitcoin Price API - CoinGecko](https://www.coingecko.com/en/api)
+- [QR Code Specification](https://en.wikipedia.org/wiki/QR_code)
+- [Bitcoin Market Data](https://coinmarketcap.com/currencies/bitcoin/)
 
 ---
 
