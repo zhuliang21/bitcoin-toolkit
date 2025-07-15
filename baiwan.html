@@ -145,13 +145,52 @@
       z-index: 10;
     }
     
+    .info-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    
     .current-price {
       font-size: 1.3rem;
       font-weight: 500;
       color: #f7931a;
       text-align: center;
-      margin-top: 10px;
       opacity: 0.9;
+    }
+    
+    .current-time {
+      font-size: 1rem;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+    
+    .page-url {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #13cdd3;
+      text-align: center;
+      padding: 8px 16px;
+      background: rgba(19, 205, 211, 0.1);
+      border-radius: 20px;
+      border: 1px solid rgba(19, 205, 211, 0.3);
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      user-select: all;
+    }
+    
+    .page-url:hover {
+      background: rgba(19, 205, 211, 0.2);
+      border-color: rgba(19, 205, 211, 0.5);
+      transform: translateY(-1px);
+      color: #13cdd3;
+      text-decoration: none;
     }
     
     @media (max-width: 768px) {
@@ -183,6 +222,15 @@
       .current-price {
         font-size: 1.1rem;
       }
+      
+      .current-time {
+        font-size: 0.9rem;
+      }
+      
+      .page-url {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+      }
     }
   </style>
 </head>
@@ -206,8 +254,17 @@
       </div>
     </div>
     
-    <!-- Current Price -->
-    <div class="current-price" id="currentPrice">加载中...</div>
+    <!-- Info Section -->
+    <div class="info-section">
+      <!-- Current Price -->
+      <div class="current-price" id="currentPrice">加载中...</div>
+      
+      <!-- Current Time -->
+      <div class="current-time" id="currentTime">（当前时间）</div>
+      
+      <!-- Page URL -->
+      <div class="page-url" onclick="copyToClipboard(this.textContent)">21baiwan.com/baiwan</div>
+    </div>
   </div>
 
   <script src="dist/baiwan.bundle.js"></script>

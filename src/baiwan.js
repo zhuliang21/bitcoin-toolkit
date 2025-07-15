@@ -2,6 +2,7 @@
 let currentPrice = 0;
 const targetPrice = 1000000; // 一百万人民币
 let updateInterval;
+let timeInterval;
 
 // Fetch Bitcoin price in CNY
 async function fetchBitcoinPrice() {
@@ -70,6 +71,81 @@ function formatPriceInMillions(price) {
   }).format(millions);
 }
 
+// Format current time
+function formatCurrentTime() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hour = String(now.getHours()).padStart(2, '0');
+  const minute = String(now.getMinutes()).padStart(2, '0');
+  
+  return `（${year}-${month}-${day} ${hour}:${minute}）`;
+}
+
+// Update current time display
+function updateCurrentTime() {
+  const currentTimeElement = document.getElementById('currentTime');
+  if (currentTimeElement) {
+    currentTimeElement.textContent = formatCurrentTime();
+  }
+}
+
+// Copy to clipboard function
+function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    // Modern way
+    navigator.clipboard.writeText(text).then(() => {
+      showCopyFeedback();
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+      fallbackCopyTextToClipboard(text);
+    });
+  } else {
+    // Fallback
+    fallbackCopyTextToClipboard(text);
+  }
+}
+
+// Fallback copy method
+function fallbackCopyTextToClipboard(text) {
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-999999px';
+  textArea.style.top = '-999999px';
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  
+  try {
+    document.execCommand('copy');
+    showCopyFeedback();
+  } catch (err) {
+    console.error('Fallback: Oops, unable to copy', err);
+  }
+  
+  document.body.removeChild(textArea);
+}
+
+// Show copy feedback
+function showCopyFeedback() {
+  const urlElement = document.querySelector('.page-url');
+  if (urlElement) {
+    const originalText = urlElement.textContent;
+    urlElement.textContent = '已复制到剪贴板！';
+    urlElement.style.color = '#4CAF50';
+    
+    setTimeout(() => {
+      urlElement.textContent = originalText;
+      urlElement.style.color = '#13cdd3';
+    }, 2000);
+  }
+}
+
+// Make copy function available globally
+window.copyToClipboard = copyToClipboard;
+
 // Update progress bar and price display
 function updateDisplay() {
   if (!currentPrice) return;
@@ -119,11 +195,29 @@ async function updatePrice() {
 // Start periodic updates
 function startUpdates() {
   updatePrice(); // Initial update
+  updateCurrentTime(); // Initial time update
   
   if (updateInterval) {
     clearInterval(updateInterval);
   }
+  if (timeInterval) {
+    clearInterval(timeInterval);
+  }
+  
   updateInterval = setInterval(updatePrice, 30000); // Update every 30 seconds
+  timeInterval = setInterval(updateCurrentTime, 60000); // Update time every minute
+}
+
+// Stop updates
+function stopUpdates() {
+  if (updateInterval) {
+    clearInterval(updateInterval);
+    updateInterval = null;
+  }
+  if (timeInterval) {
+    clearInterval(timeInterval);
+    timeInterval = null;
+  }
 }
 
 // Initialize
@@ -133,10 +227,7 @@ function init() {
   // Pause updates when page is hidden
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-      if (updateInterval) {
-        clearInterval(updateInterval);
-        updateInterval = null;
-      }
+      stopUpdates();
     } else {
       startUpdates();
     }
