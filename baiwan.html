@@ -17,10 +17,44 @@
       background: white;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       padding: 20px;
+    }
+    
+    .content-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 800px;
+    }
+    
+    .bitcoin-logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f7931a, #ff8c00);
+      padding: 12px;
+      box-shadow: 0 4px 20px rgba(247, 147, 26, 0.3);
+    }
+    
+    .bitcoin-logo svg {
+      width: 100%;
+      height: 100%;
+      fill: white;
+    }
+    
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #333;
+      margin-bottom: 40px;
+      text-align: center;
+      letter-spacing: -0.02em;
     }
     
     .progress-bar-container {
@@ -30,7 +64,7 @@
       position: relative;
       overflow: hidden;
       width: 100%;
-      max-width: 800px;
+      margin-bottom: 30px;
     }
     
     .progress-bar {
@@ -68,14 +102,55 @@
       font-size: 1rem;
       white-space: nowrap;
     }
+    
+    .current-price {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #f7931a;
+      text-align: center;
+      margin-top: 10px;
+    }
+    
+    @media (max-width: 768px) {
+      .page-title {
+        font-size: 2rem;
+        margin-bottom: 30px;
+      }
+      
+      .bitcoin-logo {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 15px;
+      }
+      
+      .current-price {
+        font-size: 1.5rem;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <div class="progress-bar-container">
-    <div class="progress-bar" id="progressBar" style="width: 0%">
-      <div class="progress-text" id="progressText">0%</div>
+  <div class="content-container">
+    <!-- Bitcoin Logo -->
+    <div class="bitcoin-logo">
+      <svg viewBox="0 0 24 24">
+        <path d="M16.1 5.9C15.5 4.4 14.1 3.5 12.4 3.5H8.5C7.7 3.5 7 4.2 7 5V19C7 19.8 7.7 20.5 8.5 20.5H12.4C14.1 20.5 15.5 19.6 16.1 18.1C16.6 16.8 16.6 15.2 16.1 13.9C16.3 13.3 16.4 12.7 16.4 12C16.4 11.3 16.3 10.7 16.1 10.1C16.6 8.8 16.6 7.2 16.1 5.9ZM11.5 7.5C12.6 7.5 13.5 8.4 13.5 9.5S12.6 11.5 11.5 11.5H10V7.5H11.5ZM11.5 16.5H10V12.5H11.5C12.6 12.5 13.5 13.4 13.5 14.5S12.6 16.5 11.5 16.5Z"/>
+      </svg>
     </div>
+    
+    <!-- Title -->
+    <h1 class="page-title">一币一百万</h1>
+    
+    <!-- Progress Bar -->
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar" style="width: 0%">
+        <div class="progress-text" id="progressText">0%</div>
+      </div>
+    </div>
+    
+    <!-- Current Price -->
+    <div class="current-price" id="currentPrice">加载中...</div>
   </div>
 
   <script src="dist/baiwan.bundle.js"></script>

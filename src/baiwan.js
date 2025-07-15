@@ -53,7 +53,7 @@ function calculateProgress(currentPrice, targetPrice) {
   return Math.min((currentPrice / targetPrice) * 100, 100);
 }
 
-// Format number
+// Format number for progress percentage
 function formatNumber(num) {
   return new Intl.NumberFormat('zh-CN', {
     minimumFractionDigits: 1,
@@ -61,17 +61,28 @@ function formatNumber(num) {
   }).format(num);
 }
 
-// Update progress bar
-function updateProgressBar() {
+// Format price in millions
+function formatPriceInMillions(price) {
+  const millions = price / 1000000;
+  return new Intl.NumberFormat('zh-CN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(millions);
+}
+
+// Update progress bar and price display
+function updateDisplay() {
   if (!currentPrice) return;
 
   const progressBar = document.getElementById('progressBar');
   const progressText = document.getElementById('progressText');
+  const currentPriceElement = document.getElementById('currentPrice');
 
-  if (!progressBar || !progressText) return;
+  if (!progressBar || !progressText || !currentPriceElement) return;
 
   const progress = calculateProgress(currentPrice, targetPrice);
 
+  // Update progress bar
   progressBar.style.width = `${progress}%`;
   
   if (progress >= 100) {
@@ -79,6 +90,10 @@ function updateProgressBar() {
   } else {
     progressText.textContent = `${formatNumber(progress)}%`;
   }
+
+  // Update current price display
+  const priceInMillions = formatPriceInMillions(currentPrice);
+  currentPriceElement.textContent = `${priceInMillions} 百万`;
 }
 
 // Update price and progress
@@ -86,13 +101,17 @@ async function updatePrice() {
   try {
     const price = await fetchBitcoinPrice();
     currentPrice = price;
-    updateProgressBar();
+    updateDisplay();
   } catch (error) {
     console.error('Failed to update price:', error);
-    // Show error in progress text
+    // Show error in progress text and price
     const progressText = document.getElementById('progressText');
+    const currentPriceElement = document.getElementById('currentPrice');
     if (progressText) {
       progressText.textContent = '加载失败';
+    }
+    if (currentPriceElement) {
+      currentPriceElement.textContent = '加载失败';
     }
   }
 }
