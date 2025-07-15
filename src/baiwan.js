@@ -65,8 +65,8 @@ function formatNumber(num) {
 function formatPriceInMillions(price) {
   const millions = price / 1000000;
   return new Intl.NumberFormat('zh-CN', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3
   }).format(millions);
 }
 
@@ -93,7 +93,7 @@ function updateDisplay() {
 
   // Update current price display
   const priceInMillions = formatPriceInMillions(currentPrice);
-  currentPriceElement.textContent = `${priceInMillions} 百万`;
+  currentPriceElement.textContent = `人民币现价：${priceInMillions} 百万`;
 }
 
 // Update price and progress
