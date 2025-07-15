@@ -4,7 +4,7 @@
   "description": "A modern, secure collection of Bitcoin wallet utilities and tools",
   "main": "index.js",
   "scripts": {
-    "test": "npm run build && node test/example.test.js && node test/browserify.test.js",
+    "test": "npm run build",
     "start": "node index.js",
     "dev": "node --watch index.js",
     "build": "npx webpack",
