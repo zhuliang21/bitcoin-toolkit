@@ -1,4 +1,6 @@
 // Simplified Bitcoin progress tracker - only progress bar
+import html2canvas from 'html2canvas';
+
 let currentPrice = 0;
 const targetPrice = 1000000; // 一百万人民币
 let updateInterval;
@@ -91,6 +93,97 @@ function updateCurrentTime() {
   }
 }
 
+// Download screenshot functionality
+async function downloadScreenshot() {
+  const downloadBtn = document.getElementById('downloadBtn');
+  const originalText = downloadBtn.innerHTML;
+  
+  try {
+    // Show loading state
+    downloadBtn.classList.add('downloading');
+    downloadBtn.innerHTML = `
+      <svg class="download-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M8 12l2 2 4-4"/>
+      </svg>
+      生成中...
+    `;
+    
+    // Wait a moment for any ongoing animations to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Configure html2canvas options
+    const options = {
+      backgroundColor: null,
+      scale: 2, // Higher quality
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      width: window.innerWidth,
+      height: window.innerHeight,
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
+      foreignObjectRendering: true,
+      removeContainer: true,
+      onclone: (clonedDoc) => {
+        // Remove any elements that shouldn't be in the screenshot
+        const clonedBtn = clonedDoc.getElementById('downloadBtn');
+        if (clonedBtn) {
+          clonedBtn.style.display = 'none';
+        }
+      }
+    };
+    
+    // Generate canvas from the entire page
+    const canvas = await html2canvas(document.body, options);
+    
+    // Create download link
+    const link = document.createElement('a');
+    link.download = `一币一百万_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.png`;
+    link.href = canvas.toDataURL('image/png');
+    
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Show success state briefly
+    downloadBtn.innerHTML = `
+      <svg class="download-icon" viewBox="0 0 24 24">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+      已下载
+    `;
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      downloadBtn.classList.remove('downloading');
+      downloadBtn.innerHTML = originalText;
+    }, 2000);
+    
+  } catch (error) {
+    console.error('Screenshot failed:', error);
+    
+    // Show error state
+    downloadBtn.innerHTML = `
+      <svg class="download-icon" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+      下载失败
+    `;
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      downloadBtn.classList.remove('downloading');
+      downloadBtn.innerHTML = originalText;
+    }, 2000);
+  }
+}
+
 // Copy to clipboard function
 function copyToClipboard(text) {
   if (navigator.clipboard && window.isSecureContext) {
@@ -143,8 +236,9 @@ function showCopyFeedback() {
   }
 }
 
-// Make copy function available globally
+// Make functions available globally
 window.copyToClipboard = copyToClipboard;
+window.downloadScreenshot = downloadScreenshot;
 
 // Update progress bar and price display
 function updateDisplay() {
