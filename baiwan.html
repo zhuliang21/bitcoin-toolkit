@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title">Bitcoin to 1 Million CNY Progress | 比特币百万人民币进度</title>
+    <meta name="description" content="Track Bitcoin price progress towards 1 million Chinese Yuan milestone">
+    <link rel="icon" href="icon/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="shared-styles.css">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #f7931a, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .progress-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .milestone-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .milestone-item {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+            margin: 10px;
+        }
+
+        .milestone-item h3 {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+
+        .milestone-item .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .milestone-item .unit {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .progress-container {
+            margin: 30px 0;
+        }
+
+        .progress-bar-container {
+            background: rgba(255,255,255,0.2);
+            border-radius: 25px;
+            height: 50px;
+            position: relative;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #f7931a, #ff6b35);
+            border-radius: 25px;
+            transition: width 0.3s ease;
+            position: relative;
+            min-width: 2px;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            font-size: 1.1em;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .stat-card .number {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #f7931a;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .update-info {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #d32f2f;
+            background: #ffebee;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(45deg, #f7931a, #ff6b35);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-top: 20px;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .language-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #f7931a;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .hero h1 {
+                font-size: 2em;
+            }
+            
+            .progress-section {
+                padding: 20px;
+            }
+            
+            .milestone-info {
+                flex-direction: column;
+            }
+            
+            .milestone-item {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="language-toggle" onclick="toggleLanguage()">中</button>
+    
+    <div class="container">
+        <div class="hero">
+            <h1 data-i18n="title">Bitcoin to 1 Million CNY Progress</h1>
+            <p data-i18n="subtitle">Tracking Bitcoin's journey to ¥1,000,000</p>
+        </div>
+
+        <div id="loading" class="loading">
+            <div data-i18n="loading">Loading Bitcoin price data...</div>
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+            <div data-i18n="error">Failed to load price data. Please try again.</div>
+            <button class="refresh-btn" onclick="fetchData()" data-i18n="retry">Retry</button>
+        </div>
+
+        <div id="content" style="display: none;">
+            <div class="progress-section">
+                <div class="milestone-info">
+                    <div class="milestone-item">
+                        <h3 data-i18n="currentPrice">Current Price</h3>
+                        <div class="value" id="currentPrice">¥0</div>
+                        <div class="unit">CNY</div>
+                    </div>
+                    <div class="milestone-item">
+                        <h3 data-i18n="targetPrice">Target Price</h3>
+                        <div class="value">¥1,000,000</div>
+                        <div class="unit">CNY</div>
+                    </div>
+                    <div class="milestone-item">
+                        <h3 data-i18n="remaining">Remaining</h3>
+                        <div class="value" id="remaining">¥0</div>
+                        <div class="unit">CNY</div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                        <div class="progress-text" id="progressText">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 data-i18n="progressPercent">Progress</h3>
+                    <div class="number" id="progressPercent">0%</div>
+                    <div class="label" data-i18n="toTarget">to target</div>
+                </div>
+                <div class="stat-card">
+                    <h3 data-i18n="priceInUSD">Price in USD</h3>
+                    <div class="number" id="priceUSD">$0</div>
+                    <div class="label">USD</div>
+                </div>
+                <div class="stat-card">
+                    <h3 data-i18n="exchangeRate">CNY/USD Rate</h3>
+                    <div class="number" id="exchangeRate">0</div>
+                    <div class="label">CNY per USD</div>
+                </div>
+                <div class="stat-card">
+                    <h3 data-i18n="neededGrowth">Needed Growth</h3>
+                    <div class="number" id="neededGrowth">0%</div>
+                    <div class="label" data-i18n="increase">increase</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="update-info">
+            <div data-i18n="lastUpdate">Last updated: </div>
+            <span id="lastUpdateTime">--</span>
+        </div>
+    </div>
+
+    <script src="dist/baiwan.bundle.js"></script>
+</body>
+</html> 

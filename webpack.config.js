@@ -4,7 +4,8 @@ const webpack = require('webpack');
 module.exports = {
   mode: 'development',
   entry: {
-    'index': './src/index.js'
+    'index': './src/index.js',
+    'baiwan': './src/baiwan.js'
   },
   output: {
     filename: '[name].bundle.js',
