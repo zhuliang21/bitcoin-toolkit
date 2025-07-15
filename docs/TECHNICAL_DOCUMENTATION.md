@@ -174,48 +174,7 @@ function generateWallet(inputText) {
 
 ---
 
-## 4. QR Code Generator (qr.html)
-
-### Functional Overview
-Universal QR code generation tool supporting multiple data formats and custom options.
-
-### Technical Features
-- **QR Library**: QRious.js
-- **Responsive QR**: Auto-sizing (200-400px)
-- **Real-time Preview**: Instant generation on input
-- **Download Function**: PNG format export
-
-### Core Functions
-```javascript
-// QR code generation logic
-function generateQR() {
-  const text = document.getElementById('qr-text').value;
-  const size = Math.min(400, Math.max(200, window.innerWidth * 0.6));
-  
-  const qr = new QRious({
-    element: document.getElementById('qr-canvas'),
-    value: text,
-    size: size,
-    level: 'M'
-  });
-  
-  showQRResult();
-}
-```
-
-### User Experience Optimization
-- **Auto-hide Form**: Show only QR code after generation
-- **New Button**: Orange "🔄 New QR Code" button
-- **Window Listener**: Resize event auto-adjusts QR code size
-
-### Download Function
-- **Canvas Conversion**: toDataURL method
-- **File Naming**: Auto-generated timestamped filenames
-- **Format Support**: PNG format with transparent background
-
----
-
-## 5. Bitcoin Price Monitor (price.html)
+## 4. Bitcoin Price Monitor (price.html)
 
 ### Functional Overview
 Real-time Bitcoin price monitoring with multiple exchange data sources and price alerts.
@@ -265,7 +224,7 @@ async function fetchBitcoinPrice() {
 
 ---
 
-## 6. 404 Error Page (404.html)
+## 5. 404 Error Page (404.html)
 
 ### Functional Overview
 User-friendly 404 error page providing navigation options back to homepage.

@@ -80,12 +80,10 @@ node simple-https-server.js
 ```
 bitcoin-toolkit/
 ├── 📄 index.html              # Homepage with tool navigation
-├── 📱 qr.html                 # QR code generator
 ├── 💰 price.html              # Bitcoin price monitor
 ├── 📊 marketcap.html          # Market cap comparison
 ├── 📂 src/                    # Source code
-│   ├── index.js               # Homepage logic
-│   └── qr.js                  # QR generation logic
+│   └── index.js               # Homepage logic
 ├── 📦 dist/                   # Build output
 ├── 📚 docs/                   # Documentation
 │   └── TECHNICAL_DOCUMENTATION.md

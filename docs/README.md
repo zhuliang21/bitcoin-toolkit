@@ -45,12 +45,7 @@ bitcoin-toolkit/
 - **Features**: Detailed transaction information display
 - **Tech Stack**: JavaScript, bitcoinjs-lib
 
-### 6. [QR Code Generator (qr.html)](./qr.md)
-- **Function**: Text to QR code conversion
-- **Features**: Customizable styles, batch generation
-- **Tech Stack**: JavaScript, QRCode.js
-
-### 7. [BBQr Generator (bbqr.html)](./bbqr.md)
+### 6. [BBQr Generator (bbqr.html)](./bbqr.md)
 - **Function**: Large data chunked QR code generation
 - **Features**: Multiple encoding formats, animation playback
 - **Tech Stack**: JavaScript, BBQr, QRCode.js

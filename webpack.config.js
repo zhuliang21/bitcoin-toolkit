@@ -4,8 +4,7 @@ const webpack = require('webpack');
 module.exports = {
   mode: 'development',
   entry: {
-    'index': './src/index.js',
-    'qr': './src/qr.js'
+    'index': './src/index.js'
   },
   output: {
     filename: '[name].bundle.js',
