@@ -1,211 +1,132 @@
-// Bitcoin to 1 Million CNY Progress Tracker
-const TARGET_PRICE_CNY = 1000000; // 1 million CNY
-
-// Translations
-const translations = {
-  en: {
-    title: 'Bitcoin to 1 Million CNY Progress',
-    subtitle: 'Tracking Bitcoin\'s journey to ¥1,000,000',
-    currentPrice: 'Current Price',
-    targetPrice: 'Target Price',
-    remaining: 'Remaining',
-    progressPercent: 'Progress',
-    toTarget: 'to target',
-    priceInUSD: 'Price in USD',
-    exchangeRate: 'CNY/USD Rate',
-    neededGrowth: 'Needed Growth',
-    increase: 'increase',
-    lastUpdate: 'Last updated: ',
-    loading: 'Loading Bitcoin price data...',
-    error: 'Failed to load price data. Please try again.',
-    retry: 'Retry'
-  },
-  zh: {
-    title: '比特币百万人民币进度',
-    subtitle: '追踪比特币到达¥1,000,000的进程',
-    currentPrice: '当前价格',
-    targetPrice: '目标价格',
-    remaining: '还需要',
-    progressPercent: '进度',
-    toTarget: '到目标',
-    priceInUSD: '美元价格',
-    exchangeRate: '人民币汇率',
-    neededGrowth: '需要增长',
-    increase: '增长',
-    lastUpdate: '最后更新: ',
-    loading: '正在加载比特币价格数据...',
-    error: '加载价格数据失败，请重试。',
-    retry: '重试'
-  }
-};
-
-let currentLanguage = localStorage.getItem('language') || 'en';
+// Simplified Bitcoin progress tracker - only progress bar
+let currentPrice = 0;
+const targetPrice = 1000000; // 一百万人民币
 let updateInterval;
 
-// Language switching
-function toggleLanguage() {
-  currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
-  localStorage.setItem('language', currentLanguage);
-  updateLanguage();
-}
-
-function updateLanguage() {
-  const langToggle = document.querySelector('.language-toggle');
-  if (langToggle) {
-    langToggle.textContent = currentLanguage === 'en' ? '中' : 'EN';
-  }
-
-  // Update all elements with data-i18n attributes
-  document.querySelectorAll('[data-i18n]').forEach(element => {
-    const key = element.getAttribute('data-i18n');
-    if (translations[currentLanguage][key]) {
-      element.textContent = translations[currentLanguage][key];
-    }
-  });
-}
-
-// Format number with commas
-function formatNumber(num) {
-  return num.toLocaleString();
-}
-
-// Format currency
-function formatCurrency(amount, currency = 'CNY') {
-  if (currency === 'CNY') {
-    return `¥${formatNumber(Math.round(amount))}`;
-  } else if (currency === 'USD') {
-    return `$${formatNumber(Math.round(amount))}`;
-  }
-  return formatNumber(Math.round(amount));
-}
-
-// Fetch Bitcoin price in USD
+// Fetch Bitcoin price in CNY
 async function fetchBitcoinPrice() {
   try {
-    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-    const data = await response.json();
-    return data.bitcoin.usd;
+    // Try multiple API sources
+    const apis = [
+      {
+        url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=cny',
+        parse: (data) => data.bitcoin.cny
+      },
+      {
+        url: 'https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT',
+        parse: async (data) => {
+          const btcusd = parseFloat(data.price);
+          // Get USD/CNY exchange rate
+          const exchangeResponse = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+          const exchangeData = await exchangeResponse.json();
+          return btcusd * exchangeData.rates.CNY;
+        }
+      }
+    ];
+
+    for (const api of apis) {
+      try {
+        const response = await fetch(api.url);
+        if (!response.ok) continue;
+        
+        const data = await response.json();
+        const price = await api.parse(data);
+        
+        if (price && price > 0) {
+          return price;
+        }
+      } catch (error) {
+        console.warn(`API ${api.url} failed:`, error);
+        continue;
+      }
+    }
+    
+    throw new Error('All price APIs failed');
   } catch (error) {
     console.error('Error fetching Bitcoin price:', error);
     throw error;
   }
 }
 
-// Fetch USD to CNY exchange rate
-async function fetchExchangeRate() {
-  try {
-    const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-    const data = await response.json();
-    return data.rates.CNY;
-  } catch (error) {
-    console.error('Error fetching exchange rate:', error);
-    // Fallback to approximate rate if API fails
-    return 7.2;
-  }
+// Calculate progress percentage
+function calculateProgress(currentPrice, targetPrice) {
+  return Math.min((currentPrice / targetPrice) * 100, 100);
 }
 
-// Calculate progress and update UI
-function updateProgress(btcPriceUSD, exchangeRate) {
-  const btcPriceCNY = btcPriceUSD * exchangeRate;
-  const progress = (btcPriceCNY / TARGET_PRICE_CNY) * 100;
-  const remaining = TARGET_PRICE_CNY - btcPriceCNY;
-  const neededGrowth = ((TARGET_PRICE_CNY - btcPriceCNY) / btcPriceCNY) * 100;
+// Format number
+function formatNumber(num) {
+  return new Intl.NumberFormat('zh-CN', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1
+  }).format(num);
+}
 
-  // Update current price
-  document.getElementById('currentPrice').textContent = formatCurrency(btcPriceCNY);
-  
-  // Update remaining amount
-  document.getElementById('remaining').textContent = formatCurrency(remaining);
-  
-  // Update progress bar
+// Update progress bar
+function updateProgressBar() {
+  if (!currentPrice) return;
+
   const progressBar = document.getElementById('progressBar');
   const progressText = document.getElementById('progressText');
-  const clampedProgress = Math.min(progress, 100);
-  
-  progressBar.style.width = `${clampedProgress}%`;
-  progressText.textContent = `${progress.toFixed(2)}%`;
-  
-  // Update stats cards
-  document.getElementById('progressPercent').textContent = `${progress.toFixed(2)}%`;
-  document.getElementById('priceUSD').textContent = formatCurrency(btcPriceUSD, 'USD');
-  document.getElementById('exchangeRate').textContent = exchangeRate.toFixed(2);
-  document.getElementById('neededGrowth').textContent = `${neededGrowth.toFixed(1)}%`;
-  
-  // Update last update time
-  const now = new Date();
-  const timeString = now.toLocaleTimeString();
-  document.getElementById('lastUpdateTime').textContent = timeString;
-}
 
-// Show error message
-function showError() {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('content').style.display = 'none';
-  document.getElementById('error').style.display = 'block';
-}
+  if (!progressBar || !progressText) return;
 
-// Show content
-function showContent() {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('error').style.display = 'none';
-  document.getElementById('content').style.display = 'block';
-}
+  const progress = calculateProgress(currentPrice, targetPrice);
 
-// Main data fetching function
-async function fetchData() {
-  try {
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('error').style.display = 'none';
-    document.getElementById('content').style.display = 'none';
-    
-    // Fetch both Bitcoin price and exchange rate in parallel
-    const [btcPriceUSD, exchangeRate] = await Promise.all([
-      fetchBitcoinPrice(),
-      fetchExchangeRate()
-    ]);
-    
-    updateProgress(btcPriceUSD, exchangeRate);
-    showContent();
-    
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    showError();
+  progressBar.style.width = `${progress}%`;
+  
+  if (progress >= 100) {
+    progressText.textContent = '目标达成! 🎉';
+  } else {
+    progressText.textContent = `${formatNumber(progress)}%`;
   }
 }
 
-// Auto-refresh data every 30 seconds
-function startAutoRefresh() {
-  updateInterval = setInterval(fetchData, 30000);
+// Update price and progress
+async function updatePrice() {
+  try {
+    const price = await fetchBitcoinPrice();
+    currentPrice = price;
+    updateProgressBar();
+  } catch (error) {
+    console.error('Failed to update price:', error);
+    // Show error in progress text
+    const progressText = document.getElementById('progressText');
+    if (progressText) {
+      progressText.textContent = '加载失败';
+    }
+  }
 }
 
-function stopAutoRefresh() {
+// Start periodic updates
+function startUpdates() {
+  updatePrice(); // Initial update
+  
   if (updateInterval) {
     clearInterval(updateInterval);
   }
+  updateInterval = setInterval(updatePrice, 30000); // Update every 30 seconds
 }
 
-// Initialize page
+// Initialize
 function init() {
-  updateLanguage();
-  fetchData();
-  startAutoRefresh();
+  startUpdates();
   
-  // Handle visibility change to pause/resume updates
-  document.addEventListener('visibilitychange', function() {
+  // Pause updates when page is hidden
+  document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-      stopAutoRefresh();
+      if (updateInterval) {
+        clearInterval(updateInterval);
+        updateInterval = null;
+      }
     } else {
-      startAutoRefresh();
+      startUpdates();
     }
   });
 }
 
-// Start when page loads
-document.addEventListener('DOMContentLoaded', init);
-
-// Handle page unload
-window.addEventListener('beforeunload', stopAutoRefresh);
-
-// Global functions for HTML onclick handlers
-window.toggleLanguage = toggleLanguage;
-window.fetchData = fetchData; 
+// Start when DOM is ready
+if (document.readyState !== 'loading') {
+  init();
+} else {
+  document.addEventListener('DOMContentLoaded', init);
+}
